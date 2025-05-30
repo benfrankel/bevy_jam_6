@@ -6,3 +6,6 @@
 
 # Local packaged releases
 /build/
+
+# Personal dev config
+assets/config/.dev.ron
