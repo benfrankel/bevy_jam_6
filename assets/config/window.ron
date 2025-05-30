@@ -1,0 +1,5 @@
+(
+    title: "Bevy Jam 6",
+    window_mode: Windowed,
+    present_mode: AutoVsync,
+)
