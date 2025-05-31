@@ -194,6 +194,16 @@ codegen-units = 4
 [profile.ci.package."*"]
 opt-level = 0
 
+[profile.wasm-dev]
+inherits = "dev"
+opt-level = 1
+
+[profile.server-dev]
+inherits = "dev"
+
+[profile.android-dev]
+inherits = "dev"
+
 
 # TODO: Workaround for <https://github.com/DioxusLabs/dioxus/issues/4160>.
 #[[bin]]
