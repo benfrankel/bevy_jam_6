@@ -3,12 +3,10 @@ use crate::core::audio::music_audio;
 use crate::menu::Menu;
 use crate::prelude::*;
 use crate::screen::Screen;
-use crate::screen::gameplay::GameplayAssets;
+use crate::screen::gameplay::load_collections;
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_loading_state(
-        LoadingState::new(Screen::Title.bevy()).load_collection::<GameplayAssets>(),
-    );
+    app.add_loading_state(load_collections(LoadingState::new(Screen::Title.bevy())));
     app.add_systems(
         StateFlush,
         Screen::Title.on_enter((
@@ -20,6 +18,7 @@ pub(super) fn plugin(app: &mut App) {
     app.configure::<TitleAssets>();
 }
 
+#[cfg_attr(feature = "native_dev", hot)]
 fn spawn_title_screen(
     mut commands: Commands,
     audio_settings: Res<AudioSettings>,

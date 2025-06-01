@@ -1,38 +1,51 @@
 use crate::core::audio::AudioSettings;
 use crate::core::audio::music_audio;
+use crate::game::level::Level;
+use crate::game::level::LevelAssets;
+use crate::game::module::ModuleAssets;
+use crate::game::ship::ShipAssets;
 use crate::menu::Menu;
 use crate::prelude::*;
 use crate::screen::Screen;
-use crate::screen::ScreenRoot;
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_systems(StateFlush, Screen::Gameplay.on_enter(spawn_gameplay_screen));
+    app.add_systems(
+        StateFlush,
+        Screen::Gameplay.on_edge(Level::disable, (spawn_gameplay_screen, Level(1).enter())),
+    );
 
     app.configure::<(GameplayAssets, GameplayAction)>();
 }
 
+#[cfg_attr(feature = "native_dev", hot)]
 fn spawn_gameplay_screen(
     mut commands: Commands,
-    screen_root: Res<ScreenRoot>,
     audio_settings: Res<AudioSettings>,
     assets: Res<GameplayAssets>,
 ) {
-    commands
-        .entity(screen_root.ui)
-        .with_child(widget::column_center(children![widget::label(
-            "Gameplay goes here. Press P to pause!",
-        )]));
     commands.spawn((
         music_audio(&audio_settings, assets.music.clone()),
         DespawnOnExitState::<Screen>::Recursive,
     ));
 }
 
+pub fn load_collections(state: LoadingState<BevyState<Screen>>) -> LoadingState<BevyState<Screen>> {
+    state
+        .load_collection::<GameplayAssets>()
+        .load_collection::<LevelAssets>()
+        .load_collection::<ModuleAssets>()
+        .load_collection::<ShipAssets>()
+}
+
 #[derive(AssetCollection, Resource, Reflect, Default)]
 #[reflect(Resource)]
-pub struct GameplayAssets {
+struct GameplayAssets {
     #[asset(path = "audio/music/545458__bertsz__bit-forest-evil-theme-music.ogg")]
     music: Handle<AudioSource>,
+    #[asset(path = "image/ship/player.png")]
+    player_ship_sprite: Handle<Image>,
+    #[asset(path = "image/ship/enemy.png")]
+    enemy_ship_sprite: Handle<Image>,
 }
 
 impl Configure for GameplayAssets {

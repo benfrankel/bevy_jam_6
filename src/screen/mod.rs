@@ -9,6 +9,7 @@ use bevy::ecs::system::ScheduleSystem;
 
 use crate::core::camera::CameraRoot;
 use crate::core::window::WindowReady;
+use crate::game::level::Level;
 use crate::menu::Menu;
 use crate::prelude::*;
 use crate::theme::widget::IsLoadingBarFill;
@@ -50,7 +51,13 @@ impl FromWorld for ScreenRoot {
 #[derive(
     State, Copy, Clone, Default, Eq, PartialEq, Hash, Debug, Reflect, Serialize, Deserialize,
 )]
-#[state(after(WindowReady), before(Menu, Pause), react, bevy_state, log_flush)]
+#[state(
+    after(WindowReady),
+    before(Menu, Pause, Level),
+    react,
+    bevy_state,
+    log_flush
+)]
 pub enum Screen {
     #[default]
     Splash,
@@ -86,7 +93,8 @@ impl Configure for Screen {
 
 fn reset_screen_camera(camera_root: Res<CameraRoot>, mut camera_query: Query<&mut Transform>) {
     let mut transform = r!(camera_query.get_mut(camera_root.primary));
-    *transform = default();
+    transform.translation = default();
+    transform.rotation = default();
 }
 
 /// The total time elapsed in the current screen.

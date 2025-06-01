@@ -1,7 +1,38 @@
+use bevy::render::camera::ScalingMode;
+
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<(CameraRoot, SmoothFollow, AbsoluteScale)>();
+    app.configure::<(
+        ConfigHandle<CameraConfig>,
+        CameraRoot,
+        SmoothFollow,
+        AbsoluteScale,
+    )>();
+}
+
+#[derive(Asset, Reflect, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct CameraConfig {
+    scaling_mode: ScalingMode,
+    zoom: Vec2,
+}
+
+impl Config for CameraConfig {
+    const FILE: &'static str = "camera.ron";
+
+    fn on_load(&self, world: &mut World) {
+        let (projection, mut transform) = r!(world
+            .query::<(&mut Projection, &mut Transform)>()
+            .get_mut(world, world.resource::<CameraRoot>().primary));
+
+        transform.scale = self.zoom.recip().extend(1.0);
+        let projection = r!(match projection.into_inner() {
+            Projection::Orthographic(x) => Some(x),
+            _ => None,
+        });
+        projection.scaling_mode = self.scaling_mode;
+    }
 }
 
 #[derive(Resource, Reflect)]
