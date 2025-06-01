@@ -119,7 +119,7 @@ fn player(ship_assets: &ShipAssets) -> impl Bundle {
 
 fn enemy(ship_assets: &ShipAssets) -> impl Bundle {
     (
-        enemy_ship(&ship_assets),
+        enemy_ship(ship_assets),
         DespawnOnExitState::<Level>::default(),
         Transform::from_xyz(59.0, 93.0, 0.0),
     )
