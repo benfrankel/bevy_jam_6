@@ -1,3 +1,4 @@
+use crate::game::missile::MissileAssets;
 use crate::game::reactor::ReactorAssets;
 use crate::game::reactor::reactor;
 use crate::game::ship::ShipAssets;
@@ -64,11 +65,13 @@ fn spawn_level(
     stage_assets: Res<StageAssets>,
     level_assets: Res<LevelAssets>,
     ship_assets: Res<ShipAssets>,
+    missile_assets: Res<MissileAssets>,
 ) {
     commands.spawn(hud(&reactor_assets, &stage_assets));
     commands.spawn(background(&level_assets, level.unwrap().0));
     commands.spawn(player(&ship_assets));
     commands.spawn(enemy(&ship_assets));
+    commands.spawn(missile(&missile_assets));
 }
 
 fn hud(reactor_assets: &ReactorAssets, stage_assets: &StageAssets) -> impl Bundle {
@@ -122,5 +125,13 @@ fn enemy(ship_assets: &ShipAssets) -> impl Bundle {
         enemy_ship(ship_assets),
         DespawnOnExitState::<Level>::default(),
         Transform::from_xyz(59.0, 93.0, 0.0),
+    )
+}
+
+fn missile(missile_assets: &MissileAssets) -> impl Bundle {
+    (
+        super::missile::missile(missile_assets),
+        DespawnOnExitState::<Level>::default(),
+        Transform::from_xyz(59.0, 0.0, 0.0),
     )
 }
