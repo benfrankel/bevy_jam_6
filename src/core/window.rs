@@ -2,6 +2,7 @@ use bevy::window::ExitCondition;
 use bevy::window::PresentMode;
 use bevy::window::PrimaryWindow;
 use bevy::window::WindowMode;
+use bevy::window::WindowResolution;
 
 use crate::prelude::*;
 
@@ -9,6 +10,7 @@ pub(super) fn plugin(app: &mut App) {
     app.add_plugins(WindowPlugin {
         primary_window: Some(Window {
             name: Some("bevy_app".to_string()),
+            resizable: false,
             fit_canvas_to_parent: true,
             visible: false,
             ..default()
@@ -17,7 +19,31 @@ pub(super) fn plugin(app: &mut App) {
         ..default()
     });
 
-    app.configure::<(WindowRoot, ConfigHandle<WindowConfig>, WindowReady)>();
+    app.configure::<(ConfigHandle<WindowConfig>, WindowRoot, WindowReady)>();
+}
+
+#[derive(Asset, Reflect, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct WindowConfig {
+    title: String,
+    window_mode: WindowMode,
+    present_mode: PresentMode,
+    resolution: WindowResolution,
+}
+
+impl Config for WindowConfig {
+    const FILE: &'static str = "window.ron";
+
+    fn on_load(&self, world: &mut World) {
+        r!(world.get_resource_mut::<NextStateBuffer<_>>()).enable(WindowReady);
+
+        let window_root = r!(world.get_resource::<WindowRoot>());
+        let mut window = r!(world.get_mut::<Window>(window_root.primary));
+        window.title.clone_from(&self.title);
+        window.mode = self.window_mode;
+        window.present_mode = self.present_mode;
+        window.resolution = self.resolution.clone();
+    }
 }
 
 #[derive(Resource, Reflect)]
@@ -41,28 +67,6 @@ impl FromWorld for WindowRoot {
                 .single(world)
                 .unwrap(),
         }
-    }
-}
-
-#[derive(Asset, Reflect, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct WindowConfig {
-    pub title: String,
-    pub window_mode: WindowMode,
-    pub present_mode: PresentMode,
-}
-
-impl Config for WindowConfig {
-    const FILE: &'static str = "window.ron";
-
-    fn on_load(&self, world: &mut World) {
-        r!(world.get_resource_mut::<NextStateBuffer<_>>()).enable(WindowReady);
-
-        let window_root = r!(world.get_resource::<WindowRoot>());
-        let mut window = r!(world.get_mut::<Window>(window_root.primary));
-        window.title.clone_from(&self.title);
-        window.mode = self.window_mode;
-        window.present_mode = self.present_mode;
     }
 }
 

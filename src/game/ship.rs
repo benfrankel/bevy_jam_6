@@ -21,13 +21,19 @@ impl Configure for ShipAssets {
 }
 
 pub fn player_ship(ship_assets: &ShipAssets) -> impl Bundle {
-    ship(ship_assets.player_image.clone())
+    (
+        Name::new("PlayerShip"),
+        ship(ship_assets.player_image.clone()),
+    )
 }
 
 pub fn enemy_ship(ship_assets: &ShipAssets) -> impl Bundle {
-    ship(ship_assets.enemy_image.clone())
+    (
+        Name::new("EnemyShip"),
+        ship(ship_assets.enemy_image.clone()),
+    )
 }
 
 fn ship(sprite: Handle<Image>) -> impl Bundle {
-    (Name::new("Ship"), Sprite::from_image(sprite))
+    Sprite::from_image(sprite)
 }

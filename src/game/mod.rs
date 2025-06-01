@@ -4,6 +4,7 @@ pub mod missile;
 pub mod module;
 pub mod reactor;
 pub mod ship;
+pub mod stage;
 
 use crate::prelude::*;
 
@@ -15,5 +16,6 @@ pub(super) fn plugin(app: &mut App) {
         module::plugin,
         reactor::plugin,
         ship::plugin,
+        stage::plugin,
     ));
 }

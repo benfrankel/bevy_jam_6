@@ -1,6 +1,10 @@
+use crate::game::reactor::ReactorAssets;
+use crate::game::reactor::reactor;
 use crate::game::ship::ShipAssets;
 use crate::game::ship::enemy_ship;
 use crate::game::ship::player_ship;
+use crate::game::stage::StageAssets;
+use crate::game::stage::stage;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -39,24 +43,6 @@ impl Configure for LevelAssets {
     }
 }
 
-impl LevelAssets {
-    fn bg_level(&self, level: usize) -> Option<&Handle<Image>> {
-        match level {
-            1 => Some(&self.bg_level1),
-            2 => Some(&self.bg_level2),
-            3 => Some(&self.bg_level3),
-            4 => Some(&self.bg_level4),
-            5 => Some(&self.bg_level5),
-            6 => Some(&self.bg_level6),
-            7 => Some(&self.bg_level7),
-            8 => Some(&self.bg_level8),
-            9 => Some(&self.bg_level9),
-            10 => Some(&self.bg_level10),
-            _ => None,
-        }
-    }
-}
-
 #[derive(State, Reflect, Copy, Clone, Default, Eq, PartialEq, Debug)]
 #[state(log_flush, react)]
 #[reflect(Resource)]
@@ -74,32 +60,67 @@ impl Configure for Level {
 fn spawn_level(
     mut commands: Commands,
     level: NextRef<Level>,
+    reactor_assets: Res<ReactorAssets>,
+    stage_assets: Res<StageAssets>,
     level_assets: Res<LevelAssets>,
     ship_assets: Res<ShipAssets>,
 ) {
-    if let Some(bg) = level_assets.bg_level(level.unwrap().0) {
-        commands.spawn((
-            Name::new("Background"),
-            Sprite::from_image(bg.clone()),
-            Transform::from_xyz(0.0, 0.0, -2.0),
-            DespawnOnExitState::<Level>::default(),
-        ));
-        commands.spawn((
-            Name::new("BackgroundDimming"),
-            Sprite::from_color(Color::BLACK.with_alpha(0.7), vec2(480.0, 270.0)),
-            Transform::from_xyz(0.0, 0.0, -1.0),
-            DespawnOnExitState::<Level>::default(),
-        ));
-    }
+    commands.spawn(hud(&reactor_assets, &stage_assets));
+    commands.spawn(background(&level_assets, level.unwrap().0));
+    commands.spawn(player(&ship_assets));
+    commands.spawn(enemy(&ship_assets));
+}
 
-    commands.spawn((
-        player_ship(&ship_assets),
+fn hud(reactor_assets: &ReactorAssets, stage_assets: &StageAssets) -> impl Bundle {
+    (
+        Name::new("Hud"),
+        Node::ROW.full_size().abs(),
         DespawnOnExitState::<Level>::default(),
-        Transform::from_xyz(61.0, -44.0, 0.0),
-    ));
-    commands.spawn((
+        children![reactor(reactor_assets), stage(stage_assets)],
+    )
+}
+
+fn background(level_assets: &LevelAssets, level: usize) -> impl Bundle {
+    (
+        Name::new("Background"),
+        Sprite::from_image(
+            match level {
+                1 => &level_assets.bg_level1,
+                2 => &level_assets.bg_level2,
+                3 => &level_assets.bg_level3,
+                4 => &level_assets.bg_level4,
+                5 => &level_assets.bg_level5,
+                6 => &level_assets.bg_level6,
+                7 => &level_assets.bg_level7,
+                8 => &level_assets.bg_level8,
+                9 => &level_assets.bg_level9,
+                10 => &level_assets.bg_level10,
+                _ => &level_assets.bg_level1,
+            }
+            .clone(),
+        ),
+        Transform::from_xyz(0.0, 0.0, -2.0),
+        DespawnOnExitState::<Level>::default(),
+        children![(
+            Name::new("DimmingOverlay"),
+            Sprite::from_color(Color::BLACK.with_alpha(0.7), vec2(480.0, 270.0)),
+            Transform::from_xyz(0.0, 0.0, 1.0),
+        )],
+    )
+}
+
+fn player(ship_assets: &ShipAssets) -> impl Bundle {
+    (
+        player_ship(ship_assets),
+        DespawnOnExitState::<Level>::default(),
+        Transform::from_xyz(61.0, -46.0, 0.0),
+    )
+}
+
+fn enemy(ship_assets: &ShipAssets) -> impl Bundle {
+    (
         enemy_ship(&ship_assets),
         DespawnOnExitState::<Level>::default(),
         Transform::from_xyz(59.0, 93.0, 0.0),
-    ));
+    )
 }
