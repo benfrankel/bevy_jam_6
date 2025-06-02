@@ -95,7 +95,17 @@ fn hud(reactor_assets: &ReactorAssets, stage_assets: &StageAssets) -> impl Bundl
         Name::new("Hud"),
         Node::ROW.full_size().abs(),
         DespawnOnExitState::<Level>::default(),
-        children![reactor(reactor_assets), stage(stage_assets)],
+        children![
+            reactor(reactor_assets),
+            (
+                Name::new("Column"),
+                Node {
+                    flex_grow: 1.0,
+                    ..Node::COLUMN.reverse()
+                },
+                children![stage(stage_assets)],
+            )
+        ],
     )
 }
 

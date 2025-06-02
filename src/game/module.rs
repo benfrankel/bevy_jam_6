@@ -53,9 +53,9 @@ pub fn module(module: Module, tooltip_anchor: Anchor) -> impl Bundle {
         module,
         ImageNode::default(),
         Node {
+            width: Vw(6.66),
             aspect_ratio: Some(1.0),
-            flex_grow: 1.0,
-            ..default()
+            ..Node::ROW_CENTER
         },
         Tooltip::fixed(tooltip_anchor, ""),
         children![
@@ -75,7 +75,7 @@ pub fn module(module: Module, tooltip_anchor: Anchor) -> impl Bundle {
     )
 }
 
-#[derive(Reflect, Debug, Default)]
+#[derive(Reflect, Debug, Copy, Clone, Default)]
 pub enum Action {
     #[default]
     Nothing,
@@ -85,7 +85,7 @@ pub enum Action {
     Heal,
 }
 
-#[derive(Reflect, Debug, Default)]
+#[derive(Reflect, Debug, Copy, Clone, Default)]
 pub enum ModuleStatus {
     #[default]
     FaceUp,
@@ -95,7 +95,7 @@ pub enum ModuleStatus {
     SlotActive,
 }
 
-#[derive(Component, Reflect, Debug, Default)]
+#[derive(Component, Reflect, Debug, Copy, Clone, Default)]
 #[reflect(Component)]
 pub struct Module {
     pub condition: Action,

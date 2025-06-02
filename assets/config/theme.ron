@@ -28,5 +28,7 @@
 
         // MonitorText
         Srgba(Srgba(red: 0.584, green: 0.847, blue: 0.859, alpha: 1.000)),
+        // IconText
+        Srgba(Srgba(red: 0.451, green: 0.361, blue: 0.349, alpha: 1.000)),
     )),
 )

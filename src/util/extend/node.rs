@@ -13,13 +13,14 @@ pub trait NodeExtLayout {
     const COLUMN_RIGHT: Self;
     const COLUMN_CENTER: Self;
 
-    fn abs(self) -> Self;
+    fn reverse(self) -> Self;
     fn width(self, percent: f32) -> Self;
     fn full_width(self) -> Self;
     fn height(self, percent: f32) -> Self;
     fn full_height(self) -> Self;
     fn full_size(self) -> Self;
     fn centered(self) -> Self;
+    fn abs(self) -> Self;
 }
 
 impl NodeExtLayout for Node {
@@ -81,8 +82,13 @@ impl NodeExtLayout for Node {
         x
     };
 
-    fn abs(mut self) -> Self {
-        self.position_type = PositionType::Absolute;
+    fn reverse(mut self) -> Self {
+        self.flex_direction = match self.flex_direction {
+            FlexDirection::Row => FlexDirection::RowReverse,
+            FlexDirection::Column => FlexDirection::ColumnReverse,
+            FlexDirection::RowReverse => FlexDirection::Row,
+            FlexDirection::ColumnReverse => FlexDirection::Column,
+        };
         self
     }
 
@@ -111,6 +117,11 @@ impl NodeExtLayout for Node {
     fn centered(mut self) -> Self {
         self.align_self = AlignSelf::Center;
         self.justify_self = JustifySelf::Center;
+        self
+    }
+
+    fn abs(mut self) -> Self {
+        self.position_type = PositionType::Absolute;
         self
     }
 }
