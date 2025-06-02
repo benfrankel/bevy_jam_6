@@ -39,8 +39,12 @@ fn flux_display() -> impl Bundle {
         Name::new("FluxDisplay"),
         Node {
             height: Vw(5.0),
-            ..Node::ROW_MID
+            ..Node::ROW_CENTER.full_width()
         },
+        Tooltip::fixed(
+            Anchor::CenterRight,
+            parse_rich("[b]Flux:[r] Chain \"reactor modules\" together to multiply their output."),
+        ),
         children![(
             widget::colored_label("", ThemeColor::MonitorText),
             IsFluxLabel,
