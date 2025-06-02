@@ -1,4 +1,5 @@
-use crate::game::level::{spawn_level, Level};
+use crate::game::level::Level;
+use crate::game::level::spawn_level;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -22,7 +23,10 @@ impl Configure for MissileAssets {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.init_collection::<Self>();
-        app.add_systems(StateFlush, Level::ANY.on_enter(spawn_missile).after(spawn_level));
+        app.add_systems(
+            StateFlush,
+            Level::ANY.on_enter(spawn_missile).after(spawn_level)
+        );
         app.add_systems(Update, Level::ANY.on_update(launch_missile));
     }
 }

@@ -73,11 +73,9 @@ pub fn spawn_level(
     commands.spawn(background(&level_assets, level.unwrap().0));
     commands.spawn(player(&ship_assets));
     commands.spawn(enemy(&ship_assets)).observe(
-        |
-            trigger: Trigger<OnCollisionStart>,
-            mut query: Query<(&mut Transform, &mut LinearVelocity, &Missile)>,
-            launchers_query: Query<(&GlobalTransform, &IsWeapon)>,
-        | {
+        |trigger: Trigger<OnCollisionStart>,
+         mut query: Query<(&mut Transform, &mut LinearVelocity, &Missile)>,
+         launchers_query: Query<(&GlobalTransform, &IsWeapon)>| {
             if query.contains(trigger.collider) {
                 let n = thread_rng().gen_range(0..=1);
                 let weapons = launchers_query.iter().collect::<Vec<_>>();
