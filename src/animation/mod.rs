@@ -1,6 +1,9 @@
 pub mod backup;
 pub mod offset;
 
+use bevy::transform::systems::mark_dirty_trees;
+use bevy::transform::systems::propagate_parent_transforms;
+use bevy::transform::systems::sync_simple_transforms;
 use bevy::ui::UiSystem;
 
 use crate::prelude::*;
@@ -18,7 +21,7 @@ impl Configure for SaveBackupSystems {
     fn configure(app: &mut App) {
         app.configure_sets(
             PostUpdate,
-            ((UiSystem::Layout, PhysicsSet::Sync), Self).chain(),
+            ((UiSystem::PostLayout, PhysicsSet::Sync), Self).chain(),
         );
     }
 }
@@ -30,6 +33,8 @@ pub enum PostTransformSystems {
     Blend,
     /// Apply facing (may multiply translation.x by -1).
     ApplyFacing,
+    /// Propagate transforms before tooltip placement.
+    Propagate,
     /// Apply finishing touches to GlobalTransform, like rounding to the nearest pixel.
     Finish,
 }
@@ -42,11 +47,22 @@ impl Configure for PostTransformSystems {
                 SaveBackupSystems,
                 Self::Blend,
                 Self::ApplyFacing,
+                Self::Propagate,
+                TooltipSystems::Placement,
                 TransformSystem::TransformPropagate,
                 Self::Finish,
                 // GlobalTransform may be slightly out of sync with Transform at this point...
             )
                 .chain(),
+        );
+        app.add_systems(
+            PostUpdate,
+            (
+                mark_dirty_trees,
+                propagate_parent_transforms,
+                sync_simple_transforms,
+            )
+                .in_set(Self::Propagate),
         );
     }
 }

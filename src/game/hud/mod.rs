@@ -1,16 +1,16 @@
 mod flux;
+mod helm;
 mod module;
 mod reactor;
-mod stage;
 
+use crate::game::hud::helm::helm;
 use crate::game::hud::reactor::reactor;
-use crate::game::hud::stage::stage;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
     app.configure::<HudAssets>();
 
-    app.add_plugins((flux::plugin, reactor::plugin, stage::plugin));
+    app.add_plugins((flux::plugin, reactor::plugin, helm::plugin));
 }
 
 pub fn hud(hud_assets: &HudAssets) -> impl Bundle {
@@ -25,7 +25,7 @@ pub fn hud(hud_assets: &HudAssets) -> impl Bundle {
                     flex_grow: 1.0,
                     ..Node::COLUMN.reverse()
                 },
-                children![stage(hud_assets)],
+                children![helm(hud_assets)],
             )
         ],
     )
@@ -37,8 +37,8 @@ pub struct HudAssets {
     // Layout background images.
     #[asset(path = "image/ui/reactor.png")]
     reactor: Handle<Image>,
-    #[asset(path = "image/ui/stage.png")]
-    stage: Handle<Image>,
+    #[asset(path = "image/ui/helm.png")]
+    helm: Handle<Image>,
 
     // Reactor module background images.
     #[asset(path = "image/module/face_up.png")]

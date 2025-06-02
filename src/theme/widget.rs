@@ -190,14 +190,6 @@ where
         },
         BorderRadius::MAX,
         ThemeColor::default().set::<BackgroundColor>(),
-        BoxShadow::from(ShadowStyle {
-            color: Color::BLACK.with_alpha(0.5),
-            x_offset: Val::ZERO,
-            y_offset: Vw(0.7),
-            spread_radius: Vw(0.5),
-            blur_radius: Vw(0.5),
-        }),
-        Backup::<BoxShadow>::default(),
         InteractionTheme {
             none: ThemeColor::Primary.set::<BackgroundColor>(),
             hovered: ThemeColor::PrimaryHovered.set::<BackgroundColor>(),
@@ -210,6 +202,14 @@ where
             pressed: NodeOffset::new(Val::ZERO, Vw(0.5)),
             ..default()
         },
+        BoxShadow::from(ShadowStyle {
+            color: Color::BLACK.with_alpha(0.5),
+            x_offset: Val::ZERO,
+            y_offset: Vw(0.7),
+            spread_radius: Vw(0.5),
+            blur_radius: Vw(0.5),
+        }),
+        Backup::<BoxShadow>::default(),
         InteractionSfx,
         children![(
             label_base(font_size, ThemeColor::PrimaryText, text),

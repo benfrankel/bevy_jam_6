@@ -1,6 +1,5 @@
+use crate::animation::offset::NodeOffset;
 use crate::game::deck::Deck;
-use crate::game::deck::Module;
-use crate::game::deck::ModuleStatus;
 use crate::game::hud::HudAssets;
 use crate::game::hud::module::module;
 use crate::prelude::*;
@@ -9,16 +8,16 @@ pub(super) fn plugin(app: &mut App) {
     app.configure::<(IsHand, IsStorage, IsStorageLabel)>();
 }
 
-pub fn stage(hud_assets: &HudAssets) -> impl Bundle {
+pub fn helm(hud_assets: &HudAssets) -> impl Bundle {
     (
-        Name::new("Stage"),
-        ImageNode::from(hud_assets.stage.clone()),
+        Name::new("Helm"),
+        ImageNode::from(hud_assets.helm.clone()),
         Node {
             aspect_ratio: Some(356.0 / 58.0),
             ..Node::ROW.full_width()
         },
         children![
-            hand(hud_assets),
+            hand(),
             (
                 Name::new("Row"),
                 Node {
@@ -31,12 +30,7 @@ pub fn stage(hud_assets: &HudAssets) -> impl Bundle {
     )
 }
 
-fn hand(hud_assets: &HudAssets) -> impl Bundle {
-    let face_up = Module {
-        status: ModuleStatus::FaceUp,
-        ..default()
-    };
-
+fn hand() -> impl Bundle {
     (
         Name::new("Hand"),
         Node {
@@ -44,13 +38,6 @@ fn hand(hud_assets: &HudAssets) -> impl Bundle {
             ..Node::ROW_CENTER.full_size().abs()
         },
         IsHand,
-        children![
-            module(hud_assets, face_up, Anchor::TopCenter),
-            module(hud_assets, face_up, Anchor::TopCenter),
-            module(hud_assets, face_up, Anchor::TopCenter),
-            module(hud_assets, face_up, Anchor::TopCenter),
-            module(hud_assets, face_up, Anchor::TopCenter),
-        ],
     )
 }
 
@@ -63,10 +50,10 @@ fn storage(hud_assets: &HudAssets) -> impl Bundle {
             aspect_ratio: Some(1.0),
             ..Node::ROW_CENTER
         },
-        Tooltip::fixed(Anchor::TopCenter, parse_rich("[b]Storage")),
+        Tooltip::fixed(Anchor::TopCenter, ""),
         IsStorage,
         children![(
-            widget::small_colored_label("15", ThemeColor::IconText),
+            widget::small_colored_label("", ThemeColor::IconText),
             IsStorageLabel,
         )],
     )
@@ -99,8 +86,15 @@ fn sync_hand(
             .entity(entity)
             .despawn_related::<Children>()
             .with_children(|parent| {
-                for &card in &deck.hand {
-                    parent.spawn(module(&hud_assets, card, Anchor::TopCenter));
+                for (i, &card) in deck.hand.iter().enumerate() {
+                    parent.spawn((
+                        module(&hud_assets, card, Anchor::TopCenter),
+                        if i == deck.focused_idx {
+                            NodeOffset::new(Val::ZERO, Vw(-2.0))
+                        } else {
+                            NodeOffset::default()
+                        },
+                    ));
                 }
             });
     }

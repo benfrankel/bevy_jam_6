@@ -25,7 +25,7 @@ impl Configure for MissileAssets {
         app.init_collection::<Self>();
         app.add_systems(
             StateFlush,
-            Level::ANY.on_enter(spawn_missile).after(spawn_level)
+            Level::ANY.on_enter(spawn_missile).after(spawn_level),
         );
         app.add_systems(Update, Level::ANY.on_update(launch_missile));
     }
