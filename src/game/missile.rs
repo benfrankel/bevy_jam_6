@@ -31,3 +31,8 @@ pub fn missile(missile_assets: &MissileAssets) -> impl Bundle {
         Missile,
     )
 }
+
+pub fn start_position() -> Vec3 {
+    let player_launch_pos = -46. + 15.;
+    Vec3::new(61., player_launch_pos, 0.)
+}

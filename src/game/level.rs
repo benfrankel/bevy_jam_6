@@ -1,4 +1,6 @@
-use crate::game::missile::{Missile, MissileAssets};
+use crate::game::missile;
+use crate::game::missile::Missile;
+use crate::game::missile::MissileAssets;
 use crate::game::reactor::Flux;
 use crate::game::reactor::ReactorAssets;
 use crate::game::reactor::reactor;
@@ -75,7 +77,16 @@ fn spawn_level(
     commands.spawn(hud(&reactor_assets, &stage_assets));
     commands.spawn(background(&level_assets, level.unwrap().0));
     commands.spawn(player(&ship_assets));
-    commands.spawn(enemy(&ship_assets));
+    commands.spawn(enemy(&ship_assets)).observe(|
+        trigger: Trigger<OnCollisionStart>,
+        mut query: Query<(&mut Transform, &mut LinearVelocity, &Missile)>
+    | {
+        if query.contains(trigger.collider) {
+            let (mut transform, mut velocity, _) = r!(query.single_mut());
+            transform.translation = missile::start_position();
+            velocity.y = 0.;
+        }
+    });
     commands.spawn(missile(&missile_assets));
 }
 
@@ -130,18 +141,19 @@ fn enemy(ship_assets: &ShipAssets) -> impl Bundle {
         enemy_ship(ship_assets),
         DespawnOnExitState::<Level>::default(),
         Transform::from_xyz(59.0, 93.0, 0.0),
+        CollisionEventsEnabled,
     )
 }
 
 fn missile(missile_assets: &MissileAssets) -> impl Bundle {
     (
-        super::missile::missile(missile_assets),
+        missile::missile(missile_assets),
         DespawnOnExitState::<Level>::default(),
-        Transform::from_xyz(61.0, 0.0, 0.0),
+        Transform::from_translation(missile::start_position()),
     )
 }
 
 fn launch_missile(query: Single<&mut LinearVelocity, With<Missile>>) {
     let mut velocity = query;
-    velocity.y += 10000.;
+    velocity.y += 5.;
 }
