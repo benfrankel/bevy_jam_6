@@ -53,7 +53,7 @@ pub fn module(module: Module) -> impl Bundle {
         module,
         ImageNode::default(),
         Node {
-            aspect_ratio: Some(32.0 / 32.0),
+            aspect_ratio: Some(1.0),
             flex_grow: 1.0,
             ..default()
         },

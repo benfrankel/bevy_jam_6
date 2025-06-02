@@ -25,5 +25,8 @@
         Srgba(Srgba(red: 0.106, green: 0.118, blue: 0.122, alpha: 0.850)),
         // Overlay
         Srgba(Srgba(red: 0.157, green: 0.157, blue: 0.157, alpha: 0.980)),
+
+        // MonitorText
+        Srgba(Srgba(red: 0.584, green: 0.847, blue: 0.859, alpha: 1.000)),
     )),
 )
