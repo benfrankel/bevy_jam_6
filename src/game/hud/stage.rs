@@ -1,32 +1,17 @@
-use super::module::Module;
-use super::module::ModuleStatus;
-use super::module::module;
+use crate::game::hud::HudAssets;
+use crate::game::hud::module::Module;
+use crate::game::hud::module::ModuleStatus;
+use crate::game::hud::module::module;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<StageAssets>();
+    let _ = app;
 }
 
-#[derive(AssetCollection, Resource, Reflect, Default, Debug)]
-#[reflect(Resource)]
-pub struct StageAssets {
-    #[asset(path = "image/ui/stage.png")]
-    bg: Handle<Image>,
-    #[asset(path = "image/module/face_down.png")]
-    draw_pile_image: Handle<Image>,
-}
-
-impl Configure for StageAssets {
-    fn configure(app: &mut App) {
-        app.register_type::<Self>();
-        app.init_collection::<Self>();
-    }
-}
-
-pub fn stage(stage_assets: &StageAssets) -> impl Bundle {
+pub fn stage(hud_assets: &HudAssets) -> impl Bundle {
     (
         Name::new("Stage"),
-        ImageNode::from(stage_assets.bg.clone()),
+        ImageNode::from(hud_assets.stage.clone()),
         Node {
             aspect_ratio: Some(356.0 / 58.0),
             ..Node::ROW.full_width()
@@ -39,7 +24,7 @@ pub fn stage(stage_assets: &StageAssets) -> impl Bundle {
                     padding: UiRect::all(Vw(1.69)),
                     ..Node::ROW_MID.reverse().full_width()
                 },
-                children![draw_pile(stage_assets)],
+                children![draw_pile(hud_assets)],
             ),
         ],
     )
@@ -67,10 +52,10 @@ fn hand() -> impl Bundle {
     )
 }
 
-fn draw_pile(stage_assets: &StageAssets) -> impl Bundle {
+fn draw_pile(hud_assets: &HudAssets) -> impl Bundle {
     (
         Name::new("DrawPile"),
-        ImageNode::from(stage_assets.draw_pile_image.clone()),
+        ImageNode::from(hud_assets.module_face_down.clone()),
         Node {
             width: Vw(6.66),
             aspect_ratio: Some(1.0),

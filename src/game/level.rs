@@ -1,14 +1,12 @@
+use crate::game::flux::Flux;
+use crate::game::hud::HudAssets;
+use crate::game::hud::hud;
 use crate::game::missile;
 use crate::game::missile::Missile;
 use crate::game::missile::MissileAssets;
-use crate::game::reactor::Flux;
-use crate::game::reactor::ReactorAssets;
-use crate::game::reactor::reactor;
 use crate::game::ship::ShipAssets;
 use crate::game::ship::enemy_ship;
 use crate::game::ship::player_ship;
-use crate::game::stage::StageAssets;
-use crate::game::stage::stage;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -68,13 +66,12 @@ fn reset_flux(mut flux: ResMut<Flux>) {
 fn spawn_level(
     mut commands: Commands,
     level: NextRef<Level>,
-    reactor_assets: Res<ReactorAssets>,
-    stage_assets: Res<StageAssets>,
+    hud_assets: Res<HudAssets>,
     level_assets: Res<LevelAssets>,
     ship_assets: Res<ShipAssets>,
     missile_assets: Res<MissileAssets>,
 ) {
-    commands.spawn(hud(&reactor_assets, &stage_assets));
+    commands.spawn((hud(&hud_assets), DespawnOnExitState::<Level>::default()));
     commands.spawn(background(&level_assets, level.unwrap().0));
     commands.spawn(player(&ship_assets));
     commands.spawn(enemy(&ship_assets)).observe(
@@ -88,25 +85,6 @@ fn spawn_level(
         },
     );
     commands.spawn(missile(&missile_assets));
-}
-
-fn hud(reactor_assets: &ReactorAssets, stage_assets: &StageAssets) -> impl Bundle {
-    (
-        Name::new("Hud"),
-        Node::ROW.full_size().abs(),
-        DespawnOnExitState::<Level>::default(),
-        children![
-            reactor(reactor_assets),
-            (
-                Name::new("Column"),
-                Node {
-                    flex_grow: 1.0,
-                    ..Node::COLUMN.reverse()
-                },
-                children![stage(stage_assets)],
-            )
-        ],
-    )
 }
 
 fn background(level_assets: &LevelAssets, level: usize) -> impl Bundle {
@@ -163,7 +141,8 @@ fn missile(missile_assets: &MissileAssets) -> impl Bundle {
     )
 }
 
-fn launch_missile(query: Single<&mut LinearVelocity, With<Missile>>) {
-    let mut velocity = query;
-    velocity.y += 5.;
+fn launch_missile(mut missile_query: Query<&mut LinearVelocity, With<Missile>>) {
+    for mut velocity in &mut missile_query {
+        velocity.y += 5.0;
+    }
 }

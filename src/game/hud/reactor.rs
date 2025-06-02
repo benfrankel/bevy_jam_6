@@ -1,17 +1,16 @@
-use crate::game::module::Module;
-use crate::game::module::module;
+use crate::game::flux::Flux;
+use crate::game::hud::HudAssets;
+use crate::game::hud::module::Module;
+use crate::game::hud::module::module;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<(ReactorAssets, Flux, IsFluxLabel)>();
+    app.configure::<IsFluxLabel>();
 }
 
 #[derive(AssetCollection, Resource, Reflect, Default, Debug)]
 #[reflect(Resource)]
-pub struct ReactorAssets {
-    #[asset(path = "image/ui/reactor.png")]
-    bg: Handle<Image>,
-}
+pub struct ReactorAssets {}
 
 impl Configure for ReactorAssets {
     fn configure(app: &mut App) {
@@ -20,10 +19,10 @@ impl Configure for ReactorAssets {
     }
 }
 
-pub fn reactor(reactor_assets: &ReactorAssets) -> impl Bundle {
+pub fn reactor(hud_assets: &HudAssets) -> impl Bundle {
     (
         Name::new("Reactor"),
-        ImageNode::from(reactor_assets.bg.clone()),
+        ImageNode::from(hud_assets.reactor.clone()),
         Node {
             aspect_ratio: Some(124.0 / 270.0),
             padding: UiRect::all(Vw(1.69)),
@@ -77,17 +76,6 @@ fn module_grid() -> impl Bundle {
             module(Module::EMPTY, Anchor::CenterRight),
         ],
     )
-}
-
-#[derive(Resource, Reflect, Default, Debug)]
-#[reflect(Resource)]
-pub struct Flux(pub f32);
-
-impl Configure for Flux {
-    fn configure(app: &mut App) {
-        app.register_type::<Self>();
-        app.init_resource::<Self>();
-    }
 }
 
 #[derive(Component, Reflect, Debug)]

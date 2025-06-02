@@ -1,11 +1,9 @@
 use crate::core::audio::AudioSettings;
 use crate::core::audio::music_audio;
+use crate::game::hud::HudAssets;
 use crate::game::level::Level;
 use crate::game::level::LevelAssets;
-use crate::game::module::ModuleAssets;
-use crate::game::reactor::ReactorAssets;
 use crate::game::ship::ShipAssets;
-use crate::game::stage::StageAssets;
 use crate::menu::Menu;
 use crate::prelude::*;
 use crate::screen::Screen;
@@ -34,10 +32,8 @@ pub fn load_collections(state: LoadingState<BevyState<Screen>>) -> LoadingState<
     state
         .load_collection::<GameplayAssets>()
         .load_collection::<LevelAssets>()
-        .load_collection::<ModuleAssets>()
-        .load_collection::<ReactorAssets>()
+        .load_collection::<HudAssets>()
         .load_collection::<ShipAssets>()
-        .load_collection::<StageAssets>()
 }
 
 #[derive(AssetCollection, Resource, Reflect, Default)]

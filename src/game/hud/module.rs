@@ -1,50 +1,8 @@
+use crate::game::hud::HudAssets;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<(ModuleAssets, Module)>();
-}
-
-#[derive(AssetCollection, Resource, Reflect, Default, Debug)]
-#[reflect(Resource)]
-pub struct ModuleAssets {
-    #[asset(path = "image/module/face_up.png")]
-    bg_face_up: Handle<Image>,
-    #[asset(path = "image/module/face_down.png")]
-    bg_face_down: Handle<Image>,
-    #[asset(path = "image/module/slot_empty.png")]
-    bg_slot_empty: Handle<Image>,
-    #[asset(path = "image/module/slot_inactive.png")]
-    bg_slot_inactive: Handle<Image>,
-    #[asset(path = "image/module/slot_active.png")]
-    bg_slot_active: Handle<Image>,
-
-    #[asset(path = "image/module/icon/nothing_condition.png")]
-    nothing_condition_icon: Handle<Image>,
-    #[asset(path = "image/module/icon/nothing_effect.png")]
-    nothing_effect_icon: Handle<Image>,
-    #[asset(path = "image/module/icon/missile_condition.png")]
-    missile_condition_icon: Handle<Image>,
-    #[asset(path = "image/module/icon/missile_effect.png")]
-    missile_effect_icon: Handle<Image>,
-    #[asset(path = "image/module/icon/laser_condition.png")]
-    laser_condition_icon: Handle<Image>,
-    #[asset(path = "image/module/icon/laser_effect.png")]
-    laser_effect_icon: Handle<Image>,
-    #[asset(path = "image/module/icon/fire_condition.png")]
-    fire_condition_icon: Handle<Image>,
-    #[asset(path = "image/module/icon/fire_effect.png")]
-    fire_effect_icon: Handle<Image>,
-    #[asset(path = "image/module/icon/heal_condition.png")]
-    heal_condition_icon: Handle<Image>,
-    #[asset(path = "image/module/icon/heal_effect.png")]
-    heal_effect_icon: Handle<Image>,
-}
-
-impl Configure for ModuleAssets {
-    fn configure(app: &mut App) {
-        app.register_type::<Self>();
-        app.init_collection::<Self>();
-    }
+    app.configure::<Module>();
 }
 
 pub fn module(module: Module, tooltip_anchor: Anchor) -> impl Bundle {
@@ -157,7 +115,7 @@ fn sync_module_tooltips(mut module_query: Query<(&mut Tooltip, &Module), Changed
 }
 
 fn sync_module_images(
-    module_assets: Res<ModuleAssets>,
+    hud_assets: Res<HudAssets>,
     module_query: Query<(Entity, &Module, &Children), Changed<Module>>,
     condition_query: Query<(), With<IsModuleConditionIcon>>,
     effect_query: Query<(), With<IsModuleEffectIcon>>,
@@ -166,11 +124,11 @@ fn sync_module_images(
     for (entity, module, children) in &module_query {
         // Update background image.
         c!(image_query.get_mut(entity)).image = match module.status {
-            ModuleStatus::FaceUp => &module_assets.bg_face_up,
-            ModuleStatus::FaceDown => &module_assets.bg_face_down,
-            ModuleStatus::SlotEmpty => &module_assets.bg_slot_empty,
-            ModuleStatus::SlotInactive => &module_assets.bg_slot_inactive,
-            ModuleStatus::SlotActive => &module_assets.bg_slot_active,
+            ModuleStatus::FaceUp => &hud_assets.module_face_up,
+            ModuleStatus::FaceDown => &hud_assets.module_face_down,
+            ModuleStatus::SlotEmpty => &hud_assets.module_slot_empty,
+            ModuleStatus::SlotInactive => &hud_assets.module_slot_inactive,
+            ModuleStatus::SlotActive => &hud_assets.module_slot_active,
         }
         .clone();
 
@@ -179,21 +137,21 @@ fn sync_module_images(
             if condition_query.contains(child) {
                 c!(image_query.get_mut(child)).image = match (&module.status, &module.condition) {
                     (ModuleStatus::FaceDown | ModuleStatus::SlotEmpty, _)
-                    | (_, Action::Nothing) => &module_assets.nothing_condition_icon,
-                    (_, Action::Missile) => &module_assets.missile_condition_icon,
-                    (_, Action::Laser) => &module_assets.laser_condition_icon,
-                    (_, Action::Fire) => &module_assets.fire_condition_icon,
-                    (_, Action::Heal) => &module_assets.heal_condition_icon,
+                    | (_, Action::Nothing) => &hud_assets.nothing_condition_icon,
+                    (_, Action::Missile) => &hud_assets.missile_condition_icon,
+                    (_, Action::Laser) => &hud_assets.laser_condition_icon,
+                    (_, Action::Fire) => &hud_assets.fire_condition_icon,
+                    (_, Action::Heal) => &hud_assets.heal_condition_icon,
                 }
                 .clone();
             } else if effect_query.contains(child) {
                 c!(image_query.get_mut(child)).image = match (&module.status, &module.effect) {
                     (ModuleStatus::FaceDown | ModuleStatus::SlotEmpty, _)
-                    | (_, Action::Nothing) => &module_assets.nothing_effect_icon,
-                    (_, Action::Missile) => &module_assets.missile_effect_icon,
-                    (_, Action::Laser) => &module_assets.laser_effect_icon,
-                    (_, Action::Fire) => &module_assets.fire_effect_icon,
-                    (_, Action::Heal) => &module_assets.heal_effect_icon,
+                    | (_, Action::Nothing) => &hud_assets.nothing_effect_icon,
+                    (_, Action::Missile) => &hud_assets.missile_effect_icon,
+                    (_, Action::Laser) => &hud_assets.laser_effect_icon,
+                    (_, Action::Fire) => &hud_assets.fire_effect_icon,
+                    (_, Action::Heal) => &hud_assets.heal_effect_icon,
                 }
                 .clone();
             }
