@@ -9,7 +9,7 @@ pub(super) fn plugin(app: &mut App) {
 pub struct Deck {
     pub flux: f32,
     pub reactor: Vec<Module>,
-    pub draw_pile: Vec<Module>,
+    pub storage: Vec<Module>,
     pub hand: Vec<Module>,
     pub focused_idx: usize,
 }
@@ -26,8 +26,17 @@ impl Default for Deck {
         Self {
             flux: 0.0,
             reactor: vec![Module::EMPTY; 9],
-            draw_pile: vec![],
-            hand: vec![],
+            storage: vec![
+                Module::new(ModuleAction::Laser, ModuleAction::Heal),
+                Module::new(ModuleAction::Missile, ModuleAction::Missile),
+            ],
+            hand: vec![
+                Module::new(ModuleAction::Nothing, ModuleAction::Missile),
+                Module::new(ModuleAction::Laser, ModuleAction::Heal),
+                Module::new(ModuleAction::Missile, ModuleAction::Missile),
+                Module::new(ModuleAction::Heal, ModuleAction::Laser),
+                Module::new(ModuleAction::Fire, ModuleAction::Missile),
+            ],
             focused_idx: 0,
         }
     }
@@ -39,7 +48,7 @@ impl Deck {
         for slot in &mut self.reactor {
             *slot = Module::EMPTY;
         }
-        self.draw_pile.extend(self.hand.drain(..));
+        self.storage.append(&mut self.hand);
         self.focused_idx = 0;
     }
 }
@@ -57,6 +66,14 @@ impl Module {
         effect: ModuleAction::Nothing,
         status: ModuleStatus::SlotEmpty,
     };
+
+    pub fn new(condition: ModuleAction, effect: ModuleAction) -> Self {
+        Self {
+            condition,
+            effect,
+            status: ModuleStatus::FaceUp,
+        }
+    }
 }
 
 #[derive(Reflect, Copy, Clone, Default, Debug)]

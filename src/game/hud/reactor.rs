@@ -47,7 +47,7 @@ impl Configure for IsModuleGrid {
             Update,
             sync_module_grid
                 .in_set(UpdateSystems::SyncLate)
-                .run_if(resource_changed::<Deck>.or(any_match_filter::<Added<IsModuleGrid>>)),
+                .run_if(resource_changed::<Deck>.or(any_match_filter::<Added<Self>>)),
         );
     }
 }

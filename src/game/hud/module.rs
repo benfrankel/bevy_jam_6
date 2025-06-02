@@ -4,10 +4,6 @@ use crate::game::deck::ModuleStatus;
 use crate::game::hud::HudAssets;
 use crate::prelude::*;
 
-pub(super) fn plugin(app: &mut App) {
-    let _ = app;
-}
-
 pub fn module(hud_assets: &HudAssets, module: Module, tooltip_anchor: Anchor) -> impl Bundle {
     let background = match module.status {
         ModuleStatus::FaceUp => &hud_assets.module_face_up,
