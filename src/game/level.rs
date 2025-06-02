@@ -57,7 +57,6 @@ impl Configure for Level {
     }
 }
 
-#[cfg_attr(feature = "native_dev", hot)]
 fn spawn_level(
     mut commands: Commands,
     level: NextRef<Level>,

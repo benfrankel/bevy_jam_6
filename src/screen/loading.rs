@@ -10,7 +10,6 @@ pub(super) fn plugin(app: &mut App) {
     app.add_systems(Update, Screen::Loading.on_update(update_loading));
 }
 
-#[cfg_attr(feature = "native_dev", hot)]
 fn spawn_loading_screen(mut commands: Commands, screen_root: Res<ScreenRoot>) {
     commands
         .entity(screen_root.ui)
@@ -20,7 +19,6 @@ fn spawn_loading_screen(mut commands: Commands, screen_root: Res<ScreenRoot>) {
         ]));
 }
 
-#[cfg_attr(feature = "native_dev", hot)]
 fn update_loading(
     mut commands: Commands,
     progress: Res<ProgressTracker<BevyState<Screen>>>,

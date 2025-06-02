@@ -18,7 +18,6 @@ pub(super) fn plugin(app: &mut App) {
     app.configure::<TitleAssets>();
 }
 
-#[cfg_attr(feature = "native_dev", hot)]
 fn spawn_title_screen(
     mut commands: Commands,
     audio_settings: Res<AudioSettings>,

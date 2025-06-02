@@ -19,7 +19,6 @@ pub(super) fn plugin(app: &mut App) {
     app.configure::<(GameplayAssets, GameplayAction)>();
 }
 
-#[cfg_attr(feature = "native_dev", hot)]
 fn spawn_gameplay_screen(
     mut commands: Commands,
     audio_settings: Res<AudioSettings>,
