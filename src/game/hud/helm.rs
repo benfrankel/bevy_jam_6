@@ -86,7 +86,7 @@ fn sync_hand(
             .despawn_related::<Children>()
             .with_children(|parent| {
                 for (i, &card) in deck.hand.iter().enumerate() {
-                    if i == deck.focused_idx {
+                    if i == deck.selected_idx {
                         parent.spawn((
                             module(&hud_assets, card, Anchor::TopCenter),
                             Patch(|entity| r!(entity.get_mut::<Node>()).top = Vw(-2.0)),
