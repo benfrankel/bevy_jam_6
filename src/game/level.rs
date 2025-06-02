@@ -1,4 +1,5 @@
 use crate::game::missile::{Missile, MissileAssets};
+use crate::game::reactor::Flux;
 use crate::game::reactor::ReactorAssets;
 use crate::game::reactor::reactor;
 use crate::game::ship::ShipAssets;
@@ -53,8 +54,12 @@ impl Configure for Level {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.add_state::<Self>();
-        app.add_systems(StateFlush, Level::ANY.on_enter(spawn_level));
+        app.add_systems(StateFlush, Level::ANY.on_edge(reset_flux, spawn_level));
     }
+}
+
+fn reset_flux(mut flux: ResMut<Flux>) {
+    *flux = default();
 }
 
 fn spawn_level(
@@ -136,5 +141,5 @@ fn missile(missile_assets: &MissileAssets) -> impl Bundle {
 }
 
 // fn launch_missile(query: Single<&Transform, With<&Missile>>) {
-//     
+//
 // }
