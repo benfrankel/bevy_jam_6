@@ -1,4 +1,3 @@
-use crate::animation::offset::NodeOffset;
 use crate::game::deck::Deck;
 use crate::game::hud::HudAssets;
 use crate::game::hud::module::module;
@@ -87,14 +86,14 @@ fn sync_hand(
             .despawn_related::<Children>()
             .with_children(|parent| {
                 for (i, &card) in deck.hand.iter().enumerate() {
-                    parent.spawn((
-                        module(&hud_assets, card, Anchor::TopCenter),
-                        if i == deck.focused_idx {
-                            NodeOffset::new(Val::ZERO, Vw(-2.0))
-                        } else {
-                            NodeOffset::default()
-                        },
-                    ));
+                    if i == deck.focused_idx {
+                        parent.spawn((
+                            module(&hud_assets, card, Anchor::TopCenter),
+                            Patch(|entity| r!(entity.get_mut::<Node>()).top = Vw(-2.0)),
+                        ));
+                    } else {
+                        parent.spawn(module(&hud_assets, card, Anchor::TopCenter));
+                    }
                 }
             });
     }

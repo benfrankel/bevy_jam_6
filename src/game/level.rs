@@ -69,11 +69,22 @@ pub fn spawn_level(
     ship_assets: Res<ShipAssets>,
     missile_assets: Res<MissileAssets>,
 ) {
-    commands.spawn((hud(&hud_assets), DespawnOnExitState::<Level>::default()));
     commands.spawn(background(&level_assets, level.unwrap().0));
-    commands.spawn(player(&ship_assets));
-    commands.spawn(enemy(&ship_assets));
-    commands.spawn(missile(&missile_assets));
+    commands.spawn((hud(&hud_assets), DespawnOnExitState::<Level>::default()));
+    commands.spawn((
+        player_ship(&ship_assets),
+        DespawnOnExitState::<Level>::default(),
+        Transform::from_xyz(61.0, -46.0, 2.0),
+    ));
+    commands.spawn((
+        enemy_ship(&ship_assets),
+        DespawnOnExitState::<Level>::default(),
+        Transform::from_xyz(59.0, 93.0, 0.0),
+    ));
+    commands.spawn((
+        missile(&missile_assets),
+        DespawnOnExitState::<Level>::default(),
+    ));
 }
 
 fn background(level_assets: &LevelAssets, level: usize) -> impl Bundle {
@@ -102,21 +113,5 @@ fn background(level_assets: &LevelAssets, level: usize) -> impl Bundle {
             Sprite::from_color(Color::BLACK.with_alpha(0.7), vec2(480.0, 270.0)),
             Transform::from_xyz(0.0, 0.0, 1.0),
         )],
-    )
-}
-
-fn player(ship_assets: &ShipAssets) -> impl Bundle {
-    (
-        player_ship(ship_assets),
-        DespawnOnExitState::<Level>::default(),
-        Transform::from_xyz(61.0, -46.0, 2.0),
-    )
-}
-
-fn enemy(ship_assets: &ShipAssets) -> impl Bundle {
-    (
-        enemy_ship(ship_assets),
-        DespawnOnExitState::<Level>::default(),
-        Transform::from_xyz(59.0, 93.0, 0.0),
     )
 }
