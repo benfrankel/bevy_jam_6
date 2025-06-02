@@ -128,8 +128,8 @@ impl Module {
 fn sync_module_tooltips(mut module_query: Query<(&mut Tooltip, &Module), Changed<Module>>) {
     for (mut tooltip, module) in &mut module_query {
         let text = match module.status {
-            ModuleStatus::FaceDown => "[b]Reactor module".to_string(),
-            ModuleStatus::SlotEmpty => "[b]Reactor module:[r]\n\nEmpty slot".to_string(),
+            ModuleStatus::FaceDown => "[b]Reactor module[r]".to_string(),
+            ModuleStatus::SlotEmpty => "[b]Reactor module[r]\n\nEmpty slot".to_string(),
             _ => {
                 let condition = match module.condition {
                     Action::Nothing => "Unconditionally ",
@@ -149,7 +149,7 @@ fn sync_module_tooltips(mut module_query: Query<(&mut Tooltip, &Module), Changed
                     (Action::Heal, Action::Heal) => "repair the hull again",
                     (_, Action::Heal) => "repair the hull",
                 };
-                format!("[b]Reactor module:[r]\n\n{condition}{effect}.")
+                format!("[b]Reactor module[r]\n\n{condition}{effect}.")
             },
         };
         tooltip.content = TooltipContent::Primary(RichText::from_sections(parse_rich(text)));

@@ -44,7 +44,7 @@ fn flux_display() -> impl Bundle {
         Tooltip::fixed(
             Anchor::CenterRight,
             parse_rich(
-                "[b]Flux counter:[r]\n\nChain \"reactor modules\" together to multiply their output.",
+                "[b]Flux counter[r]\n\nChain \"reactor modules\" together to multiply their output.",
             ),
         ),
         children![(
