@@ -55,7 +55,6 @@ impl Configure for Level {
         app.register_type::<Self>();
         app.add_state::<Self>();
         app.add_systems(StateFlush, Level::ANY.on_edge(reset_deck, spawn_level));
-        app.add_systems(Update, Level::ANY.on_update(launch_missile));
     }
 }
 
@@ -63,13 +62,12 @@ fn reset_deck(mut deck: ResMut<Deck>) {
     deck.reset();
 }
 
-fn spawn_level(
+pub fn spawn_level(
     mut commands: Commands,
     level: NextRef<Level>,
     hud_assets: Res<HudAssets>,
     level_assets: Res<LevelAssets>,
     ship_assets: Res<ShipAssets>,
-    missile_assets: Res<MissileAssets>,
 ) {
     commands.spawn((hud(&hud_assets), DespawnOnExitState::<Level>::default()));
     commands.spawn(background(&level_assets, level.unwrap().0));
@@ -79,12 +77,11 @@ fn spawn_level(
          mut query: Query<(&mut Transform, &mut LinearVelocity, &Missile)>| {
             if query.contains(trigger.collider) {
                 let (mut transform, mut velocity, _) = r!(query.single_mut());
-                transform.translation = missile::start_position();
+                transform.translation = missile::start_position(61.);
                 velocity.y = 0.;
             }
         },
     );
-    commands.spawn(missile(&missile_assets));
 }
 
 fn background(level_assets: &LevelAssets, level: usize) -> impl Bundle {
@@ -121,6 +118,18 @@ fn player(ship_assets: &ShipAssets) -> impl Bundle {
         player_ship(ship_assets),
         DespawnOnExitState::<Level>::default(),
         Transform::from_xyz(61.0, -46.0, 0.0),
+        children![
+            (
+                missile::IsMissileLauncher,
+                Collider::rectangle(7., 10.),
+                Transform::from_xyz(-10., 11., 0.),
+            ),
+            (
+                missile::IsMissileLauncher,
+                Collider::rectangle(7., 10.),
+                Transform::from_xyz(10., 11., 0.),
+            ),
+        ]
     )
 }
 
@@ -131,18 +140,4 @@ fn enemy(ship_assets: &ShipAssets) -> impl Bundle {
         Transform::from_xyz(59.0, 93.0, 0.0),
         CollisionEventsEnabled,
     )
-}
-
-fn missile(missile_assets: &MissileAssets) -> impl Bundle {
-    (
-        missile::missile(missile_assets),
-        DespawnOnExitState::<Level>::default(),
-        Transform::from_translation(missile::start_position()),
-    )
-}
-
-fn launch_missile(mut missile_query: Query<&mut LinearVelocity, With<Missile>>) {
-    for mut velocity in &mut missile_query {
-        velocity.y += 5.0;
-    }
 }
