@@ -77,16 +77,16 @@ fn spawn_level(
     commands.spawn(hud(&reactor_assets, &stage_assets));
     commands.spawn(background(&level_assets, level.unwrap().0));
     commands.spawn(player(&ship_assets));
-    commands.spawn(enemy(&ship_assets)).observe(|
-        trigger: Trigger<OnCollisionStart>,
-        mut query: Query<(&mut Transform, &mut LinearVelocity, &Missile)>
-    | {
-        if query.contains(trigger.collider) {
-            let (mut transform, mut velocity, _) = r!(query.single_mut());
-            transform.translation = missile::start_position();
-            velocity.y = 0.;
-        }
-    });
+    commands.spawn(enemy(&ship_assets)).observe(
+        |trigger: Trigger<OnCollisionStart>,
+         mut query: Query<(&mut Transform, &mut LinearVelocity, &Missile)>| {
+            if query.contains(trigger.collider) {
+                let (mut transform, mut velocity, _) = r!(query.single_mut());
+                transform.translation = missile::start_position();
+                velocity.y = 0.;
+            }
+        },
+    );
     commands.spawn(missile(&missile_assets));
 }
 
