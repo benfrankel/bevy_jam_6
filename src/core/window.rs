@@ -10,7 +10,6 @@ pub(super) fn plugin(app: &mut App) {
     app.add_plugins(WindowPlugin {
         primary_window: Some(Window {
             name: Some("bevy_app".to_string()),
-            resizable: false,
             fit_canvas_to_parent: true,
             visible: false,
             ..default()

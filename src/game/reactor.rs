@@ -43,7 +43,9 @@ fn flux_display() -> impl Bundle {
         },
         Tooltip::fixed(
             Anchor::CenterRight,
-            parse_rich("[b]Flux:[r] Chain \"reactor modules\" together to multiply their output."),
+            parse_rich(
+                "[b]Flux counter:[r]\n\nChain \"reactor modules\" together to multiply their output.",
+            ),
         ),
         children![(
             widget::colored_label("", ThemeColor::MonitorText),
@@ -64,15 +66,15 @@ fn module_grid() -> impl Bundle {
         },
         IsModuleGrid,
         children![
-            module(Module::EMPTY),
-            module(Module::EMPTY),
-            module(Module::EMPTY),
-            module(Module::EMPTY),
-            module(Module::EMPTY),
-            module(Module::EMPTY),
-            module(Module::EMPTY),
-            module(Module::EMPTY),
-            module(Module::EMPTY),
+            module(Module::EMPTY, Anchor::CenterRight),
+            module(Module::EMPTY, Anchor::CenterRight),
+            module(Module::EMPTY, Anchor::CenterRight),
+            module(Module::EMPTY, Anchor::CenterRight),
+            module(Module::EMPTY, Anchor::CenterRight),
+            module(Module::EMPTY, Anchor::CenterRight),
+            module(Module::EMPTY, Anchor::CenterRight),
+            module(Module::EMPTY, Anchor::CenterRight),
+            module(Module::EMPTY, Anchor::CenterRight),
         ],
     )
 }

@@ -3,8 +3,8 @@
     window_mode: Windowed,
     present_mode: AutoVsync,
     resolution: WindowResolution(
-        physical_width: 1920,
-        physical_height: 1080,
+        physical_width: 960,
+        physical_height: 540,
         scale_factor_override: None,
         scale_factor: 1.0,
     ),
