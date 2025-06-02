@@ -1,9 +1,9 @@
 use crate::game::deck::Deck;
 use crate::game::hud::HudAssets;
 use crate::game::hud::hud;
-use crate::game::missile;
+use crate::game::missile::IsWeapon;
 use crate::game::missile::Missile;
-use crate::game::missile::MissileAssets;
+use crate::game::missile::start_position;
 use crate::game::ship::ShipAssets;
 use crate::game::ship::enemy_ship;
 use crate::game::ship::player_ship;
@@ -73,11 +73,17 @@ pub fn spawn_level(
     commands.spawn(background(&level_assets, level.unwrap().0));
     commands.spawn(player(&ship_assets));
     commands.spawn(enemy(&ship_assets)).observe(
-        |trigger: Trigger<OnCollisionStart>,
-         mut query: Query<(&mut Transform, &mut LinearVelocity, &Missile)>| {
+        |
+            trigger: Trigger<OnCollisionStart>,
+            mut query: Query<(&mut Transform, &mut LinearVelocity, &Missile)>,
+            launchers_query: Query<(&GlobalTransform, &IsWeapon)>,
+        | {
             if query.contains(trigger.collider) {
+                let n = thread_rng().gen_range(0..=1);
+                let weapons = launchers_query.iter().collect::<Vec<_>>();
+
                 let (mut transform, mut velocity, _) = r!(query.single_mut());
-                transform.translation = missile::start_position(61.);
+                transform.translation = start_position(weapons[n].0.translation().x);
                 velocity.y = 0.;
             }
         },
@@ -117,19 +123,19 @@ fn player(ship_assets: &ShipAssets) -> impl Bundle {
     (
         player_ship(ship_assets),
         DespawnOnExitState::<Level>::default(),
-        Transform::from_xyz(61.0, -46.0, 0.0),
+        Transform::from_xyz(61.0, -46.0, 2.0),
         children![
             (
-                missile::IsMissileLauncher,
-                Collider::rectangle(7., 10.),
+                IsWeapon,
+                // Collider::rectangle(7., 10.),
                 Transform::from_xyz(-10., 11., 0.),
             ),
             (
-                missile::IsMissileLauncher,
-                Collider::rectangle(7., 10.),
+                IsWeapon,
+                // Collider::rectangle(7., 10.),
                 Transform::from_xyz(10., 11., 0.),
             ),
-        ]
+        ],
     )
 }
 

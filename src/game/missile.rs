@@ -1,5 +1,4 @@
 use crate::game::level::{spawn_level, Level};
-use crate::game::ship::PlayerShip;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -17,7 +16,7 @@ pub struct MissileAssets {
 pub struct Missile;
 
 #[derive(Component, Debug)]
-pub struct IsMissileLauncher;
+pub struct IsWeapon;
 
 impl Configure for MissileAssets {
     fn configure(app: &mut App) {
@@ -31,15 +30,18 @@ impl Configure for MissileAssets {
 fn spawn_missile(
     mut commands: Commands,
     missile_assets: Res<MissileAssets>,
-    launchers_query: Query<(&Transform, &IsMissileLauncher)>,
-    // player_ship: Query<&PlayerShip>,
+    launchers_query: Query<(&GlobalTransform, &IsWeapon, &Transform)>,
 ) {
     let n = thread_rng().gen_range(0..1);
-    let launcher = launchers_query.iter().collect::<Vec<_>>();
-    commands.spawn(missile(&missile_assets, launcher[n]));
+    let launchers = launchers_query.iter().collect::<Vec<_>>();
+
+    commands.spawn((
+        missile(&missile_assets),
+        Transform::from_translation(start_position(launchers[n].0.translation().x)),
+    ));
 }
 
-pub fn missile(missile_assets: &MissileAssets, launcher: (&Transform, &IsMissileLauncher)) -> impl Bundle {
+pub fn missile(missile_assets: &MissileAssets) -> impl Bundle {
     (
         Name::new("Missile"),
         Missile,
@@ -48,7 +50,6 @@ pub fn missile(missile_assets: &MissileAssets, launcher: (&Transform, &IsMissile
         Collider::capsule(3., 7.),
         LinearVelocity::ZERO,
         DespawnOnExitState::<Level>::default(),
-        Transform::from_translation(start_position(61.)),
     )
 }
 
@@ -58,5 +59,6 @@ fn launch_missile(query: Single<&mut LinearVelocity, With<Missile>>) {
 }
 
 pub fn start_position(x_pos: f32) -> Vec3 {
-    Vec3::new(x_pos, -46., 0.)
+    let player_y_pos = -46.;
+    Vec3::new(x_pos, player_y_pos + 15., 1.)
 }
