@@ -55,6 +55,7 @@ impl Configure for Level {
         app.register_type::<Self>();
         app.add_state::<Self>();
         app.add_systems(StateFlush, Level::ANY.on_edge(reset_flux, spawn_level));
+        app.add_systems(Update, Level::ANY.on_update(launch_missile));
     }
 }
 
@@ -140,6 +141,7 @@ fn missile(missile_assets: &MissileAssets) -> impl Bundle {
     )
 }
 
-// fn launch_missile(query: Single<&Transform, With<&Missile>>) {
-//
-// }
+fn launch_missile(query: Single<&mut LinearVelocity, With<Missile>>) {
+    let mut velocity = query;
+    velocity.y += 10000.;
+}

@@ -24,8 +24,10 @@ impl Configure for MissileAssets {
 pub fn missile(missile_assets: &MissileAssets) -> impl Bundle {
     (
         Name::new("Missile"),
-        Missile,
         Sprite::from_image(missile_assets.image.clone()),
+        RigidBody::Dynamic,
         Collider::capsule(5., 10.),
+        LinearVelocity::ZERO,
+        Missile,
     )
 }
