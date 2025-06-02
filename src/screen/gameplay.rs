@@ -11,7 +11,10 @@ use crate::screen::Screen;
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(
         StateFlush,
-        Screen::Gameplay.on_edge(Level::disable, (spawn_gameplay_screen, Level(1).enter())),
+        Screen::Gameplay.on_edge(
+            Level::disable,
+            (spawn_gameplay_screen, (Level(1).enter(), Level::trigger)),
+        ),
     );
 
     app.configure::<(GameplayAssets, GameplayAction)>();

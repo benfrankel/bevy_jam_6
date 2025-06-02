@@ -1,4 +1,4 @@
-use crate::game::flux::Flux;
+use crate::game::deck::Deck;
 use crate::game::hud::HudAssets;
 use crate::game::hud::hud;
 use crate::game::missile;
@@ -54,13 +54,13 @@ impl Configure for Level {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.add_state::<Self>();
-        app.add_systems(StateFlush, Level::ANY.on_edge(reset_flux, spawn_level));
+        app.add_systems(StateFlush, Level::ANY.on_edge(reset_deck, spawn_level));
         app.add_systems(Update, Level::ANY.on_update(launch_missile));
     }
 }
 
-fn reset_flux(mut flux: ResMut<Flux>) {
-    *flux = default();
+fn reset_deck(mut deck: ResMut<Deck>) {
+    deck.reset();
 }
 
 fn spawn_level(

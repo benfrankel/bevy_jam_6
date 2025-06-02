@@ -1,6 +1,6 @@
+use crate::game::deck::Module;
+use crate::game::deck::ModuleStatus;
 use crate::game::hud::HudAssets;
-use crate::game::hud::module::Module;
-use crate::game::hud::module::ModuleStatus;
 use crate::game::hud::module::module;
 use crate::prelude::*;
 
@@ -17,7 +17,7 @@ pub fn stage(hud_assets: &HudAssets) -> impl Bundle {
             ..Node::ROW.full_width()
         },
         children![
-            hand(),
+            hand(hud_assets),
             (
                 Name::new("Row"),
                 Node {
@@ -30,7 +30,7 @@ pub fn stage(hud_assets: &HudAssets) -> impl Bundle {
     )
 }
 
-fn hand() -> impl Bundle {
+fn hand(hud_assets: &HudAssets) -> impl Bundle {
     let face_up = Module {
         status: ModuleStatus::FaceUp,
         ..default()
@@ -43,11 +43,11 @@ fn hand() -> impl Bundle {
             ..Node::ROW_CENTER.full_size().abs()
         },
         children![
-            module(face_up, Anchor::TopCenter),
-            module(face_up, Anchor::TopCenter),
-            module(face_up, Anchor::TopCenter),
-            module(face_up, Anchor::TopCenter),
-            module(face_up, Anchor::TopCenter),
+            module(hud_assets, face_up, Anchor::TopCenter),
+            module(hud_assets, face_up, Anchor::TopCenter),
+            module(hud_assets, face_up, Anchor::TopCenter),
+            module(hud_assets, face_up, Anchor::TopCenter),
+            module(hud_assets, face_up, Anchor::TopCenter),
         ],
     )
 }

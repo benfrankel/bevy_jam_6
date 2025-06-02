@@ -1,3 +1,4 @@
+mod flux;
 mod module;
 mod reactor;
 mod stage;
@@ -9,7 +10,7 @@ use crate::prelude::*;
 pub(super) fn plugin(app: &mut App) {
     app.configure::<HudAssets>();
 
-    app.add_plugins((module::plugin, reactor::plugin, stage::plugin));
+    app.add_plugins((flux::plugin, module::plugin, reactor::plugin, stage::plugin));
 }
 
 pub fn hud(hud_assets: &HudAssets) -> impl Bundle {

@@ -1,22 +1,11 @@
-use crate::game::flux::Flux;
+use crate::game::deck::Deck;
 use crate::game::hud::HudAssets;
-use crate::game::hud::module::Module;
+use crate::game::hud::flux::flux_display;
 use crate::game::hud::module::module;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<IsFluxLabel>();
-}
-
-#[derive(AssetCollection, Resource, Reflect, Default, Debug)]
-#[reflect(Resource)]
-pub struct ReactorAssets {}
-
-impl Configure for ReactorAssets {
-    fn configure(app: &mut App) {
-        app.register_type::<Self>();
-        app.init_collection::<Self>();
-    }
+    app.configure::<IsModuleGrid>();
 }
 
 pub fn reactor(hud_assets: &HudAssets) -> impl Bundle {
@@ -33,26 +22,6 @@ pub fn reactor(hud_assets: &HudAssets) -> impl Bundle {
     )
 }
 
-fn flux_display() -> impl Bundle {
-    (
-        Name::new("FluxDisplay"),
-        Node {
-            height: Vw(5.0),
-            ..Node::ROW_CENTER.full_width()
-        },
-        Tooltip::fixed(
-            Anchor::CenterRight,
-            parse_rich(
-                "[b]Flux counter[r]\n\nChain \"reactor modules\" together to multiply their output.",
-            ),
-        ),
-        children![(
-            widget::colored_label("", ThemeColor::MonitorText),
-            IsFluxLabel,
-        )],
-    )
-}
-
 fn module_grid() -> impl Bundle {
     (
         Name::new("ModuleGrid"),
@@ -64,35 +33,7 @@ fn module_grid() -> impl Bundle {
             ..Node::default().full_width()
         },
         IsModuleGrid,
-        children![
-            module(Module::EMPTY, Anchor::CenterRight),
-            module(Module::EMPTY, Anchor::CenterRight),
-            module(Module::EMPTY, Anchor::CenterRight),
-            module(Module::EMPTY, Anchor::CenterRight),
-            module(Module::EMPTY, Anchor::CenterRight),
-            module(Module::EMPTY, Anchor::CenterRight),
-            module(Module::EMPTY, Anchor::CenterRight),
-            module(Module::EMPTY, Anchor::CenterRight),
-            module(Module::EMPTY, Anchor::CenterRight),
-        ],
     )
-}
-
-#[derive(Component, Reflect, Debug)]
-#[reflect(Component)]
-struct IsFluxLabel;
-
-impl Configure for IsFluxLabel {
-    fn configure(app: &mut App) {
-        app.register_type::<Self>();
-        app.add_systems(Update, sync_flux_label.in_set(UpdateSystems::SyncLate));
-    }
-}
-
-fn sync_flux_label(flux: Res<Flux>, mut label_query: Query<&mut RichText, With<IsFluxLabel>>) {
-    for mut text in &mut label_query {
-        *text = RichText::from_sections(parse_rich(format!("flux {}x", flux.0)));
-    }
 }
 
 #[derive(Component, Reflect, Debug)]
@@ -102,12 +43,29 @@ struct IsModuleGrid;
 impl Configure for IsModuleGrid {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
-        app.add_systems(Update, sync_module_grid.in_set(UpdateSystems::SyncLate));
+        app.add_systems(
+            Update,
+            sync_module_grid
+                .in_set(UpdateSystems::SyncLate)
+                .run_if(resource_changed::<Deck>.or(any_match_filter::<Added<IsModuleGrid>>)),
+        );
     }
 }
 
-fn sync_module_grid(grid_query: Query<Entity, With<IsModuleGrid>>) {
+fn sync_module_grid(
+    mut commands: Commands,
+    hud_assets: Res<HudAssets>,
+    deck: Res<Deck>,
+    grid_query: Query<Entity, With<IsModuleGrid>>,
+) {
     for entity in &grid_query {
-        let _ = entity;
+        commands
+            .entity(entity)
+            .despawn_related::<Children>()
+            .with_children(|parent| {
+                for &slot in &deck.reactor {
+                    parent.spawn(module(&hud_assets, slot, Anchor::CenterRight));
+                }
+            });
     }
 }

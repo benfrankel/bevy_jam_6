@@ -1,4 +1,4 @@
-pub mod flux;
+pub mod deck;
 pub mod hud;
 pub mod level;
 pub mod missile;
@@ -8,7 +8,7 @@ use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins((
-        flux::plugin,
+        deck::plugin,
         hud::plugin,
         level::plugin,
         missile::plugin,
