@@ -1,4 +1,4 @@
-use crate::game::missile::MissileAssets;
+use crate::game::missile::{Missile, MissileAssets};
 use crate::game::reactor::ReactorAssets;
 use crate::game::reactor::reactor;
 use crate::game::ship::ShipAssets;
@@ -131,6 +131,10 @@ fn missile(missile_assets: &MissileAssets) -> impl Bundle {
     (
         super::missile::missile(missile_assets),
         DespawnOnExitState::<Level>::default(),
-        Transform::from_xyz(59.0, 0.0, 0.0),
+        Transform::from_xyz(61.0, 0.0, 0.0),
     )
 }
+
+// fn launch_missile(query: Single<&Transform, With<&Missile>>) {
+//     
+// }

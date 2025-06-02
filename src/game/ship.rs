@@ -24,6 +24,8 @@ pub fn player_ship(ship_assets: &ShipAssets) -> impl Bundle {
     (
         Name::new("PlayerShip"),
         ship(ship_assets.player_image.clone()),
+        RigidBody::Kinematic,
+        Collider::rectangle(85., 31.)
     )
 }
 
@@ -31,6 +33,8 @@ pub fn enemy_ship(ship_assets: &ShipAssets) -> impl Bundle {
     (
         Name::new("EnemyShip"),
         ship(ship_assets.enemy_image.clone()),
+        RigidBody::Kinematic,
+        Collider::rectangle(167., 47.)
     )
 }
 
