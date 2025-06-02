@@ -44,7 +44,7 @@ fn restore_from_backup<C: Component<Mutability = Mutable> + Clone>(
     mut backup_query: Query<(&mut Backup<C>, &mut C)>,
 ) {
     for (mut backup, mut target) in &mut backup_query {
-        *target = c!(backup.0.take());
+        *target = cq!(backup.0.take());
     }
 }
 

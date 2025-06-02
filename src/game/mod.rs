@@ -15,3 +15,11 @@ pub(super) fn plugin(app: &mut App) {
         ship::plugin,
     ));
 }
+
+#[derive(PhysicsLayer, Default)]
+enum GameLayer {
+    #[default]
+    Default,
+    Player,
+    Enemy,
+}

@@ -1,9 +1,8 @@
 use crate::game::deck::Deck;
 use crate::game::hud::HudAssets;
 use crate::game::hud::hud;
-use crate::game::missile::IsWeapon;
-use crate::game::missile::Missile;
-use crate::game::missile::start_position;
+use crate::game::missile::MissileAssets;
+use crate::game::missile::missile;
 use crate::game::ship::ShipAssets;
 use crate::game::ship::enemy_ship;
 use crate::game::ship::player_ship;
@@ -68,24 +67,13 @@ pub fn spawn_level(
     hud_assets: Res<HudAssets>,
     level_assets: Res<LevelAssets>,
     ship_assets: Res<ShipAssets>,
+    missile_assets: Res<MissileAssets>,
 ) {
     commands.spawn((hud(&hud_assets), DespawnOnExitState::<Level>::default()));
     commands.spawn(background(&level_assets, level.unwrap().0));
     commands.spawn(player(&ship_assets));
-    commands.spawn(enemy(&ship_assets)).observe(
-        |trigger: Trigger<OnCollisionStart>,
-         mut query: Query<(&mut Transform, &mut LinearVelocity, &Missile)>,
-         launchers_query: Query<(&GlobalTransform, &IsWeapon)>| {
-            if query.contains(trigger.collider) {
-                let n = thread_rng().gen_range(0..=1);
-                let weapons = launchers_query.iter().collect::<Vec<_>>();
-
-                let (mut transform, mut velocity, _) = r!(query.single_mut());
-                transform.translation = start_position(weapons[n].0.translation().x);
-                velocity.y = 0.;
-            }
-        },
-    );
+    commands.spawn(enemy(&ship_assets));
+    commands.spawn(missile(&missile_assets));
 }
 
 fn background(level_assets: &LevelAssets, level: usize) -> impl Bundle {
@@ -122,18 +110,6 @@ fn player(ship_assets: &ShipAssets) -> impl Bundle {
         player_ship(ship_assets),
         DespawnOnExitState::<Level>::default(),
         Transform::from_xyz(61.0, -46.0, 2.0),
-        children![
-            (
-                IsWeapon,
-                // Collider::rectangle(7., 10.),
-                Transform::from_xyz(-10., 11., 0.),
-            ),
-            (
-                IsWeapon,
-                // Collider::rectangle(7., 10.),
-                Transform::from_xyz(10., 11., 0.),
-            ),
-        ],
     )
 }
 
@@ -142,6 +118,5 @@ fn enemy(ship_assets: &ShipAssets) -> impl Bundle {
         enemy_ship(ship_assets),
         DespawnOnExitState::<Level>::default(),
         Transform::from_xyz(59.0, 93.0, 0.0),
-        CollisionEventsEnabled,
     )
 }

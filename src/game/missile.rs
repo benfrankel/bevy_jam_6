@@ -1,9 +1,52 @@
+use crate::game::GameLayer;
 use crate::game::level::Level;
-use crate::game::level::spawn_level;
+use crate::game::ship::IsPlayerShip;
+use crate::game::ship::IsWeapon;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<MissileAssets>();
+    app.configure::<(MissileAssets, IsMissile)>();
+}
+
+pub fn missile(missile_assets: &MissileAssets) -> impl Bundle {
+    (
+        Name::new("Missile"),
+        IsMissile,
+        Sprite::from_image(missile_assets.image.clone()),
+        RigidBody::Dynamic,
+        // TODO: Increase initial velocity, taking initial rotation into account.
+        LinearVelocity::ZERO,
+        MaxLinearSpeed(150.0),
+        Collider::capsule(3.0, 7.0),
+        CollisionEventsEnabled,
+        Patch(|entity| {
+            entity.observe(hit_ship);
+        }),
+    )
+}
+
+fn hit_ship(
+    trigger: Trigger<OnCollisionStart>,
+    mut commands: Commands,
+    missile_assets: Res<MissileAssets>,
+    player_ship_children: Single<&Children, With<IsPlayerShip>>,
+    weapon_query: Query<&GlobalTransform, With<IsWeapon>>,
+) {
+    // Despawn the missile.
+    commands.entity(r!(trigger.get_target())).despawn();
+
+    // Fire a new missile from the player ship.
+    let weapons = player_ship_children
+        .iter()
+        .filter_map(|entity| weapon_query.get(entity).ok())
+        .collect::<Vec<_>>();
+    let weapon = weapons.choose(&mut thread_rng()).unwrap();
+    commands.spawn((
+        missile(&missile_assets),
+        CollisionLayers::new(LayerMask::ALL, GameLayer::Enemy),
+        weapon.compute_transform(),
+        DespawnOnExitState::<Level>::default(),
+    ));
 }
 
 #[derive(AssetCollection, Resource, Reflect, Default, Debug)]
@@ -13,56 +56,32 @@ pub struct MissileAssets {
     image: Handle<Image>,
 }
 
-#[derive(Component)]
-pub struct Missile;
-
-#[derive(Component, Debug)]
-pub struct IsWeapon;
-
 impl Configure for MissileAssets {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.init_collection::<Self>();
-        app.add_systems(
-            StateFlush,
-            Level::ANY.on_enter(spawn_missile).after(spawn_level),
-        );
-        app.add_systems(Update, Level::ANY.on_update(launch_missile));
     }
 }
 
-fn spawn_missile(
-    mut commands: Commands,
-    missile_assets: Res<MissileAssets>,
-    launchers_query: Query<(&GlobalTransform, &IsWeapon, &Transform)>,
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
+pub struct IsMissile;
+
+impl Configure for IsMissile {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+        app.add_systems(
+            Update,
+            apply_missile_thrusters.in_set(UpdateSystems::Update),
+        );
+    }
+}
+
+fn apply_missile_thrusters(
+    mut missile_query: Query<(&mut ExternalForce, &GlobalTransform), With<IsMissile>>,
 ) {
-    let n = thread_rng().gen_range(0..1);
-    let launchers = launchers_query.iter().collect::<Vec<_>>();
-
-    commands.spawn((
-        missile(&missile_assets),
-        Transform::from_translation(start_position(launchers[n].0.translation().x)),
-    ));
-}
-
-pub fn missile(missile_assets: &MissileAssets) -> impl Bundle {
-    (
-        Name::new("Missile"),
-        Missile,
-        Sprite::from_image(missile_assets.image.clone()),
-        RigidBody::Dynamic,
-        Collider::capsule(3., 7.),
-        LinearVelocity::ZERO,
-        DespawnOnExitState::<Level>::default(),
-    )
-}
-
-fn launch_missile(query: Single<&mut LinearVelocity, With<Missile>>) {
-    let mut velocity = query;
-    velocity.y += 1.;
-}
-
-pub fn start_position(x_pos: f32) -> Vec3 {
-    let player_y_pos = -46.;
-    Vec3::new(x_pos, player_y_pos + 15., 1.)
+    const THRUSTER_FORCE: f32 = 100.0;
+    for (mut force, gt) in &mut missile_query {
+        force.apply_force(THRUSTER_FORCE * (gt.rotation() * Vec3::Y).truncate());
+    }
 }
