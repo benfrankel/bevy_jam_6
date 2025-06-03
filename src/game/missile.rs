@@ -39,7 +39,7 @@ pub fn missile(
         Name::new("Missile"),
         IsMissile,
         Sprite::from_image(missile_assets.image.clone()),
-        Damage(missile_config.damage * flux.max(1.0)),
+        Damage(missile_config.damage * flux),
         faction,
         RigidBody::Dynamic,
         LinearVelocity(velocity),

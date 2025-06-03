@@ -73,30 +73,34 @@ fn on_module_action(
     ship_query: Query<(&Children, &Faction)>,
     weapon_query: Query<&GlobalTransform, With<IsWeapon>>,
 ) {
+    // Choose a weapon on the ship.
     let rng = &mut thread_rng();
+    let ship = r!(trigger.get_target());
+    let (children, &faction) = r!(ship_query.get(ship));
+    let weapons = children
+        .iter()
+        .filter_map(|entity| weapon_query.get(entity).ok())
+        .collect::<Vec<_>>();
+    let weapon_gt = r!(weapons.choose(&mut thread_rng()));
+    let weapon_transform = weapon_gt.compute_transform();
+
+    // Determine flux.
+    let flux = match faction {
+        Faction::Player => deck.flux,
+        Faction::Enemy => 1.0,
+    };
 
     match trigger.0 {
         ModuleAction::Missile => {
             let missile_config = r!(missile_config.get());
-
-            // Choose a weapon on the ship.
-            let ship = r!(trigger.get_target());
-            let (children, &faction) = r!(ship_query.get(ship));
-            let weapons = children
-                .iter()
-                .filter_map(|entity| weapon_query.get(entity).ok())
-                .collect::<Vec<_>>();
-            let gt = r!(weapons.choose(&mut thread_rng()));
-
-            // Spawn a missile from the chosen weapon.
             commands.spawn((
                 missile(
                     rng,
                     missile_config,
                     &missile_assets,
                     faction,
-                    deck.flux,
-                    gt.compute_transform(),
+                    flux,
+                    weapon_transform,
                 ),
                 DespawnOnExitState::<Level>::default(),
             ));
