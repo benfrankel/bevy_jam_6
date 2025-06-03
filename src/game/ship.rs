@@ -63,16 +63,6 @@ impl Configure for ShipAssets {
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-pub struct IsShip;
-
-impl Configure for IsShip {
-    fn configure(app: &mut App) {
-        app.register_type::<Self>();
-    }
-}
-
-#[derive(Component, Reflect, Debug)]
-#[reflect(Component)]
 pub struct IsPlayerShip;
 
 impl Configure for IsPlayerShip {
