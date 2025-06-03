@@ -128,6 +128,14 @@ impl Deck {
             .clamp(0, self.hand.len().saturating_sub(1));
     }
 
+    pub fn is_reactor_done(&self) -> bool {
+        !self.reactor.iter().any(|module| {
+            matches!(module.status, ModuleStatus::SlotInactive)
+                && (matches!(module.condition, ModuleAction::Nothing)
+                    || module.condition == self.last_effect)
+        })
+    }
+
     pub fn step_reactor(&mut self) {
         // Search for a matching module.
         for module in &mut self.reactor {
