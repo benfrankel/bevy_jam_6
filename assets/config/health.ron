@@ -1,5 +1,6 @@
 (
-    color_ramp: [
+    health_bar_base_size: Vec2(100, 5),
+    health_bar_color_ramp: [
         Oklcha(Oklcha(lightness: 0.500, chroma: 0.150, hue: 030, alpha: 0.600)),
         Oklcha(Oklcha(lightness: 0.500, chroma: 0.150, hue: 030, alpha: 0.600)),
         Oklcha(Oklcha(lightness: 0.800, chroma: 0.150, hue: 090, alpha: 0.600)),

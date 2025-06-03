@@ -17,7 +17,8 @@ pub fn health_bar(width: f32, height: f32) -> impl Bundle {
 #[derive(Asset, Reflect, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields, default)]
 struct HealthConfig {
-    color_ramp: Vec<Color>,
+    health_bar_base_size: Vec2,
+    health_bar_color_ramp: Vec<Color>,
 }
 
 impl Config for HealthConfig {
@@ -25,17 +26,17 @@ impl Config for HealthConfig {
 }
 
 impl HealthConfig {
-    fn color(&self, t: f32) -> Color {
-        let n = self.color_ramp.len();
+    fn health_bar_color(&self, t: f32) -> Color {
+        let n = self.health_bar_color_ramp.len();
         let t = t * (n - 1) as f32;
         let lo = t as usize;
         let hi = lo + 1;
         let t = t.fract();
 
         if hi >= n {
-            self.color_ramp[n - 1]
+            self.health_bar_color_ramp[n - 1]
         } else {
-            self.color_ramp[lo].mix(&self.color_ramp[hi], t)
+            self.health_bar_color_ramp[lo].mix(&self.health_bar_color_ramp[hi], t)
         }
     }
 }
@@ -92,7 +93,8 @@ fn sync_health_bar(
         let health = c!(health_query.get(child_of.parent()));
         let t = health.current.max(0.0) / health.max;
 
-        sprite.custom_size = Some(vec2(t * health_bar.size.x, health_bar.size.y));
-        sprite.color = health_config.color(t);
+        sprite.custom_size =
+            Some(health_config.health_bar_base_size * health_bar.size * vec2(t, 1.0));
+        sprite.color = health_config.health_bar_color(t);
     }
 }
