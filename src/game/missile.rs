@@ -7,12 +7,12 @@ pub(super) fn plugin(app: &mut App) {
     app.configure::<(MissileAssets, IsMissile)>();
 }
 
-pub fn missile(missile_assets: &MissileAssets, faction: Faction, damage: f32) -> impl Bundle {
+pub fn missile(missile_assets: &MissileAssets, faction: Faction, flux: f32) -> impl Bundle {
     (
         Name::new("Missile"),
         IsMissile,
         Sprite::from_image(missile_assets.image.clone()),
-        Damage(damage),
+        Damage(flux),
         faction,
         RigidBody::Dynamic,
         // TODO: Increase initial velocity, taking initial rotation into account.

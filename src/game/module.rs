@@ -1,4 +1,5 @@
 use crate::game::combat::faction::Faction;
+use crate::game::deck::Deck;
 use crate::game::level::Level;
 use crate::game::missile::MissileAssets;
 use crate::game::missile::missile;
@@ -32,7 +33,7 @@ impl Module {
     }
 }
 
-#[derive(Reflect, Copy, Clone, Default, Debug, Serialize, Deserialize)]
+#[derive(Reflect, Serialize, Deserialize, Copy, Clone, Default, Eq, PartialEq, Debug)]
 pub enum ModuleAction {
     #[default]
     Nothing,
@@ -65,6 +66,7 @@ impl Configure for OnModuleAction {
 fn on_module_action(
     trigger: Trigger<OnModuleAction>,
     mut commands: Commands,
+    deck: Res<Deck>,
     missile_assets: Res<MissileAssets>,
     ship_query: Query<(&Children, &Faction)>,
     weapon_query: Query<&GlobalTransform, With<IsWeapon>>,
@@ -82,7 +84,7 @@ fn on_module_action(
 
             // Spawn a missile from the chosen weapon.
             commands.spawn((
-                missile(&missile_assets, faction, thread_rng().gen_range(0.0..15.0)),
+                missile(&missile_assets, faction, deck.flux),
                 gt.compute_transform(),
                 gt,
                 DespawnOnExitState::<Level>::default(),

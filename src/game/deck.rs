@@ -32,6 +32,7 @@ pub struct Deck {
     pub selected_idx: usize,
     pub reactor: Vec<Module>,
     pub next_slot: usize,
+    pub last_effect: ModuleAction,
 }
 
 impl Configure for Deck {
@@ -65,6 +66,7 @@ impl Default for Deck {
             selected_idx: 0,
             reactor: vec![Module::EMPTY; 9],
             next_slot: 0,
+            last_effect: ModuleAction::Nothing,
         }
     }
 }
@@ -84,7 +86,7 @@ impl Deck {
     }
 
     /// Advance the selected module index by the given step.
-    pub fn advance(&mut self, step: isize) {
+    pub fn advance_selected(&mut self, step: isize) {
         self.selected_idx = self
             .selected_idx
             .saturating_add_signed(step)
@@ -92,7 +94,7 @@ impl Deck {
     }
 
     /// Play the currently selected module.
-    pub fn play(&mut self) {
+    pub fn play_selected(&mut self) {
         rq!(!self.hand.is_empty());
 
         // Remove the selected module from hand.
@@ -124,5 +126,28 @@ impl Deck {
         self.selected_idx = self
             .selected_idx
             .clamp(0, self.hand.len().saturating_sub(1));
+    }
+
+    pub fn step_reactor(&mut self) {
+        // Search for a matching module.
+        for module in &mut self.reactor {
+            cq!(matches!(module.status, ModuleStatus::SlotInactive));
+            cq!(matches!(module.condition, ModuleAction::Nothing)
+                || module.condition == self.last_effect);
+
+            // Activate the module.
+            module.status = ModuleStatus::SlotActive;
+            self.last_effect = module.effect;
+            self.flux += 1.0;
+            return;
+        }
+
+        // If there was no match, reset the reactor.
+        self.last_effect = ModuleAction::Nothing;
+        self.flux = 0.0;
+        for module in &mut self.reactor {
+            cq!(matches!(module.status, ModuleStatus::SlotActive));
+            module.status = ModuleStatus::SlotInactive;
+        }
     }
 }
