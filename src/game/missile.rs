@@ -1,4 +1,5 @@
 use crate::game::GameLayer;
+use crate::game::health::Health;
 use crate::game::level::Level;
 use crate::game::ship::IsPlayerShip;
 use crate::game::ship::IsWeapon;
@@ -8,7 +9,7 @@ pub(super) fn plugin(app: &mut App) {
     app.configure::<(MissileAssets, IsMissile)>();
 }
 
-pub fn missile(missile_assets: &MissileAssets) -> impl Bundle {
+pub fn missile(missile_assets: &MissileAssets, damage: f32) -> impl Bundle {
     (
         Name::new("Missile"),
         IsMissile,
@@ -22,6 +23,7 @@ pub fn missile(missile_assets: &MissileAssets) -> impl Bundle {
         Patch(|entity| {
             entity.observe(hit_ship);
         }),
+        Damage::new(damage),
     )
 }
 
@@ -29,11 +31,23 @@ fn hit_ship(
     trigger: Trigger<OnCollisionStart>,
     mut commands: Commands,
     missile_assets: Res<MissileAssets>,
+    missile_query: Query<(&IsMissile, &Damage)>,
     player_ship_children: Single<&Children, With<IsPlayerShip>>,
     weapon_query: Query<&GlobalTransform, With<IsWeapon>>,
+    mut health_query: Query<&mut Health>,
 ) {
+    // Apply damage to target ship
+    let mut target_health = r!(health_query.get_mut(trigger.collider));
+    let target = r!(trigger.get_target());
+    target_health.current -= r!(missile_query.get(target)).1.damage;
+
     // Despawn the missile.
-    commands.entity(r!(trigger.get_target())).despawn();
+    commands.entity(target).despawn();
+
+    if target_health.current == 0. {
+        commands.entity(trigger.collider).despawn();
+        return;
+    }
 
     // Fire a new missile from the player ship.
     let weapons = player_ship_children
@@ -42,7 +56,7 @@ fn hit_ship(
         .collect::<Vec<_>>();
     let weapon = weapons.choose(&mut thread_rng()).unwrap();
     commands.spawn((
-        missile(&missile_assets),
+        missile(&missile_assets, 10.),
         CollisionLayers::new(LayerMask::ALL, GameLayer::Enemy),
         weapon.compute_transform(),
         DespawnOnExitState::<Level>::default(),
@@ -74,6 +88,26 @@ impl Configure for IsMissile {
             Update,
             apply_missile_thrusters.in_set(UpdateSystems::Update),
         );
+    }
+}
+
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
+pub struct Damage {
+    damage: f32,
+}
+
+impl Configure for Damage {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+    }
+}
+
+impl Damage {
+    fn new(damage: f32) -> Self {
+        Damage {
+            damage,
+        }
     }
 }
 

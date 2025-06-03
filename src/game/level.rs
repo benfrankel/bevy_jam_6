@@ -82,7 +82,7 @@ pub fn spawn_level(
         Transform::from_xyz(59.0, 93.0, 0.0),
     ));
     commands.spawn((
-        missile(&missile_assets),
+        missile(&missile_assets, 10.),
         DespawnOnExitState::<Level>::default(),
     ));
 }
