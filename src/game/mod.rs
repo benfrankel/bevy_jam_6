@@ -1,4 +1,5 @@
 pub mod deck;
+pub mod health;
 pub mod hud;
 pub mod level;
 pub mod missile;
