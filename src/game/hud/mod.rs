@@ -8,7 +8,7 @@ use crate::game::hud::reactor::reactor;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<HudAssets>();
+    app.configure::<(ConfigHandle<HudConfig>, HudAssets)>();
 
     app.add_plugins((flux::plugin, reactor::plugin, helm::plugin));
 }
@@ -29,6 +29,17 @@ pub fn hud(hud_assets: &HudAssets) -> impl Bundle {
             )
         ],
     )
+}
+
+#[derive(Asset, Reflect, Serialize, Deserialize, Default)]
+#[serde(deny_unknown_fields, default)]
+struct HudConfig {
+    flux_shake_magnitude: Vec2,
+    flux_shake_decay: f32,
+}
+
+impl Config for HudConfig {
+    const FILE: &'static str = "hud.ron";
 }
 
 #[derive(AssetCollection, Resource, Reflect, Default, Debug)]

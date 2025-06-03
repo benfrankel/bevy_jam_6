@@ -1,4 +1,3 @@
-use bevy::math::ops::powf;
 use crate::animation::offset::NodeOffset;
 use crate::prelude::*;
 
@@ -8,19 +7,11 @@ pub(super) fn plugin(app: &mut App) {
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
+#[require(NodeOffset)]
 pub struct NodeShake {
-    magnitude: Vec2,
+    pub magnitude: Vec2,
     /// The base of an exponent.
-    decay: f32,
-}
-
-impl NodeShake {
-    pub fn new(magnitude: Vec2, decay: f32) -> Self {
-        Self {
-            magnitude,
-            decay,
-        }
-    }
+    pub decay: f32,
 }
 
 impl Configure for NodeShake {
@@ -30,15 +21,25 @@ impl Configure for NodeShake {
     }
 }
 
-fn apply_shake(mut query: Query<(&mut NodeShake, &mut NodeOffset)>) {
-    for (mut shake, mut offset) in query.iter_mut().filter(|(shake, _)| shake.magnitude.x + shake.magnitude.y > 0.) {
-        let rng = &mut StdRng::from_entropy();
-        let point = Rectangle::new(shake.magnitude.x, shake.magnitude.y).sample_interior(rng);
-
-        offset.x = Px(point.x);
-        offset.y = Px(point.y);
-        shake.magnitude = shake.magnitude * powf(shake.decay, -2.);
+impl Default for NodeShake {
+    fn default() -> Self {
+        Self {
+            magnitude: Vec2::ZERO,
+            decay: 1.0,
+        }
     }
 }
 
+fn apply_shake(time: Res<Time>, mut shake_query: Query<(&mut NodeShake, &mut NodeOffset)>) {
+    let rng = &mut thread_rng();
+    for (mut shake, mut offset) in &mut shake_query {
+        cq!(shake.magnitude != Vec2::ZERO);
 
+        let point = Rectangle::from_size(shake.magnitude).sample_interior(rng);
+        offset.x = Vw(point.x);
+        offset.y = Vw(point.y);
+
+        let decay = shake.decay.powf(time.delta_secs());
+        shake.magnitude *= decay;
+    }
+}

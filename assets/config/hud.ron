@@ -1,0 +1,4 @@
+(
+    flux_shake_magnitude: Vec2(0.4, 0),
+    flux_shake_decay: 0.01,
+)
