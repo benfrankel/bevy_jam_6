@@ -4,8 +4,13 @@ pub fn plugin(app: &mut App) {
     app.configure::<(ConfigHandle<HealthConfig>, Health, HealthBar)>();
 }
 
-pub fn health_bar(size: Vec2) -> impl Bundle {
-    (Name::new("HealthBar"), HealthBar { size })
+pub fn health_bar(width: f32, height: f32) -> impl Bundle {
+    (
+        Name::new("HealthBar"),
+        HealthBar {
+            size: vec2(width, height),
+        },
+    )
 }
 
 #[derive(Asset, Reflect, Serialize, Deserialize, Default)]

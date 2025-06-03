@@ -1,5 +1,10 @@
+use crate::game::GameLayer;
 use crate::game::deck::Deck;
 use crate::game::level::Level;
+use crate::game::missile::MissileAssets;
+use crate::game::missile::missile;
+use crate::game::ship::IsEnemyShip;
+use crate::game::ship::IsWeapon;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -22,7 +27,10 @@ impl Configure for Turn {
         app.add_state::<Self>();
         app.add_systems(
             StateFlush,
-            Level::ANY.on_edge(Turn::disable, (Turn::enable_default, Turn::trigger)),
+            (
+                Level::ANY.on_edge(Turn::disable, (Turn::enable_default, Turn::trigger)),
+                Turn::Enemy.on_enter(fire_enemy_missile),
+            ),
         );
         app.add_systems(
             Update,
@@ -34,6 +42,26 @@ impl Configure for Turn {
             ),
         );
     }
+}
+
+fn fire_enemy_missile(
+    mut commands: Commands,
+    missile_assets: Res<MissileAssets>,
+    enemy_ship_children: Single<&Children, With<IsEnemyShip>>,
+    weapon_query: Query<&GlobalTransform, With<IsWeapon>>,
+) {
+    let weapons = enemy_ship_children
+        .iter()
+        .filter_map(|entity| weapon_query.get(entity).ok())
+        .collect::<Vec<_>>();
+    let gt = **r!(weapons.choose(&mut thread_rng()));
+    commands.spawn((
+        missile(&missile_assets, thread_rng().gen_range(0.0..15.0)),
+        CollisionLayers::new(GameLayer::Default, GameLayer::Player),
+        gt.compute_transform(),
+        gt,
+        DespawnOnExitState::<Level>::default(),
+    ));
 }
 
 #[derive(Actionlike, Reflect, Copy, Clone, Eq, PartialEq, Hash, Debug)]

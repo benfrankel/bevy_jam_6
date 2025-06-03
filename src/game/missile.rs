@@ -42,10 +42,11 @@ fn hit_ship(
     target_health.current -= r!(missile_query.get(target)).1.damage;
 
     // Despawn the missile.
-    commands.entity(target).despawn();
+    commands.entity(r!(trigger.get_target())).try_despawn();
 
-    if target_health.current <= 0. {
-        commands.entity(trigger.collider).despawn();
+    // Detect ship death.
+    if target_health.current <= f32::EPSILON {
+        commands.entity(trigger.collider).try_despawn();
         return;
     }
 
@@ -54,11 +55,12 @@ fn hit_ship(
         .iter()
         .filter_map(|entity| weapon_query.get(entity).ok())
         .collect::<Vec<_>>();
-    let weapon = weapons.choose(&mut thread_rng()).unwrap();
+    let gt = **r!(weapons.choose(&mut thread_rng()));
     commands.spawn((
-        missile(&missile_assets, thread_rng().gen_range(0.0..15.)),
-        CollisionLayers::new(LayerMask::ALL, GameLayer::Enemy),
-        weapon.compute_transform(),
+        missile(&missile_assets, thread_rng().gen_range(0.0..15.0)),
+        CollisionLayers::new(GameLayer::Default, GameLayer::Enemy),
+        gt.compute_transform(),
+        gt,
         DespawnOnExitState::<Level>::default(),
     ));
 }

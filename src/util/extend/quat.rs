@@ -10,3 +10,13 @@ impl Dir2ExtToQuat for Dir2 {
         Quat::from_rotation_z(self.to_angle())
     }
 }
+
+pub trait Rot2ExtToQuat {
+    fn to_quat(self) -> Quat;
+}
+
+impl Rot2ExtToQuat for Rot2 {
+    fn to_quat(self) -> Quat {
+        Quat::from_rotation_z(Rot2::IDENTITY.angle_to(self))
+    }
+}
