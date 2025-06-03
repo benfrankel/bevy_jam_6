@@ -44,7 +44,7 @@ fn hit_ship(
     // Despawn the missile.
     commands.entity(target).despawn();
 
-    if target_health.current == 0. {
+    if target_health.current <= 0. {
         commands.entity(trigger.collider).despawn();
         return;
     }
@@ -56,7 +56,7 @@ fn hit_ship(
         .collect::<Vec<_>>();
     let weapon = weapons.choose(&mut thread_rng()).unwrap();
     commands.spawn((
-        missile(&missile_assets, 10.),
+        missile(&missile_assets, thread_rng().gen_range(0.0..15.)),
         CollisionLayers::new(LayerMask::ALL, GameLayer::Enemy),
         weapon.compute_transform(),
         DespawnOnExitState::<Level>::default(),
@@ -105,9 +105,7 @@ impl Configure for Damage {
 
 impl Damage {
     fn new(damage: f32) -> Self {
-        Damage {
-            damage,
-        }
+        Damage { damage }
     }
 }
 
