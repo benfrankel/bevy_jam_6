@@ -4,7 +4,30 @@ use crate::game::module::ModuleStatus;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<Deck>();
+    app.configure::<(ConfigHandle<DeckConfig>, Deck)>();
+}
+
+#[derive(Asset, Reflect, Serialize, Deserialize, Default, Debug)]
+#[serde(deny_unknown_fields, default)]
+pub struct DeckConfig {
+    hand: Vec<Module>
+}
+
+impl Config for DeckConfig {
+    const FILE: &'static str = "starter.ron";
+
+    // fn on_load(&self, world: &mut World) {
+    //     let _ = world;
+    // 
+    //     dbg!(self);
+    //     std::process::exit(1);
+    // }
+}
+
+impl DeckConfig {
+    pub fn starter(&self) -> Vec<Module> {
+        self.hand.clone()
+    }
 }
 
 #[derive(Resource, Reflect, Debug)]

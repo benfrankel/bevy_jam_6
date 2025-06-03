@@ -1,0 +1,29 @@
+(
+    hand: [
+        Module(
+            condition: Nothing,
+            effect: Missile,
+            status: FaceUp,
+        ),
+        Module(
+            condition: Laser,
+            effect: Heal,
+            status: FaceUp,
+        ),
+        Module(
+            condition: Missile,
+            effect: Missile,
+            status: FaceUp,
+        ),
+        Module(
+            condition: Heal,
+            effect: Laser,
+            status: FaceUp,
+        ),
+        Module(
+            condition: Fire,
+            effect: Missile,
+            status: FaceUp,
+        ),
+    ],
+)

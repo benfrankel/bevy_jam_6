@@ -9,7 +9,7 @@ pub(super) fn plugin(app: &mut App) {
     app.configure::<OnModuleAction>();
 }
 
-#[derive(Reflect, Copy, Clone, Default, Debug)]
+#[derive(Reflect, Copy, Clone, Default, Debug, Serialize, Deserialize)]
 pub struct Module {
     pub condition: ModuleAction,
     pub effect: ModuleAction,
@@ -32,7 +32,7 @@ impl Module {
     }
 }
 
-#[derive(Reflect, Copy, Clone, Default, Debug)]
+#[derive(Reflect, Copy, Clone, Default, Debug, Serialize, Deserialize)]
 pub enum ModuleAction {
     #[default]
     Nothing,
@@ -42,7 +42,7 @@ pub enum ModuleAction {
     Heal,
 }
 
-#[derive(Reflect, Copy, Clone, Default, Debug)]
+#[derive(Reflect, Copy, Clone, Default, Debug, Serialize, Deserialize)]
 pub enum ModuleStatus {
     #[default]
     FaceUp,
