@@ -10,7 +10,7 @@ pub(super) fn plugin(app: &mut App) {
 #[derive(Asset, Reflect, Serialize, Deserialize, Default, Debug)]
 #[serde(deny_unknown_fields, default)]
 pub struct DeckConfig {
-    hand: Vec<Module>
+    hand: Vec<Module>,
 }
 
 impl Config for DeckConfig {
