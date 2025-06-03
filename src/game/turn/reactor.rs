@@ -15,7 +15,7 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
-#[derive(Resource, Reflect, Debug)]
+#[derive(Resource, Reflect, Debug, Default)]
 #[reflect(Resource)]
 struct ReactorTimer(Timer);
 
@@ -31,14 +31,12 @@ impl Configure for ReactorTimer {
     }
 }
 
-impl Default for ReactorTimer {
-    fn default() -> Self {
-        Self(Timer::from_seconds(1.0, TimerMode::Once))
-    }
-}
-
-fn reset_reactor_timer(mut reactor_timer: ResMut<ReactorTimer>) {
-    *reactor_timer = default();
+fn reset_reactor_timer(
+    turn_config: ConfigRef<TurnConfig>,
+    mut reactor_timer: ResMut<ReactorTimer>,
+) {
+    let turn_config = r!(turn_config.get());
+    reactor_timer.0 = Timer::from_seconds(turn_config.reactor_first_cooldown, TimerMode::Once);
 }
 
 fn tick_reactor_timer(time: Res<Time>, mut reactor_timer: ResMut<ReactorTimer>) {
@@ -70,11 +68,11 @@ fn step_reactor(
         .trigger(OnModuleAction(deck.last_effect));
 
     // Reset the reactor timer.
-    let delay = if deck.is_reactor_done() {
-        turn_config.reactor_final_cooldown
+    let cooldown = Duration::from_secs_f32(if deck.is_reactor_done() {
+        turn_config.reactor_last_cooldown
     } else {
-        turn_config.reactor_cooldown_decay.powf(deck.flux - 1.0)
-    };
-    reactor_timer.0.set_duration(Duration::from_secs_f32(delay));
+        turn_config.reactor_cooldown * turn_config.reactor_cooldown_decay.powf(deck.flux - 1.0)
+    });
+    reactor_timer.0.set_duration(cooldown);
     reactor_timer.0.reset();
 }

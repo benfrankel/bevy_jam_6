@@ -12,8 +12,10 @@ pub(super) fn plugin(app: &mut App) {
 #[derive(Asset, Reflect, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields, default)]
 struct TurnConfig {
+    reactor_cooldown: f32,
     reactor_cooldown_decay: f32,
-    reactor_final_cooldown: f32,
+    reactor_first_cooldown: f32,
+    reactor_last_cooldown: f32,
 }
 
 impl Config for TurnConfig {
