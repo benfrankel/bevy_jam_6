@@ -1,0 +1,4 @@
+(
+    reactor_cooldown_decay: 0.8,
+    reactor_final_cooldown: 1.5,
+)
