@@ -1,4 +1,5 @@
-use crate::game::deck::Deck;
+use crate::game::deck::EnemyDeck;
+use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudAssets;
 use crate::game::hud::hud;
 use crate::game::ship::ShipAssets;
@@ -52,12 +53,13 @@ impl Configure for Level {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.add_state::<Self>();
-        app.add_systems(StateFlush, Level::ANY.on_edge(reset_deck, spawn_level));
+        app.add_systems(StateFlush, Level::ANY.on_edge(reset_decks, spawn_level));
     }
 }
 
-fn reset_deck(mut deck: ResMut<Deck>) {
-    deck.reset();
+fn reset_decks(mut player_deck: ResMut<PlayerDeck>, mut enemy_deck: ResMut<EnemyDeck>) {
+    player_deck.reset();
+    enemy_deck.reset();
 }
 
 pub fn spawn_level(

@@ -1,4 +1,4 @@
-use crate::game::deck::Deck;
+use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudAssets;
 use crate::game::hud::flux::flux_display;
 use crate::game::hud::module::module;
@@ -47,7 +47,7 @@ impl Configure for IsModuleGrid {
             Update,
             sync_module_grid
                 .in_set(UpdateSystems::SyncLate)
-                .run_if(resource_changed::<Deck>.or(any_match_filter::<Added<Self>>)),
+                .run_if(resource_changed::<PlayerDeck>.or(any_match_filter::<Added<Self>>)),
         );
     }
 }
@@ -55,7 +55,7 @@ impl Configure for IsModuleGrid {
 fn sync_module_grid(
     mut commands: Commands,
     hud_assets: Res<HudAssets>,
-    deck: Res<Deck>,
+    player_deck: Res<PlayerDeck>,
     grid_query: Query<Entity, With<IsModuleGrid>>,
 ) {
     for entity in &grid_query {
@@ -63,7 +63,7 @@ fn sync_module_grid(
             .entity(entity)
             .despawn_related::<Children>()
             .with_children(|parent| {
-                for &slot in &deck.reactor {
+                for &slot in &player_deck.reactor {
                     parent.spawn(module(&hud_assets, slot, Anchor::CenterRight));
                 }
             });

@@ -1,4 +1,4 @@
-use crate::game::deck::Deck;
+use crate::game::deck::PlayerDeck;
 use crate::game::turn::Turn;
 use crate::prelude::*;
 
@@ -74,15 +74,15 @@ fn enable_player_actions(mut player_actions: ResMut<ActionState<PlayerActions>>)
     player_actions.enable();
 }
 
-fn player_select_left(mut deck: ResMut<Deck>) {
-    deck.advance_selected(-1);
+fn player_select_left(mut player_deck: ResMut<PlayerDeck>) {
+    player_deck.advance_selected(-1);
 }
 
-fn player_select_right(mut deck: ResMut<Deck>) {
-    deck.advance_selected(1);
+fn player_select_right(mut player_deck: ResMut<PlayerDeck>) {
+    player_deck.advance_selected(1);
 }
 
-fn player_play_module(mut deck: ResMut<Deck>, mut next_turn: NextMut<Turn>) {
-    deck.play_selected();
+fn player_play_module(mut player_deck: ResMut<PlayerDeck>, mut next_turn: NextMut<Turn>) {
+    player_deck.play_selected();
     next_turn.enter(Turn::Reactor);
 }

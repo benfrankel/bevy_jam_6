@@ -1,5 +1,6 @@
 use crate::game::combat::faction::Faction;
-use crate::game::deck::Deck;
+use crate::game::deck::EnemyDeck;
+use crate::game::deck::PlayerDeck;
 use crate::game::level::Level;
 use crate::game::missile::MissileAssets;
 use crate::game::missile::MissileConfig;
@@ -67,7 +68,8 @@ impl Configure for OnModuleAction {
 fn on_module_action(
     trigger: Trigger<OnModuleAction>,
     mut commands: Commands,
-    deck: Res<Deck>,
+    player_deck: Res<PlayerDeck>,
+    enemy_deck: Res<EnemyDeck>,
     missile_config: ConfigRef<MissileConfig>,
     missile_assets: Res<MissileAssets>,
     ship_query: Query<(&Children, &Faction)>,
@@ -86,8 +88,8 @@ fn on_module_action(
 
     // Determine flux.
     let flux = match faction {
-        Faction::Player => deck.flux,
-        Faction::Enemy => 1.0,
+        Faction::Player => player_deck.flux,
+        Faction::Enemy => enemy_deck.flux,
     };
 
     match trigger.0 {

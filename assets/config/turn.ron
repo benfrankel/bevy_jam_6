@@ -3,4 +3,9 @@
     reactor_cooldown_decay: 0.8,
     reactor_first_cooldown: 0.8,
     reactor_last_cooldown: 1.5,
+
+    enemy_cooldown: 0.5,
+    enemy_cooldown_decay: 0.8,
+    enemy_first_cooldown: 0.8,
+    enemy_last_cooldown: 1.5,
 )

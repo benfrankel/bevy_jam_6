@@ -1,5 +1,5 @@
 use crate::animation::shake::NodeShake;
-use crate::game::deck::Deck;
+use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudConfig;
 use crate::prelude::*;
 
@@ -41,14 +41,14 @@ impl Configure for IsFluxLabel {
 
 fn sync_flux_label(
     hud_config: ConfigRef<HudConfig>,
-    deck: Res<Deck>,
+    player_deck: Res<PlayerDeck>,
     mut label_query: Query<(&mut RichText, &mut NodeShake), With<IsFluxLabel>>,
 ) {
     let hud_config = r!(hud_config.get());
     for (mut text, mut shake) in &mut label_query {
-        let new_text = RichText::from_sections(parse_rich(format!("flux {}x", deck.flux)));
+        let new_text = RichText::from_sections(parse_rich(format!("flux {}x", player_deck.flux)));
         if !text.sections.is_empty() && text.sections[0].value != new_text.sections[0].value {
-            shake.magnitude += hud_config.flux_shake_magnitude * deck.flux;
+            shake.magnitude += hud_config.flux_shake_magnitude * player_deck.flux;
             shake.decay = hud_config.flux_shake_decay;
         }
         *text = new_text;

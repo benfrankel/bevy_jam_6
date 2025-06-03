@@ -1,4 +1,4 @@
-use crate::game::deck::Deck;
+use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudAssets;
 use crate::game::hud::module::module;
 use crate::prelude::*;
@@ -69,7 +69,7 @@ impl Configure for IsHand {
             Update,
             sync_hand
                 .in_set(UpdateSystems::SyncLate)
-                .run_if(resource_changed::<Deck>.or(any_match_filter::<Added<Self>>)),
+                .run_if(resource_changed::<PlayerDeck>.or(any_match_filter::<Added<Self>>)),
         );
     }
 }
@@ -77,7 +77,7 @@ impl Configure for IsHand {
 fn sync_hand(
     mut commands: Commands,
     hud_assets: Res<HudAssets>,
-    deck: Res<Deck>,
+    player_deck: Res<PlayerDeck>,
     hand_query: Query<Entity, With<IsHand>>,
 ) {
     for entity in &hand_query {
@@ -85,8 +85,8 @@ fn sync_hand(
             .entity(entity)
             .despawn_related::<Children>()
             .with_children(|parent| {
-                for (i, &card) in deck.hand.iter().enumerate() {
-                    if i == deck.selected_idx {
+                for (i, &card) in player_deck.hand.iter().enumerate() {
+                    if i == player_deck.selected_idx {
                         parent.spawn((
                             module(&hud_assets, card, Anchor::TopCenter),
                             Patch(|entity| r!(entity.get_mut::<Node>()).top = Vw(-2.0)),
@@ -110,17 +110,24 @@ impl Configure for IsStorage {
             Update,
             sync_storage_tooltip
                 .in_set(UpdateSystems::SyncLate)
-                .run_if(resource_changed::<Deck>.or(any_match_filter::<Added<Self>>)),
+                .run_if(resource_changed::<PlayerDeck>.or(any_match_filter::<Added<Self>>)),
         );
     }
 }
 
-fn sync_storage_tooltip(deck: Res<Deck>, mut storage_query: Query<&mut Tooltip, With<IsStorage>>) {
+fn sync_storage_tooltip(
+    player_deck: Res<PlayerDeck>,
+    mut storage_query: Query<&mut Tooltip, With<IsStorage>>,
+) {
     for mut tooltip in &mut storage_query {
         tooltip.content = TooltipContent::Primary(RichText::from_sections(parse_rich(format!(
             "[b]Storage[r]\n\n{} reactor module{} remaining.",
-            deck.storage.len(),
-            if deck.storage.len() == 1 { "" } else { "s" },
+            player_deck.storage.len(),
+            if player_deck.storage.len() == 1 {
+                ""
+            } else {
+                "s"
+            },
         ))));
     }
 }
@@ -136,16 +143,16 @@ impl Configure for IsStorageLabel {
             Update,
             sync_storage_label
                 .in_set(UpdateSystems::SyncLate)
-                .run_if(resource_changed::<Deck>.or(any_match_filter::<Added<Self>>)),
+                .run_if(resource_changed::<PlayerDeck>.or(any_match_filter::<Added<Self>>)),
         );
     }
 }
 
 fn sync_storage_label(
-    deck: Res<Deck>,
+    player_deck: Res<PlayerDeck>,
     mut storage_label_query: Query<&mut RichText, With<IsStorageLabel>>,
 ) {
     for mut text in &mut storage_label_query {
-        *text = RichText::from_sections(parse_rich(deck.storage.len().to_string()));
+        *text = RichText::from_sections(parse_rich(player_deck.storage.len().to_string()));
     }
 }

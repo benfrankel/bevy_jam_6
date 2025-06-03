@@ -43,7 +43,7 @@ pub fn player_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets) -> impl B
 }
 
 pub fn enemy_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets) -> impl Bundle {
-    let weapons = ship_config.player_weapons.clone();
+    let weapons = ship_config.enemy_weapons.clone();
     let health_bar_transform =
         Transform::from_translation(ship_config.enemy_health_bar_offset.extend(0.1))
             .with_scale(ship_config.enemy_health_bar_size.extend(1.0));
