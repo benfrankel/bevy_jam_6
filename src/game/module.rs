@@ -89,6 +89,15 @@ fn on_module_action(
             ));
         },
 
+        // TODO: Implement this.
+        ModuleAction::Laser => {},
+
+        // TODO: Implement this.
+        ModuleAction::Fire => {},
+
+        // TODO: Implement this.
+        ModuleAction::Heal => {},
+
         _ => {},
     }
 }

@@ -33,9 +33,9 @@ impl Configure for Turn {
         app.add_systems(
             Update,
             (
-                // TODO: Implement reactor turn.
+                // TODO: Implement basic reactor turn.
                 Turn::Reactor.on_update(Turn::Enemy.enter()),
-                // TODO: Implement enemy turn.
+                // TODO: Flesh out enemy turn.
                 Turn::Enemy.on_update(Turn::Player.enter()),
             ),
         );
