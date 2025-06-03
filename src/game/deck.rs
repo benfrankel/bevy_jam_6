@@ -53,12 +53,15 @@ impl Default for Deck {
 impl Deck {
     /// Discard all cards in the deck.
     pub fn reset(&mut self) {
+        *self = default();
+        /*
         self.flux = 0.0;
         for slot in &mut self.reactor {
             *slot = Module::EMPTY;
         }
         self.storage.append(&mut self.hand);
         self.selected_idx = 0;
+        */
     }
 
     /// Advance the selected module index by the given step.

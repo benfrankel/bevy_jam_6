@@ -28,7 +28,7 @@ impl Configure for Turn {
         app.add_systems(
             StateFlush,
             (
-                Level::ANY.on_edge(Turn::disable, (Turn::enable_default, Turn::trigger)),
+                Level::ANY.on_edge(Turn::disable, (Turn::enter_default, Turn::trigger)),
                 Turn::Enemy.on_enter(fire_enemy_missile),
             ),
         );
@@ -92,7 +92,12 @@ impl Configure for PlayerActions {
         app.add_plugins(InputManagerPlugin::<Self>::default());
         app.add_systems(
             StateFlush,
-            Turn::Player.on_edge(disable_player_actions, enable_player_actions),
+            (
+                Turn::Player.on_edge(disable_player_actions, enable_player_actions),
+                Pause
+                    .on_edge(enable_player_actions, disable_player_actions)
+                    .run_if(Turn::Player.will_update()),
+            ),
         );
         app.add_systems(
             Update,
