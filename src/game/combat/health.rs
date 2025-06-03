@@ -2,22 +2,16 @@ use crate::game::combat::death::OnDeath;
 use crate::prelude::*;
 
 pub fn plugin(app: &mut App) {
-    app.configure::<(ConfigHandle<HealthConfig>, Health, HealthBar)>();
+    app.configure::<(ConfigHandle<HealthConfig>, Health, IsHealthBar)>();
 }
 
-pub fn health_bar(width: f32, height: f32) -> impl Bundle {
-    (
-        Name::new("HealthBar"),
-        HealthBar {
-            size: vec2(width, height),
-        },
-    )
+pub fn health_bar() -> impl Bundle {
+    (Name::new("HealthBar"), IsHealthBar)
 }
 
 #[derive(Asset, Reflect, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields, default)]
 struct HealthConfig {
-    health_bar_base_size: Vec2,
     health_bar_color_ramp: Vec<Color>,
 }
 
@@ -72,11 +66,9 @@ fn detect_death(mut commands: Commands, health_query: Query<(Entity, &Health), C
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
 #[require(Sprite)]
-pub struct HealthBar {
-    pub size: Vec2,
-}
+pub struct IsHealthBar;
 
-impl Configure for HealthBar {
+impl Configure for IsHealthBar {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.add_systems(Update, sync_health_bar.in_set(UpdateSystems::SyncLate));
@@ -86,15 +78,14 @@ impl Configure for HealthBar {
 fn sync_health_bar(
     health_config: ConfigRef<HealthConfig>,
     health_query: Query<&Health>,
-    mut health_bar_query: Query<(&HealthBar, &ChildOf, &mut Sprite)>,
+    mut health_bar_query: Query<(&ChildOf, &mut Sprite), With<IsHealthBar>>,
 ) {
     let health_config = r!(health_config.get());
-    for (health_bar, child_of, mut sprite) in &mut health_bar_query {
+    for (child_of, mut sprite) in &mut health_bar_query {
         let health = c!(health_query.get(child_of.parent()));
         let t = health.current.max(0.0) / health.max;
 
-        sprite.custom_size =
-            Some(health_config.health_bar_base_size * health_bar.size * vec2(t, 1.0));
+        sprite.custom_size = Some(vec2(t, 1.0));
         sprite.color = health_config.health_bar_color(t);
     }
 }

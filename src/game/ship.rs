@@ -5,11 +5,20 @@ use crate::game::combat::health::health_bar;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<(ShipAssets, IsPlayerShip, IsEnemyShip, IsWeapon)>();
+    app.configure::<(
+        ConfigHandle<ShipConfig>,
+        ShipAssets,
+        IsPlayerShip,
+        IsEnemyShip,
+        IsWeapon,
+    )>();
 }
 
-pub fn player_ship(ship_assets: &ShipAssets) -> impl Bundle {
-    let facing = Rot2::turn_fraction(0.25).to_quat();
+pub fn player_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets) -> impl Bundle {
+    let weapons = ship_config.player_weapons.clone();
+    let health_bar_transform =
+        Transform::from_translation(ship_config.player_health_bar_offset.extend(0.1))
+            .with_scale(ship_config.player_health_bar_size.extend(1.0));
 
     (
         Name::new("PlayerShip"),
@@ -19,22 +28,25 @@ pub fn player_ship(ship_assets: &ShipAssets) -> impl Bundle {
         Health::new(100.0),
         Collider::rectangle(85.0, 10.0),
         CollisionLayers::new(GameLayer::Player, LayerMask::ALL),
-        children![
-            (
-                weapon(),
-                Transform::from_xyz(-9.5, 7.0, -0.1).with_rotation(facing),
-            ),
-            (
-                weapon(),
-                Transform::from_xyz(9.5, 7.0, -0.1).with_rotation(facing),
-            ),
-            (health_bar(1.0, 1.0), Transform::from_xyz(0.0, -22.0, 0.1)),
-        ],
+        Children::spawn(SpawnWith(move |parent: &mut ChildSpawner| {
+            parent.spawn((health_bar(), health_bar_transform));
+
+            let rotation = Rot2::turn_fraction(0.25).to_quat();
+            for pos in weapons {
+                parent.spawn((
+                    weapon(),
+                    Transform::from_translation(pos.extend(-0.1)).with_rotation(rotation),
+                ));
+            }
+        })),
     )
 }
 
-pub fn enemy_ship(ship_assets: &ShipAssets) -> impl Bundle {
-    let facing = Rot2::turn_fraction(0.75).to_quat();
+pub fn enemy_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets) -> impl Bundle {
+    let weapons = ship_config.player_weapons.clone();
+    let health_bar_transform =
+        Transform::from_translation(ship_config.enemy_health_bar_offset.extend(0.1))
+            .with_scale(ship_config.enemy_health_bar_size.extend(1.0));
 
     (
         Name::new("EnemyShip"),
@@ -44,21 +56,17 @@ pub fn enemy_ship(ship_assets: &ShipAssets) -> impl Bundle {
         Health::new(100.0),
         Collider::rectangle(167.0, 15.0),
         CollisionLayers::new(GameLayer::Enemy, LayerMask::ALL),
-        children![
-            (
-                weapon(),
-                Transform::from_xyz(-43.0, -8.0, -0.1).with_rotation(facing),
-            ),
-            (
-                weapon(),
-                Transform::from_xyz(-27.0, -8.0, -0.1).with_rotation(facing),
-            ),
-            (
-                weapon(),
-                Transform::from_xyz(38.0, -8.0, -0.1).with_rotation(facing),
-            ),
-            (health_bar(2.0, 1.0), Transform::from_xyz(0.0, 30.0, 0.1)),
-        ],
+        Children::spawn(SpawnWith(move |parent: &mut ChildSpawner| {
+            parent.spawn((health_bar(), health_bar_transform));
+
+            let rotation = Rot2::turn_fraction(0.75).to_quat();
+            for pos in weapons {
+                parent.spawn((
+                    weapon(),
+                    Transform::from_translation(pos.extend(-0.1)).with_rotation(rotation),
+                ));
+            }
+        })),
     )
 }
 
@@ -73,6 +81,22 @@ fn weapon() -> impl Bundle {
         #[cfg(feature = "dev")]
         Collider::triangle(vec2(0.0, -2.0), vec2(0.0, 2.0), vec2(8.0, 0.0)),
     )
+}
+
+#[derive(Asset, Reflect, Serialize, Deserialize, Default)]
+#[serde(deny_unknown_fields, default)]
+pub struct ShipConfig {
+    player_weapons: Vec<Vec2>,
+    player_health_bar_offset: Vec2,
+    player_health_bar_size: Vec2,
+
+    enemy_weapons: Vec<Vec2>,
+    enemy_health_bar_offset: Vec2,
+    enemy_health_bar_size: Vec2,
+}
+
+impl Config for ShipConfig {
+    const FILE: &'static str = "ship.ron";
 }
 
 #[derive(AssetCollection, Resource, Reflect, Default, Debug)]

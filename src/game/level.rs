@@ -2,6 +2,7 @@ use crate::game::deck::Deck;
 use crate::game::hud::HudAssets;
 use crate::game::hud::hud;
 use crate::game::ship::ShipAssets;
+use crate::game::ship::ShipConfig;
 use crate::game::ship::enemy_ship;
 use crate::game::ship::player_ship;
 use crate::prelude::*;
@@ -61,20 +62,23 @@ fn reset_deck(mut deck: ResMut<Deck>) {
 
 pub fn spawn_level(
     mut commands: Commands,
+    ship_config: ConfigRef<ShipConfig>,
     level: NextRef<Level>,
     hud_assets: Res<HudAssets>,
     level_assets: Res<LevelAssets>,
     ship_assets: Res<ShipAssets>,
 ) {
+    let ship_config = r!(ship_config.get());
+
     commands.spawn(background(&level_assets, level.unwrap().0));
     commands.spawn((hud(&hud_assets), DespawnOnExitState::<Level>::default()));
     commands.spawn((
-        player_ship(&ship_assets),
+        player_ship(ship_config, &ship_assets),
         DespawnOnExitState::<Level>::default(),
         Transform::from_xyz(61.0, -46.0, 2.0),
     ));
     commands.spawn((
-        enemy_ship(&ship_assets),
+        enemy_ship(ship_config, &ship_assets),
         DespawnOnExitState::<Level>::default(),
         Transform::from_xyz(59.0, 93.0, 0.0),
     ));
