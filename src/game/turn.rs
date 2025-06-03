@@ -24,6 +24,15 @@ impl Configure for Turn {
             StateFlush,
             Level::ANY.on_edge(Turn::disable, (Turn::enable_default, Turn::trigger)),
         );
+        app.add_systems(
+            Update,
+            (
+                // TODO: Implement reactor turn.
+                Turn::Reactor.on_update(Turn::Enemy.enter()),
+                // TODO: Implement enemy turn.
+                Turn::Enemy.on_update(Turn::Player.enter()),
+            ),
+        );
     }
 }
 
