@@ -1,5 +1,6 @@
 pub mod backup;
 pub mod offset;
+pub mod shake;
 
 use bevy::transform::systems::mark_dirty_trees;
 use bevy::transform::systems::propagate_parent_transforms;
@@ -11,7 +12,7 @@ use crate::prelude::*;
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(SaveBackupSystems, PostTransformSystems, PostColorSystems)>();
 
-    app.add_plugins((backup::plugin, offset::plugin));
+    app.add_plugins((backup::plugin, offset::plugin, shake::plugin));
 }
 
 #[derive(SystemSet, Clone, Eq, PartialEq, Hash, Debug)]
@@ -29,7 +30,7 @@ impl Configure for SaveBackupSystems {
 /// [`Transform`] post-processing steps for the [`PostUpdate`] schedule.
 #[derive(SystemSet, Clone, Eq, PartialEq, Hash, Debug)]
 pub enum PostTransformSystems {
-    /// Blend via transform multplication (add translation, add rotation, multiply scale).
+    /// Blend via transform multiplication (add translation, add rotation, multiply scale).
     Blend,
     /// Apply facing (may multiply translation.x by -1).
     ApplyFacing,

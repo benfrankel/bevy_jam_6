@@ -1,3 +1,5 @@
+use crate::animation::offset::NodeOffset;
+use crate::animation::shake::NodeShake;
 use crate::game::deck::Deck;
 use crate::prelude::*;
 
@@ -21,6 +23,8 @@ pub fn flux_display() -> impl Bundle {
         children![(
             widget::colored_label("", ThemeColor::MonitorText),
             IsFluxLabel,
+            NodeOffset::new(Px(0.), Px(0.)),
+            NodeShake::new(vec2(0., 0.), 0.),
         )],
     )
 }
@@ -36,8 +40,16 @@ impl Configure for IsFluxLabel {
     }
 }
 
-fn sync_flux_label(deck: Res<Deck>, mut label_query: Query<&mut RichText, With<IsFluxLabel>>) {
-    for mut text in &mut label_query {
-        *text = RichText::from_sections(parse_rich(format!("flux {}x", deck.flux)));
+fn sync_flux_label(
+    deck: Res<Deck>,
+    mut label_query: Query<(&mut RichText, &mut NodeShake), With<IsFluxLabel>>,
+) {
+    for (mut text, mut shake) in &mut label_query {
+        let new_rich = RichText::from_sections(parse_rich(format!("flux {}x", deck.flux)));
+        let new = &new_rich.sections[0].value;
+        if text.sections.len() > 0 && ! text.sections[0].value.eq(new) {
+            *shake = NodeShake::new(vec2(100., 15.), 1.1);
+        }
+        *text = new_rich;
     }
 }
