@@ -11,8 +11,7 @@ pub mod prelude {
     pub use super::app::Configure;
     pub use super::node::NodeExtLayout;
     pub use super::plugin_group_builder::PluginGroupBuilderExtReplace as _;
-    pub use super::quat::Dir2ExtToQuat as _;
-    pub use super::quat::Rot2ExtToQuat as _;
+    pub use super::quat::QuatConversionExt as _;
     pub use super::trigger::TriggerExtGetTarget as _;
     pub use super::val::ValExtAdd as _;
 }

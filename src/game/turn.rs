@@ -92,7 +92,7 @@ fn step_reactor(
     // Reset the reactor timer.
     const COOLDOWN_DECAY: f32 = 0.8;
     let delay = if deck.is_reactor_done() {
-        2.5
+        1.5
     } else {
         COOLDOWN_DECAY.powf(deck.flux - 1.0)
     };

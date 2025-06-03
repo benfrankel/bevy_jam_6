@@ -9,6 +9,8 @@ pub(super) fn plugin(app: &mut App) {
 }
 
 pub fn player_ship(ship_assets: &ShipAssets) -> impl Bundle {
+    let facing = Rot2::turn_fraction(0.25).to_quat();
+
     (
         Name::new("PlayerShip"),
         IsPlayerShip,
@@ -18,14 +20,22 @@ pub fn player_ship(ship_assets: &ShipAssets) -> impl Bundle {
         Collider::rectangle(85.0, 10.0),
         CollisionLayers::new(GameLayer::Player, LayerMask::ALL),
         children![
-            (weapon(), Transform::from_xyz(-10.0, 0.0, -0.1)),
-            (weapon(), Transform::from_xyz(10.0, 0.0, -0.1)),
+            (
+                weapon(),
+                Transform::from_xyz(-10.0, 4.0, -0.1).with_rotation(facing),
+            ),
+            (
+                weapon(),
+                Transform::from_xyz(10.0, 4.0, -0.1).with_rotation(facing),
+            ),
             (health_bar(100.0, 6.0), Transform::from_xyz(0.0, -22.0, 0.1)),
         ],
     )
 }
 
 pub fn enemy_ship(ship_assets: &ShipAssets) -> impl Bundle {
+    let facing = Rot2::turn_fraction(0.75).to_quat();
+
     (
         Name::new("EnemyShip"),
         IsEnemyShip,
@@ -37,15 +47,15 @@ pub fn enemy_ship(ship_assets: &ShipAssets) -> impl Bundle {
         children![
             (
                 weapon(),
-                Transform::from_xyz(-43.0, 0.0, -0.1).with_rotation(Rot2::PI.to_quat()),
+                Transform::from_xyz(-43.0, -4.0, -0.1).with_rotation(facing),
             ),
             (
                 weapon(),
-                Transform::from_xyz(-27.0, 0.0, -0.1).with_rotation(Rot2::PI.to_quat()),
+                Transform::from_xyz(-27.0, -4.0, -0.1).with_rotation(facing),
             ),
             (
                 weapon(),
-                Transform::from_xyz(38.0, 0.0, -0.1).with_rotation(Rot2::PI.to_quat()),
+                Transform::from_xyz(38.0, -4.0, -0.1).with_rotation(facing),
             ),
             (health_bar(200.0, 6.0), Transform::from_xyz(0.0, 30.0, 0.1)),
         ],
@@ -61,7 +71,7 @@ fn weapon() -> impl Bundle {
         Name::new("Weapon"),
         IsWeapon,
         #[cfg(feature = "dev")]
-        Collider::triangle(vec2(-2.0, 0.0), vec2(2.0, 0.0), vec2(0.0, 8.0)),
+        Collider::triangle(vec2(0.0, -2.0), vec2(0.0, 2.0), vec2(8.0, 0.0)),
     )
 }
 

@@ -1,0 +1,7 @@
+(
+    damage: 1,
+    max_speed: 300,
+    angle_spread: 10,
+    thruster_force: 20000,
+    homing_coefficient: 0.02,
+)

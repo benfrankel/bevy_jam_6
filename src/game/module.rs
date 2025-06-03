@@ -2,6 +2,7 @@ use crate::game::combat::faction::Faction;
 use crate::game::deck::Deck;
 use crate::game::level::Level;
 use crate::game::missile::MissileAssets;
+use crate::game::missile::MissileConfig;
 use crate::game::missile::missile;
 use crate::game::ship::IsWeapon;
 use crate::prelude::*;
@@ -67,12 +68,17 @@ fn on_module_action(
     trigger: Trigger<OnModuleAction>,
     mut commands: Commands,
     deck: Res<Deck>,
+    missile_config: ConfigRef<MissileConfig>,
     missile_assets: Res<MissileAssets>,
     ship_query: Query<(&Children, &Faction)>,
     weapon_query: Query<&GlobalTransform, With<IsWeapon>>,
 ) {
+    let rng = &mut thread_rng();
+
     match trigger.0 {
         ModuleAction::Missile => {
+            let missile_config = r!(missile_config.get());
+
             // Choose a weapon on the ship.
             let ship = r!(trigger.get_target());
             let (children, &faction) = r!(ship_query.get(ship));
@@ -80,13 +86,18 @@ fn on_module_action(
                 .iter()
                 .filter_map(|entity| weapon_query.get(entity).ok())
                 .collect::<Vec<_>>();
-            let gt = **r!(weapons.choose(&mut thread_rng()));
+            let gt = r!(weapons.choose(&mut thread_rng()));
 
             // Spawn a missile from the chosen weapon.
             commands.spawn((
-                missile(&missile_assets, faction, deck.flux),
-                gt.compute_transform(),
-                gt,
+                missile(
+                    rng,
+                    &missile_config,
+                    &missile_assets,
+                    faction,
+                    deck.flux,
+                    gt.compute_transform(),
+                ),
                 DespawnOnExitState::<Level>::default(),
             ));
         },
