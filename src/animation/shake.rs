@@ -39,7 +39,7 @@ fn apply_shake(time: Res<Time>, mut shake_query: Query<(&mut NodeShake, &mut Nod
         offset.x = Vw(point.x);
         offset.y = Vw(point.y);
 
-        let decay = shake.decay.powf(time.delta_secs() * 2.);
+        let decay = shake.decay.powf(2.).powf(time.delta_secs());
         shake.magnitude *= decay;
     }
 }
