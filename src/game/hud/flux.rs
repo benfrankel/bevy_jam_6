@@ -47,7 +47,7 @@ fn sync_flux_label(
     let hud_config = r!(hud_config.get());
     for (mut text, mut shake) in &mut label_query {
         let new_text = RichText::from_sections(parse_rich(format!("flux {}x", deck.flux)));
-        if text.sections.len() > 0 && text.sections[0].value != new_text.sections[0].value {
+        if !text.sections.is_empty() && text.sections[0].value != new_text.sections[0].value {
             shake.magnitude += hud_config.flux_shake_magnitude;
             shake.decay = hud_config.flux_shake_decay;
         }
