@@ -34,7 +34,7 @@ fn step_enemy_turn(
     let turn_config = r!(turn_config.get());
 
     // Step the enemy deck.
-    let Some(action) = enemy_deck.next() else {
+    let Some(action) = enemy_deck.step() else {
         next_turn.enter(Turn::Player);
         return;
     };

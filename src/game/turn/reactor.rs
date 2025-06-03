@@ -37,7 +37,7 @@ fn step_reactor_turn(
     let turn_config = r!(turn_config.get());
 
     // Step the player deck.
-    let Some(action) = player_deck.next() else {
+    let Some(action) = player_deck.step() else {
         next_turn.enter(Turn::Enemy);
         return;
     };

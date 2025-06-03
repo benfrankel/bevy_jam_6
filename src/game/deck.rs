@@ -138,7 +138,7 @@ impl PlayerDeck {
     }
 
     /// Simulate one step and get the next action.
-    pub fn next(&mut self) -> Option<ModuleAction> {
+    pub fn step(&mut self) -> Option<ModuleAction> {
         // Search for a matching module.
         for module in &mut self.reactor {
             cq!(matches!(module.status, ModuleStatus::SlotInactive));
@@ -200,7 +200,7 @@ impl EnemyDeck {
     }
 
     /// Simulate one step and get the next action.
-    pub fn next(&mut self) -> Option<ModuleAction> {
+    pub fn step(&mut self) -> Option<ModuleAction> {
         if let Some(&action) = self.actions.get(self.action_idx) {
             self.action_idx += 1;
             Some(action)
