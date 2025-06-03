@@ -22,11 +22,11 @@ pub fn player_ship(ship_assets: &ShipAssets) -> impl Bundle {
         children![
             (
                 weapon(),
-                Transform::from_xyz(-10.0, 4.0, -0.1).with_rotation(facing),
+                Transform::from_xyz(-10.0, 7.0, -0.1).with_rotation(facing),
             ),
             (
                 weapon(),
-                Transform::from_xyz(10.0, 4.0, -0.1).with_rotation(facing),
+                Transform::from_xyz(10.0, 7.0, -0.1).with_rotation(facing),
             ),
             (health_bar(100.0, 6.0), Transform::from_xyz(0.0, -22.0, 0.1)),
         ],
@@ -47,15 +47,15 @@ pub fn enemy_ship(ship_assets: &ShipAssets) -> impl Bundle {
         children![
             (
                 weapon(),
-                Transform::from_xyz(-43.0, -4.0, -0.1).with_rotation(facing),
+                Transform::from_xyz(-43.0, -8.0, -0.1).with_rotation(facing),
             ),
             (
                 weapon(),
-                Transform::from_xyz(-27.0, -4.0, -0.1).with_rotation(facing),
+                Transform::from_xyz(-27.0, -8.0, -0.1).with_rotation(facing),
             ),
             (
                 weapon(),
-                Transform::from_xyz(38.0, -4.0, -0.1).with_rotation(facing),
+                Transform::from_xyz(38.0, -8.0, -0.1).with_rotation(facing),
             ),
             (health_bar(200.0, 6.0), Transform::from_xyz(0.0, 30.0, 0.1)),
         ],

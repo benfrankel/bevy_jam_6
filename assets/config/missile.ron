@@ -1,7 +1,11 @@
 (
     damage: 1,
+    initial_position_spread: Vec2(1, 2),
+    initial_angle_spread: 15,
+    initial_speed: 0,
+    initial_speed_spread: 0,
     max_speed: 300,
-    angle_spread: 10,
-    thruster_force: 20000,
+    thruster_force: 18000,
     homing_coefficient: 0.02,
+    homing_target_spread: Vec2(150, 0),
 )

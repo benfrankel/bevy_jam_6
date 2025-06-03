@@ -19,12 +19,21 @@ pub fn missile(
     flux: f32,
     mut transform: Transform,
 ) -> impl Bundle {
-    let mut angle = transform.rotation.to_rot2().as_degrees();
-    angle += missile_config.angle_spread * rng.gen_range(-1.0..=1.0);
-    transform.rotation = Rot2::degrees(angle).to_quat();
+    // Calculate initial position.
+    transform.translation += (missile_config.initial_position_spread
+        * vec2(rng.gen_range(-1.0..=1.0), rng.gen_range(-1.0..=1.0)))
+    .extend(0.0);
 
-    let speed = missile_config.speed + missile_config.speed_spread * rng.gen_range(-1.0..=1.0);
-    let initial_velocity = speed * Vec2::from_angle(angle.to_radians());
+    // Calculate initial rotation.
+    let angle = transform.rotation.to_rot2().as_degrees()
+        + missile_config.initial_angle_spread * rng.gen_range(-1.0..=1.0);
+    let angle = angle.to_radians();
+    transform.rotation = Quat::from_rotation_z(angle);
+
+    // Calculate initial velocity.
+    let speed = missile_config.initial_speed
+        + missile_config.initial_speed_spread * rng.gen_range(-1.0..=1.0);
+    let velocity = speed.max(1.0) * Vec2::from_angle(angle);
 
     (
         Name::new("Missile"),
@@ -33,7 +42,7 @@ pub fn missile(
         Damage(missile_config.damage * flux.max(1.0)),
         faction,
         RigidBody::Dynamic,
-        LinearVelocity(initial_velocity),
+        LinearVelocity(velocity),
         MaxLinearSpeed(missile_config.max_speed),
         ExternalForce::ZERO.with_persistence(false),
         Collider::capsule_endpoints(3.0, vec2(-3.5, 0.0), vec2(3.5, 0.0)),
@@ -48,12 +57,14 @@ pub fn missile(
 #[serde(deny_unknown_fields, default)]
 pub struct MissileConfig {
     damage: f32,
-    speed: f32,
-    speed_spread: f32,
+    initial_position_spread: Vec2,
+    initial_angle_spread: f32,
+    initial_speed: f32,
+    initial_speed_spread: f32,
     max_speed: f32,
-    angle_spread: f32,
     thruster_force: f32,
     homing_coefficient: f32,
+    homing_target_spread: Vec2,
 }
 
 impl Config for MissileConfig {
@@ -64,12 +75,14 @@ impl Default for MissileConfig {
     fn default() -> Self {
         Self {
             damage: 0.0,
-            speed: 0.0,
-            speed_spread: 0.0,
-            angle_spread: 0.0,
+            initial_position_spread: Vec2::ZERO,
+            initial_speed: 0.0,
+            initial_speed_spread: 0.0,
+            initial_angle_spread: 0.0,
             max_speed: f32::INFINITY,
             thruster_force: 0.0,
-            homing_coefficient: 0.0,
+            homing_coefficient: 1.0,
+            homing_target_spread: Vec2::ZERO,
         }
     }
 }
@@ -99,8 +112,8 @@ impl Configure for IsMissile {
             Update,
             (
                 apply_missile_thrusters.in_set(UpdateSystems::Update),
-                rotate_with_velocity.in_set(UpdateSystems::Update),
                 apply_missile_homing.in_set(UpdateSystems::Update),
+                rotate_with_velocity.in_set(UpdateSystems::Update),
             ),
         );
     }
@@ -124,18 +137,27 @@ fn apply_missile_homing(
     enemy_ship: Single<&GlobalTransform, With<IsEnemyShip>>,
 ) {
     let missile_config = r!(missile_config.get());
+    let rng = &mut thread_rng();
     for (mut velocity, gt, faction) in &mut missile_query {
         cq!(velocity.0 != Vec2::ZERO);
 
+        // Calculate the required rotation to point velocity towards target position.
         let target_gt = match faction {
             Faction::Player => *enemy_ship,
             Faction::Enemy => *player_ship,
         };
-        let delta = target_gt.translation().xy() - gt.translation().xy();
-        let offset = velocity.angle_to(delta);
-        let decay = missile_config.homing_coefficient.powf(time.delta_secs());
-        let rotation = offset * (1.0 - decay).clamp(0.0, 1.0);
+        let target_pos = target_gt.translation().xy()
+            + missile_config.homing_target_spread
+                * vec2(rng.gen_range(-1.0..=1.0), rng.gen_range(-1.0..=1.0));
+        let delta = target_pos - gt.translation().xy();
+        let full_rotation = velocity.angle_to(delta);
 
+        // Approach the rotation exponentially.
+        let time_scale = velocity.length() / missile_config.max_speed;
+        let decay = missile_config
+            .homing_coefficient
+            .powf(time.delta_secs() * time_scale);
+        let rotation = full_rotation * (1.0 - decay).clamp(0.0, 1.0);
         velocity.0 = Vec2::from_angle(rotation).rotate(velocity.0);
     }
 }
