@@ -1,14 +1,11 @@
 use crate::game::deck::Deck;
-use crate::game::health::Health;
 use crate::game::hud::HudAssets;
 use crate::game::hud::hud;
 use crate::game::missile::MissileAssets;
 use crate::game::missile::missile;
-use crate::game::ship::enemy_ship;
-use crate::game::ship::IsEnemyShip;
-use crate::game::ship::IsPlayerShip;
-use crate::game::ship::player_ship;
 use crate::game::ship::ShipAssets;
+use crate::game::ship::enemy_ship;
+use crate::game::ship::player_ship;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -57,10 +54,6 @@ impl Configure for Level {
         app.register_type::<Self>();
         app.add_state::<Self>();
         app.add_systems(StateFlush, Level::ANY.on_edge(reset_deck, spawn_level));
-        app.add_systems(
-            StateFlush,
-            Level::ANY.on_enter(spawn_health_bars).after(spawn_level),
-        );
     }
 }
 
@@ -82,47 +75,16 @@ pub fn spawn_level(
         player_ship(&ship_assets),
         DespawnOnExitState::<Level>::default(),
         Transform::from_xyz(61.0, -46.0, 2.0),
-        Health::default(),
     ));
     commands.spawn((
         enemy_ship(&ship_assets),
         DespawnOnExitState::<Level>::default(),
         Transform::from_xyz(59.0, 93.0, 0.0),
-        Health::default(),
     ));
     commands.spawn((
         missile(&missile_assets),
         DespawnOnExitState::<Level>::default(),
     ));
-}
-
-fn spawn_health_bars(
-    mut commands: Commands,
-    ships_query: Query<(&Health, &Transform, Entity), Or<(With<IsPlayerShip>, With<IsEnemyShip>)>>,
-    player_ship_id: Single<Entity, With<IsPlayerShip>>,
-) {
-    for ship in ships_query.iter() {
-        let diff = ship.0.diff();
-        let mut translation = ship.1.translation.clone();
-        translation.z += 0.1;
-
-        if ship.2.entity() == *player_ship_id {
-            translation.y -= 20.;
-        } else {
-            translation.y += 26.;
-        }
-
-        commands.spawn((
-            Sprite::from_color(Color::Srgba(Srgba::default()), Vec2::new(50., 5.)),
-            Transform::from_translation(translation),
-            children![
-                (
-                    Transform::from_xyz(-diff / 2., 0., 0.),
-                    Sprite::from_color(Color::Srgba(Srgba::new(0., 0.5, 0., 1.)), Vec2::new(45., 5.)),
-                ),
-            ],
-        ));
-    }
 }
 
 fn background(level_assets: &LevelAssets, level: usize) -> impl Bundle {

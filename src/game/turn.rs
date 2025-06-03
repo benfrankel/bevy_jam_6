@@ -74,12 +74,12 @@ impl Configure for PlayerActions {
     }
 }
 
-fn disable_player_actions(mut foo: ResMut<ActionState<PlayerActions>>) {
-    foo.disable();
+fn disable_player_actions(mut player_actions: ResMut<ActionState<PlayerActions>>) {
+    player_actions.disable();
 }
 
-fn enable_player_actions(mut foo: ResMut<ActionState<PlayerActions>>) {
-    foo.enable();
+fn enable_player_actions(mut player_actions: ResMut<ActionState<PlayerActions>>) {
+    player_actions.enable();
 }
 
 fn player_select_left(mut deck: ResMut<Deck>) {
