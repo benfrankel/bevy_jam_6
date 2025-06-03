@@ -92,7 +92,7 @@ fn on_module_action(
             commands.spawn((
                 missile(
                     rng,
-                    &missile_config,
+                    missile_config,
                     &missile_assets,
                     faction,
                     deck.flux,
