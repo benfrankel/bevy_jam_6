@@ -1,3 +1,4 @@
+use crate::game::combat::death::OnDeath;
 use crate::prelude::*;
 
 pub fn plugin(app: &mut App) {
@@ -55,6 +56,14 @@ impl Health {
 impl Configure for Health {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
+        app.add_systems(Update, detect_death.in_set(UpdateSystems::Update));
+    }
+}
+
+fn detect_death(mut commands: Commands, health_query: Query<(Entity, &Health), Changed<Health>>) {
+    for (entity, health) in &health_query {
+        rq!(health.current <= f32::EPSILON);
+        commands.entity(entity).trigger(OnDeath);
     }
 }
 
@@ -81,7 +90,7 @@ fn sync_health_bar(
     let health_config = r!(health_config.get());
     for (health_bar, child_of, mut sprite) in &mut health_bar_query {
         let health = c!(health_query.get(child_of.parent()));
-        let t = health.current / health.max;
+        let t = health.current.max(0.0) / health.max;
 
         sprite.custom_size = Some(vec2(t * health_bar.size.x, health_bar.size.y));
         sprite.color = health_config.color(t);
