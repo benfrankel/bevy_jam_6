@@ -1,3 +1,6 @@
+use crate::game::module::Module;
+use crate::game::module::ModuleAction;
+use crate::game::module::ModuleStatus;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -106,47 +109,4 @@ impl Deck {
             .selected_idx
             .clamp(0, self.hand.len().saturating_sub(1));
     }
-}
-
-#[derive(Reflect, Copy, Clone, Default, Debug)]
-pub struct Module {
-    pub condition: ModuleAction,
-    pub effect: ModuleAction,
-    pub status: ModuleStatus,
-}
-
-impl Module {
-    pub const EMPTY: Self = Self {
-        condition: ModuleAction::Nothing,
-        effect: ModuleAction::Nothing,
-        status: ModuleStatus::SlotEmpty,
-    };
-
-    pub fn new(condition: ModuleAction, effect: ModuleAction) -> Self {
-        Self {
-            condition,
-            effect,
-            status: ModuleStatus::FaceUp,
-        }
-    }
-}
-
-#[derive(Reflect, Copy, Clone, Default, Debug)]
-pub enum ModuleAction {
-    #[default]
-    Nothing,
-    Missile,
-    Laser,
-    Fire,
-    Heal,
-}
-
-#[derive(Reflect, Copy, Clone, Default, Debug)]
-pub enum ModuleStatus {
-    #[default]
-    FaceUp,
-    FaceDown,
-    SlotEmpty,
-    SlotInactive,
-    SlotActive,
 }

@@ -1,6 +1,7 @@
 use crate::game::GameLayer;
-use crate::game::health::Health;
-use crate::game::health::health_bar;
+use crate::game::combat::faction::Faction;
+use crate::game::combat::health::Health;
+use crate::game::combat::health::health_bar;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -11,6 +12,7 @@ pub fn player_ship(ship_assets: &ShipAssets) -> impl Bundle {
     (
         Name::new("PlayerShip"),
         IsPlayerShip,
+        Faction::Player,
         ship(ship_assets.player_image.clone()),
         Health::new(100.0),
         Collider::rectangle(85.0, 10.0),
@@ -27,6 +29,7 @@ pub fn enemy_ship(ship_assets: &ShipAssets) -> impl Bundle {
     (
         Name::new("EnemyShip"),
         IsEnemyShip,
+        Faction::Enemy,
         ship(ship_assets.enemy_image.clone()),
         Health::new(100.0),
         Collider::rectangle(167.0, 15.0),

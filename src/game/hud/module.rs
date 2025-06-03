@@ -1,7 +1,7 @@
-use crate::game::deck::Module;
-use crate::game::deck::ModuleAction;
-use crate::game::deck::ModuleStatus;
 use crate::game::hud::HudAssets;
+use crate::game::module::Module;
+use crate::game::module::ModuleAction;
+use crate::game::module::ModuleStatus;
 use crate::prelude::*;
 
 pub fn module(hud_assets: &HudAssets, module: Module, tooltip_anchor: Anchor) -> impl Bundle {

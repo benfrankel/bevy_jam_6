@@ -1,8 +1,6 @@
 use crate::game::deck::Deck;
 use crate::game::hud::HudAssets;
 use crate::game::hud::hud;
-use crate::game::missile::MissileAssets;
-use crate::game::missile::missile;
 use crate::game::ship::ShipAssets;
 use crate::game::ship::enemy_ship;
 use crate::game::ship::player_ship;
@@ -67,7 +65,6 @@ pub fn spawn_level(
     hud_assets: Res<HudAssets>,
     level_assets: Res<LevelAssets>,
     ship_assets: Res<ShipAssets>,
-    missile_assets: Res<MissileAssets>,
 ) {
     commands.spawn(background(&level_assets, level.unwrap().0));
     commands.spawn((hud(&hud_assets), DespawnOnExitState::<Level>::default()));
@@ -80,10 +77,6 @@ pub fn spawn_level(
         enemy_ship(&ship_assets),
         DespawnOnExitState::<Level>::default(),
         Transform::from_xyz(59.0, 93.0, 0.0),
-    ));
-    commands.spawn((
-        missile(&missile_assets, 10.),
-        DespawnOnExitState::<Level>::default(),
     ));
 }
 

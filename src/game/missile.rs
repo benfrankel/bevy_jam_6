@@ -1,15 +1,16 @@
 use crate::game::GameLayer;
-use crate::game::health::Health;
-use crate::game::level::Level;
-use crate::game::ship::IsPlayerShip;
-use crate::game::ship::IsWeapon;
+use crate::game::combat::damage::Damage;
+use crate::game::combat::faction::Faction;
+use crate::game::combat::health::Health;
+use crate::game::module::ModuleAction;
+use crate::game::module::OnModuleAction;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(MissileAssets, IsMissile)>();
 }
 
-pub fn missile(missile_assets: &MissileAssets, damage: f32) -> impl Bundle {
+pub fn missile(missile_assets: &MissileAssets, faction: Faction, damage: f32) -> impl Bundle {
     (
         Name::new("Missile"),
         IsMissile,
@@ -20,49 +21,42 @@ pub fn missile(missile_assets: &MissileAssets, damage: f32) -> impl Bundle {
         MaxLinearSpeed(150.0),
         Collider::capsule(3.0, 7.0),
         CollisionEventsEnabled,
+        CollisionLayers::new(GameLayer::Default, faction.opponent().layer()),
+        faction,
         Patch(|entity| {
             entity.observe(hit_ship);
         }),
-        Damage::new(damage),
+        Damage(damage),
     )
 }
 
 fn hit_ship(
     trigger: Trigger<OnCollisionStart>,
     mut commands: Commands,
-    missile_assets: Res<MissileAssets>,
-    missile_query: Query<(&IsMissile, &Damage)>,
-    player_ship_children: Single<&Children, With<IsPlayerShip>>,
-    weapon_query: Query<&GlobalTransform, With<IsWeapon>>,
+    damage_query: Query<&Damage>,
     mut health_query: Query<&mut Health>,
 ) {
-    // Apply damage to target ship
-    let mut target_health = r!(health_query.get_mut(trigger.collider));
-    let target = r!(trigger.get_target());
-    target_health.current -= r!(missile_query.get(target)).1.damage;
-
     // Despawn the missile.
-    commands.entity(r!(trigger.get_target())).try_despawn();
+    let missile = r!(trigger.get_target());
+    commands.entity(missile).try_despawn();
 
-    // Detect ship death.
-    if target_health.current <= f32::EPSILON {
-        commands.entity(trigger.collider).try_despawn();
-        return;
+    // Apply damage to the target ship.
+    let ship = trigger.collider;
+    if let Ok(damage) = damage_query.get(missile) {
+        let mut target_health = r!(health_query.get_mut(ship));
+        target_health.current -= damage.0;
+
+        // Detect ship death.
+        if target_health.current <= f32::EPSILON {
+            commands.entity(trigger.collider).try_despawn();
+            return;
+        }
     }
 
-    // Fire a new missile from the player ship.
-    let weapons = player_ship_children
-        .iter()
-        .filter_map(|entity| weapon_query.get(entity).ok())
-        .collect::<Vec<_>>();
-    let gt = **r!(weapons.choose(&mut thread_rng()));
-    commands.spawn((
-        missile(&missile_assets, thread_rng().gen_range(0.0..15.0)),
-        CollisionLayers::new(GameLayer::Default, GameLayer::Enemy),
-        gt.compute_transform(),
-        gt,
-        DespawnOnExitState::<Level>::default(),
-    ));
+    // Fire a missile from the player ship.
+    commands
+        .entity(ship)
+        .trigger(OnModuleAction(ModuleAction::Missile));
 }
 
 #[derive(AssetCollection, Resource, Reflect, Default, Debug)]
@@ -90,24 +84,6 @@ impl Configure for IsMissile {
             Update,
             apply_missile_thrusters.in_set(UpdateSystems::Update),
         );
-    }
-}
-
-#[derive(Component, Reflect, Debug)]
-#[reflect(Component)]
-pub struct Damage {
-    damage: f32,
-}
-
-impl Configure for Damage {
-    fn configure(app: &mut App) {
-        app.register_type::<Self>();
-    }
-}
-
-impl Damage {
-    fn new(damage: f32) -> Self {
-        Damage { damage }
     }
 }
 
