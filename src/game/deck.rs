@@ -15,13 +15,6 @@ pub struct DeckConfig {
 
 impl Config for DeckConfig {
     const FILE: &'static str = "starter.ron";
-
-    // fn on_load(&self, world: &mut World) {
-    //     let _ = world;
-    // 
-    //     dbg!(self);
-    //     std::process::exit(1);
-    // }
 }
 
 impl DeckConfig {
