@@ -3,7 +3,7 @@ use crate::game::combat::death::OnDeath;
 use crate::game::combat::faction::Faction;
 use crate::game::combat::health::Health;
 use crate::game::combat::health::health_bar;
-use crate::game::level::Level;
+use crate::menu::Menu;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -70,13 +70,14 @@ pub fn enemy_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets, health: f3
             }
         })),
         Patch(|entity| {
-            entity.observe(complete_level_on_death);
+            entity.observe(open_level_up_menu_on_death);
         }),
     )
 }
 
-fn complete_level_on_death(_: Trigger<OnDeath>, mut level: NextMut<Level>) {
-    r!(level.get_mut()).0 += 1;
+fn open_level_up_menu_on_death(_: Trigger<OnDeath>, mut menu: ResMut<NextStateStack<Menu>>) {
+    menu.push(Menu::LevelUp);
+    menu.acquire();
 }
 
 fn ship(sprite: Handle<Image>) -> impl Bundle {

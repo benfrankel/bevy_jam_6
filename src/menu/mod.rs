@@ -1,4 +1,5 @@
 mod intro;
+mod level_up;
 mod main;
 mod pause;
 mod settings;
@@ -46,6 +47,7 @@ pub enum Menu {
     Intro,
     Pause,
     Settings,
+    LevelUp,
 }
 
 impl Configure for Menu {
@@ -59,7 +61,13 @@ impl Configure for Menu {
                 Menu::ANY.on_disable(Pause::disable),
             ),
         );
-        app.add_plugins((main::plugin, intro::plugin, pause::plugin, settings::plugin));
+        app.add_plugins((
+            main::plugin,
+            intro::plugin,
+            pause::plugin,
+            settings::plugin,
+            level_up::plugin,
+        ));
     }
 }
 

@@ -44,7 +44,7 @@ fn storage(hud_assets: &HudAssets) -> impl Bundle {
         Name::new("Storage"),
         ImageNode::from(hud_assets.module_face_down.clone()),
         Node {
-            width: Vw(6.66),
+            width: Vw(6.6666),
             aspect_ratio: Some(1.0),
             ..Node::ROW_CENTER
         },

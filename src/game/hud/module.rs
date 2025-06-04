@@ -41,7 +41,7 @@ pub fn module(hud_assets: &HudAssets, module: Module) -> impl Bundle {
         Name::new("Module"),
         ImageNode::from(background),
         Node {
-            width: Vw(6.66),
+            width: Vw(6.6666),
             aspect_ratio: Some(1.0),
             ..Node::ROW_CENTER
         },

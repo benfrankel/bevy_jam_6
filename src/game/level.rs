@@ -3,11 +3,11 @@ use crate::game::deck::EnemyDeck;
 use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudAssets;
 use crate::game::hud::hud;
-use crate::game::module::Module;
 use crate::game::ship::ShipAssets;
 use crate::game::ship::ShipConfig;
 use crate::game::ship::enemy_ship;
 use crate::game::ship::player_ship;
+use crate::menu::Menu;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -16,8 +16,8 @@ pub(super) fn plugin(app: &mut App) {
 
 #[derive(Asset, Reflect, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields, default)]
-struct LevelConfig {
-    levels: Vec<LevelSetup>,
+pub struct LevelConfig {
+    pub levels: Vec<LevelSetup>,
 }
 
 impl Config for LevelConfig {
@@ -26,10 +26,10 @@ impl Config for LevelConfig {
 
 #[derive(Reflect, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields, default)]
-struct LevelSetup {
-    enemy: EnemyDeck,
-    enemy_health: f32,
-    reactor_slots: usize,
+pub struct LevelSetup {
+    pub enemy: EnemyDeck,
+    pub enemy_health: f32,
+    pub reward_reactor_slots: usize,
 }
 
 #[derive(AssetCollection, Resource, Reflect, Default, Debug)]
@@ -75,7 +75,14 @@ impl Configure for Level {
         app.add_state::<Self>();
         app.add_systems(
             StateFlush,
-            Level::ANY.on_edge(reset_decks, (set_up_decks, spawn_level)),
+            Level::ANY.on_edge(
+                reset_decks,
+                (
+                    set_up_decks,
+                    spawn_level,
+                    (Menu::release, Menu::clear).chain(),
+                ),
+            ),
         );
     }
 }
@@ -99,9 +106,8 @@ fn set_up_decks(
     let deck_config = r!(deck_config.get());
 
     if level == 0 {
-        *player_deck = deck_config.initial_player_deck();
+        *player_deck = deck_config.initial_player_deck.clone();
     }
-    player_deck.reactor = vec![Module::EMPTY; level_setup.reactor_slots];
     *enemy_deck = level_setup.enemy.clone();
 }
 

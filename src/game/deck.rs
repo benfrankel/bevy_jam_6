@@ -10,29 +10,16 @@ pub(super) fn plugin(app: &mut App) {
 #[derive(Asset, Reflect, Serialize, Deserialize, Default, Debug)]
 #[serde(deny_unknown_fields, default)]
 pub struct DeckConfig {
-    initial_storage: Vec<(ModuleAction, ModuleAction)>,
+    pub initial_player_deck: PlayerDeck,
 }
 
 impl Config for DeckConfig {
     const FILE: &'static str = "deck.ron";
 }
 
-impl DeckConfig {
-    pub fn initial_player_deck(&self) -> PlayerDeck {
-        PlayerDeck {
-            storage: self
-                .initial_storage
-                .iter()
-                .copied()
-                .map(|(x, y)| Module::new(x, y))
-                .collect(),
-            ..default()
-        }
-    }
-}
-
-#[derive(Resource, Reflect, Debug, Default)]
+#[derive(Resource, Reflect, Serialize, Deserialize, Default, Clone, Debug)]
 #[reflect(Resource)]
+#[serde(deny_unknown_fields, default)]
 pub struct PlayerDeck {
     pub flux: f32,
     pub storage: Vec<Module>,

@@ -14,6 +14,7 @@ pub(super) fn plugin(app: &mut App) {
 }
 
 #[derive(Reflect, Copy, Clone, Default, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, default)]
 pub struct Module {
     pub condition: ModuleAction,
     pub effect: ModuleAction,

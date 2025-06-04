@@ -1,9 +1,16 @@
 (
-    initial_storage: [
-        (Missile, Heal),
-        (Nothing, Missile),
-        (Missile, Missile),
-        (Heal, Missile),
-        (Nothing, Heal),
-    ],
+    initial_player_deck: PlayerDeck(
+        storage: [
+            Module(condition: Nothing, effect: Missile),
+            Module(condition: Nothing, effect: Heal),
+            Module(condition: Missile, effect: Missile),
+            Module(condition: Missile, effect: Heal),
+            Module(condition: Heal, effect: Missile),
+        ],
+        reactor: [
+            Module(status: SlotEmpty),
+            Module(status: SlotEmpty),
+            Module(status: SlotEmpty),
+        ]
+    ),
 )
