@@ -76,11 +76,13 @@ pub fn module(hud_assets: &HudAssets, module: Module, tooltip_anchor: Anchor) ->
                 Name::new("Condition"),
                 ImageNode::from(condition_icon),
                 Node::default().full_size().abs(),
+                Pickable::IGNORE,
             ),
             (
                 Name::new("Effect"),
                 ImageNode::from(effect_icon),
                 Node::default().full_size().abs(),
+                Pickable::IGNORE,
             ),
         ],
     )

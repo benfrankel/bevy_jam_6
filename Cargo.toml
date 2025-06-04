@@ -52,6 +52,7 @@ leafwing-input-manager = { version = "0.17", default-features = false, features 
     "mouse",
     "keyboard",
     "gamepad",
+    "picking",
 ] }
 # Compile low-severity logs out of native builds for performance.
 log = { version = "0.4", features = [

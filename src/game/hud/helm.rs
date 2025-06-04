@@ -24,6 +24,7 @@ pub fn helm(hud_assets: &HudAssets) -> impl Bundle {
                     padding: UiRect::all(Vw(1.69)),
                     ..Node::ROW_MID.reverse().full_width()
                 },
+                Pickable::IGNORE,
                 children![storage(hud_assets)],
             ),
         ],
@@ -81,21 +82,22 @@ fn sync_hand(
     player_deck: Res<PlayerDeck>,
     hand_query: Query<Entity, With<IsHand>>,
 ) {
+    let selected_idx = player_deck.selected_idx;
     for entity in &hand_query {
         commands
             .entity(entity)
             .despawn_related::<Children>()
             .with_children(|parent| {
                 for (i, &card) in player_deck.hand.iter().enumerate() {
-                    if i == player_deck.selected_idx {
-                        parent.spawn((
-                            module(&hud_assets, card, Anchor::TopCenter),
-                            HandIndex(i),
-                            Patch(|entity| r!(entity.get_mut::<Node>()).top = Vw(-2.0)),
-                        ));
-                    } else {
-                        parent.spawn((module(&hud_assets, card, Anchor::TopCenter), HandIndex(i)));
-                    }
+                    parent.spawn((
+                        module(&hud_assets, card, Anchor::TopCenter),
+                        HandIndex(i),
+                        Patch(move |entity| {
+                            if i == selected_idx {
+                                r!(entity.get_mut::<Node>()).top = Vw(-2.0);
+                            }
+                        }),
+                    ));
                 }
             });
     }
@@ -108,35 +110,36 @@ struct HandIndex(usize);
 impl Configure for HandIndex {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
-        app.add_systems(
-            Update,
-            (
-                select_module_on_hover.in_set(UpdateSystems::Update),
-                play_module_on_click.in_set(UpdateSystems::Update),
-            ),
-        );
+        app.add_observer(select_module_on_hover);
+        app.add_observer(play_module_on_click);
     }
 }
 
 fn select_module_on_hover(
-    hand_index_query: Query<(&Interaction, &HandIndex)>,
+    trigger: Trigger<Pointer<Over>>,
+    mut module_query: Query<(&mut Node, &HandIndex)>,
     mut player_deck: ResMut<PlayerDeck>,
 ) {
-    for (&interaction, index) in &hand_index_query {
-        if interaction == Interaction::Hovered && player_deck.selected_idx != index.0 {
-            player_deck.selected_idx = index.0;
-            break;
+    let target = rq!(trigger.get_target());
+    let (mut node, index) = rq!(module_query.get_mut(target));
+    player_deck.bypass_change_detection().selected_idx = index.0;
+    node.top = Vw(-2.0);
+
+    for (mut node, index) in &mut module_query {
+        if index.0 != player_deck.selected_idx {
+            node.top = Val::ZERO;
         }
     }
 }
 
 fn play_module_on_click(
-    interaction_query: Query<&Interaction, With<HandIndex>>,
+    trigger: Trigger<Pointer<Click>>,
+    module_query: Query<(), With<HandIndex>>,
     mut player_actions: ResMut<ActionState<PlayerActions>>,
 ) {
-    if interaction_query.iter().any(|&x| x == Interaction::Pressed) {
-        player_actions.press(&PlayerActions::PlayModule);
-    }
+    let target = rq!(trigger.get_target());
+    rq!(module_query.contains(target));
+    player_actions.press(&PlayerActions::PlayModule);
 }
 
 #[derive(Component, Reflect, Debug)]
