@@ -1,5 +1,5 @@
 mod enemy;
-mod player;
+pub mod player;
 mod reactor;
 mod setup;
 

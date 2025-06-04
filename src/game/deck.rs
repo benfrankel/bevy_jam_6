@@ -1,11 +1,10 @@
 use crate::game::module::Module;
 use crate::game::module::ModuleAction;
 use crate::game::module::ModuleStatus;
-use crate::prelude::Interaction::Hovered;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<(ConfigHandle<DeckConfig>, PlayerDeck, EnemyDeck, HandIndex)>();
+    app.configure::<(ConfigHandle<DeckConfig>, PlayerDeck, EnemyDeck)>();
 }
 
 #[derive(Asset, Reflect, Serialize, Deserialize, Default, Debug)]
@@ -33,16 +32,6 @@ impl DeckConfig {
     }
 }
 
-#[derive(Component, Reflect)]
-#[reflect(Component)]
-pub struct HandIndex(pub usize);
-
-impl Configure for HandIndex {
-    fn configure(app: &mut App) {
-        app.register_type::<Self>();
-    }
-}
-
 #[derive(Resource, Reflect, Debug, Default)]
 #[reflect(Resource)]
 pub struct PlayerDeck {
@@ -59,7 +48,6 @@ impl Configure for PlayerDeck {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.init_resource::<Self>();
-        app.add_systems(Update, detect_hover.in_set(UpdateSystems::Update));
     }
 }
 
@@ -211,14 +199,6 @@ impl EnemyDeck {
         } else {
             self.action_idx = 0;
             None
-        }
-    }
-}
-
-fn detect_hover(query: Query<(&Interaction, &HandIndex)>, mut player_deck: ResMut<PlayerDeck>) {
-    for (interaction, index) in query {
-        if *interaction == Hovered && player_deck.selected_idx != index.0 {
-            player_deck.selected_idx = index.0;
         }
     }
 }

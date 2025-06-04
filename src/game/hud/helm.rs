@@ -1,11 +1,11 @@
-use crate::game::deck::HandIndex;
 use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudAssets;
 use crate::game::hud::module::module;
+use crate::game::phase::player::PlayerActions;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<(IsHand, IsStorage, IsStorageLabel)>();
+    app.configure::<(IsHand, HandIndex, IsStorage, IsStorageLabel)>();
 }
 
 pub fn helm(hud_assets: &HudAssets) -> impl Bundle {
@@ -98,6 +98,44 @@ fn sync_hand(
                     }
                 }
             });
+    }
+}
+
+#[derive(Component, Reflect)]
+#[reflect(Component)]
+struct HandIndex(usize);
+
+impl Configure for HandIndex {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+        app.add_systems(
+            Update,
+            (
+                select_module_on_hover.in_set(UpdateSystems::Update),
+                play_module_on_click.in_set(UpdateSystems::Update),
+            ),
+        );
+    }
+}
+
+fn select_module_on_hover(
+    hand_index_query: Query<(&Interaction, &HandIndex)>,
+    mut player_deck: ResMut<PlayerDeck>,
+) {
+    for (&interaction, index) in &hand_index_query {
+        if interaction == Interaction::Hovered && player_deck.selected_idx != index.0 {
+            player_deck.selected_idx = index.0;
+            break;
+        }
+    }
+}
+
+fn play_module_on_click(
+    interaction_query: Query<&Interaction, With<HandIndex>>,
+    mut player_actions: ResMut<ActionState<PlayerActions>>,
+) {
+    if interaction_query.iter().any(|&x| x == Interaction::Pressed) {
+        player_actions.press(&PlayerActions::PlayModule);
     }
 }
 

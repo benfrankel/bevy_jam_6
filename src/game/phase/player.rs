@@ -1,4 +1,3 @@
-use crate::game::deck::HandIndex;
 use crate::game::deck::PlayerDeck;
 use crate::game::phase::Phase;
 use crate::prelude::*;
@@ -8,7 +7,7 @@ pub(super) fn plugin(app: &mut App) {
 }
 
 #[derive(Actionlike, Reflect, Copy, Clone, Eq, PartialEq, Hash, Debug)]
-enum PlayerActions {
+pub enum PlayerActions {
     SelectLeft,
     SelectRight,
     PlayModule,
@@ -57,7 +56,6 @@ impl Configure for PlayerActions {
                 player_play_module
                     .in_set(UpdateSystems::RecordInput)
                     .run_if(action_just_pressed(Self::PlayModule)),
-                player_play_module_on_click.in_set(UpdateSystems::Update),
             ),
         );
     }
@@ -90,14 +88,5 @@ fn player_select_right(mut player_deck: ResMut<PlayerDeck>) {
 fn player_play_module(mut player_deck: ResMut<PlayerDeck>, mut next_phase: NextMut<Phase>) {
     if player_deck.play_selected() {
         next_phase.enter(Phase::Reactor);
-    }
-}
-
-fn player_play_module_on_click(
-    interaction_query: Query<&Interaction, With<HandIndex>>,
-    mut player_actions: ResMut<ActionState<PlayerActions>>,
-) {
-    if interaction_query.iter().any(|&x| x == Interaction::Pressed) {
-        player_actions.press(&PlayerActions::PlayModule);
     }
 }
