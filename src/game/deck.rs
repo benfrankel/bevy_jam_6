@@ -163,6 +163,7 @@ pub struct EnemyDeck {
     pub flux: f32,
     pub actions: Vec<ModuleAction>,
     pub action_idx: usize,
+    pub action_limit: usize,
 }
 
 impl Configure for EnemyDeck {
@@ -178,6 +179,7 @@ impl Default for EnemyDeck {
             flux: 1.0,
             actions: vec![],
             action_idx: 0,
+            action_limit: 1,
         }
     }
 }
@@ -188,18 +190,22 @@ impl EnemyDeck {
     }
 
     /// Determine whether the deck is done yielding actions.
-    pub fn is_done(&self) -> bool {
-        self.action_idx >= self.actions.len()
+    pub fn is_done(&self, round: usize) -> bool {
+        self.action_idx
+            >= self
+                .actions
+                .len()
+                .min(self.action_limit.saturating_add(round))
     }
 
     /// Simulate one step and get the next action.
-    pub fn step(&mut self) -> Option<ModuleAction> {
-        if let Some(&action) = self.actions.get(self.action_idx) {
-            self.action_idx += 1;
-            Some(action)
-        } else {
+    pub fn step(&mut self, round: usize) -> Option<ModuleAction> {
+        if self.is_done(round) {
             self.action_idx = 0;
             None
+        } else {
+            self.action_idx += 1;
+            Some(self.actions[self.action_idx - 1])
         }
     }
 }

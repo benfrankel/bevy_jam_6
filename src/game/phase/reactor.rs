@@ -59,5 +59,4 @@ fn step_reactor_phase(
                 .powf(player_deck.flux - 1.0)
     });
     step_timer.0.set_duration(cooldown);
-    step_timer.0.reset();
 }

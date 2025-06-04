@@ -100,7 +100,7 @@ impl Configure for Step {
         app.add_systems(
             Update,
             increment_step
-                .in_set(UpdateSystems::Update)
+                .in_set(UpdateSystems::SyncLate)
                 .run_if(on_step_timer),
         );
     }
@@ -110,8 +110,9 @@ fn reset_step(mut step: ResMut<Step>) {
     *step = default();
 }
 
-fn increment_step(mut step: ResMut<Step>) {
-    step.0 += 1;
+fn increment_step(mut step: ResMut<Step>, mut step_timer: ResMut<StepTimer>) {
+    step.0 += step_timer.0.times_finished_this_tick() as usize;
+    step_timer.0.reset();
 }
 
 #[derive(Resource, Reflect, Debug, Default)]

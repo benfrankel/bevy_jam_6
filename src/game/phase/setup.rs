@@ -24,9 +24,14 @@ pub(super) fn plugin(app: &mut App) {
 fn reset_step_timer_for_setup(
     phase_config: ConfigRef<PhaseConfig>,
     mut step_timer: ResMut<StepTimer>,
+    player_deck: Res<PlayerDeck>,
 ) {
-    let phase_config = r!(phase_config.get());
-    step_timer.0 = Timer::from_seconds(phase_config.setup_first_cooldown, TimerMode::Once);
+    if player_deck.is_setup_done() {
+        step_timer.0 = Timer::from_seconds(0.0, TimerMode::Once);
+    } else {
+        let phase_config = r!(phase_config.get());
+        step_timer.0 = Timer::from_seconds(phase_config.setup_first_cooldown, TimerMode::Once);
+    }
 }
 
 fn step_setup_phase(
@@ -51,5 +56,4 @@ fn step_setup_phase(
         phase_config.setup_cooldown * phase_config.setup_cooldown_decay.powi(step.0 as _)
     });
     step_timer.0.set_duration(cooldown);
-    step_timer.0.reset();
 }
