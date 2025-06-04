@@ -2,7 +2,7 @@ use crate::game::combat::death::OnDeath;
 use crate::prelude::*;
 
 pub fn plugin(app: &mut App) {
-    app.configure::<(ConfigHandle<HealthConfig>, Health, IsHealthBar)>();
+    app.configure::<(ConfigHandle<HealthConfig>, Health, IsHealthBar, OnHeal)>();
 }
 
 pub fn health_bar() -> impl Bundle {
@@ -46,12 +46,28 @@ impl Health {
     pub fn new(max: f32) -> Self {
         Self { max, current: max }
     }
+    
+    pub fn heal(&mut self, amount: f32) {
+        self.current += amount;
+        // TODO: Play an animation
+        // TODO: Play an animation
+    }
 }
 
 impl Configure for Health {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.add_systems(Update, detect_death.in_set(UpdateSystems::Update));
+    }
+}
+
+#[derive(Event, Reflect, Debug)]
+pub struct OnHeal(pub f32);
+
+impl Configure for OnHeal {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+        app.add_observer(increase_health_on_action);
     }
 }
 
@@ -88,4 +104,13 @@ fn sync_health_bar(
         sprite.custom_size = Some(vec2(t, 1.0));
         sprite.color = health_config.health_bar_color(t);
     }
+}
+
+fn increase_health_on_action(
+    trigger: Trigger<OnHeal>,
+    mut health_query: Query<&mut Health>,
+) {
+    let ship = r!(trigger.get_target());
+    let mut health = r!(health_query.get_mut(ship));
+    health.heal(trigger.0);
 }

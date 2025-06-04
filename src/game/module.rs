@@ -1,4 +1,5 @@
 use crate::game::combat::faction::Faction;
+use crate::game::combat::health::{Health, OnHeal};
 use crate::game::deck::EnemyDeck;
 use crate::game::deck::PlayerDeck;
 use crate::game::level::Level;
@@ -114,8 +115,9 @@ fn on_module_action(
         // TODO: Implement this.
         ModuleAction::Fire => {},
 
-        // TODO: Implement this.
-        ModuleAction::Heal => {},
+        ModuleAction::Heal => {
+            commands.entity(ship).trigger(OnHeal(1. * flux));
+        },
 
         _ => {},
     }
