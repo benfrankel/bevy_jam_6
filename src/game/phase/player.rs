@@ -1,4 +1,4 @@
-use crate::game::deck::IsHandModule;
+use crate::game::deck::HandIndex;
 use crate::game::deck::PlayerDeck;
 use crate::game::phase::Phase;
 use crate::prelude::*;
@@ -94,7 +94,7 @@ fn player_play_module(mut player_deck: ResMut<PlayerDeck>, mut next_phase: NextM
 }
 
 fn player_play_module_on_click(
-    interaction_query: Query<&Interaction, With<IsHandModule>>,
+    interaction_query: Query<&Interaction, With<HandIndex>>,
     mut player_actions: ResMut<ActionState<PlayerActions>>,
 ) {
     if interaction_query.iter().any(|&x| x == Interaction::Pressed) {

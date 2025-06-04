@@ -5,13 +5,7 @@ use crate::prelude::Interaction::Hovered;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<(
-        ConfigHandle<DeckConfig>,
-        PlayerDeck,
-        EnemyDeck,
-        IsHandModule,
-        ModuleIndex,
-    )>();
+    app.configure::<(ConfigHandle<DeckConfig>, PlayerDeck, EnemyDeck, HandIndex)>();
 }
 
 #[derive(Asset, Reflect, Serialize, Deserialize, Default, Debug)]
@@ -40,19 +34,9 @@ impl DeckConfig {
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
-pub struct IsHandModule;
+pub struct HandIndex(pub usize);
 
-impl Configure for IsHandModule {
-    fn configure(app: &mut App) {
-        app.register_type::<Self>();
-    }
-}
-
-#[derive(Component, Reflect)]
-#[reflect(Component)]
-pub struct ModuleIndex(pub usize);
-
-impl Configure for ModuleIndex {
+impl Configure for HandIndex {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
     }
@@ -230,10 +214,7 @@ impl EnemyDeck {
     }
 }
 
-fn detect_hover(
-    query: Query<(&Interaction, &ModuleIndex), With<IsHandModule>>,
-    mut player_deck: ResMut<PlayerDeck>,
-) {
+fn detect_hover(query: Query<(&Interaction, &HandIndex)>, mut player_deck: ResMut<PlayerDeck>) {
     for (interaction, index) in query {
         if *interaction == Hovered && player_deck.selected_idx != index.0 {
             player_deck.selected_idx = index.0;
