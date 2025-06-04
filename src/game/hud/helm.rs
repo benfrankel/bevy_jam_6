@@ -105,13 +105,30 @@ fn sync_hand(
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
-struct HandIndex(usize);
+pub struct HandIndex(usize);
 
 impl Configure for HandIndex {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
+        app.add_systems(
+            Update,
+            apply_offset_to_selected_module.in_set(UpdateSystems::Update),
+        );
         app.add_observer(select_module_on_hover);
         app.add_observer(play_module_on_click);
+    }
+}
+
+fn apply_offset_to_selected_module(
+    player_deck: Res<PlayerDeck>,
+    mut module_query: Query<(&mut Node, &HandIndex)>,
+) {
+    for (mut node, index) in &mut module_query {
+        node.top = if index.0 == player_deck.selected_idx {
+            Vw(-2.0)
+        } else {
+            Val::ZERO
+        }
     }
 }
 
@@ -121,15 +138,8 @@ fn select_module_on_hover(
     mut player_deck: ResMut<PlayerDeck>,
 ) {
     let target = rq!(trigger.get_target());
-    let (mut node, index) = rq!(module_query.get_mut(target));
+    let (_, index) = rq!(module_query.get_mut(target));
     player_deck.bypass_change_detection().selected_idx = index.0;
-    node.top = Vw(-2.0);
-
-    for (mut node, index) in &mut module_query {
-        if index.0 != player_deck.selected_idx {
-            node.top = Val::ZERO;
-        }
-    }
 }
 
 fn play_module_on_click(

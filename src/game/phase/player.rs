@@ -78,11 +78,11 @@ fn enable_player_actions(mut player_actions: ResMut<ActionState<PlayerActions>>)
 }
 
 fn player_select_left(mut player_deck: ResMut<PlayerDeck>) {
-    player_deck.advance_selected(-1);
+    player_deck.bypass_change_detection().advance_selected(-1);
 }
 
 fn player_select_right(mut player_deck: ResMut<PlayerDeck>) {
-    player_deck.advance_selected(1);
+    player_deck.bypass_change_detection().advance_selected(1);
 }
 
 fn player_play_module(mut player_deck: ResMut<PlayerDeck>, mut next_phase: NextMut<Phase>) {
