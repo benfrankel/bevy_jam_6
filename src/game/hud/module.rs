@@ -1,10 +1,16 @@
+use crate::game::deck::ModuleIndex;
 use crate::game::hud::HudAssets;
 use crate::game::module::Module;
 use crate::game::module::ModuleAction;
 use crate::game::module::ModuleStatus;
 use crate::prelude::*;
 
-pub fn module(hud_assets: &HudAssets, module: Module, tooltip_anchor: Anchor) -> impl Bundle {
+pub fn module(
+    hud_assets: &HudAssets,
+    module: Module,
+    tooltip_anchor: Anchor,
+    module_index: ModuleIndex,
+) -> impl Bundle {
     let background = match module.status {
         ModuleStatus::FaceUp => &hud_assets.module_face_up,
         ModuleStatus::FaceDown => &hud_assets.module_face_down,
@@ -71,6 +77,7 @@ pub fn module(hud_assets: &HudAssets, module: Module, tooltip_anchor: Anchor) ->
             ..Node::ROW_CENTER
         },
         Tooltip::fixed(tooltip_anchor, parse_rich(tooltip_text)),
+        module_index,
         children![
             (
                 Name::new("Condition"),

@@ -1,3 +1,4 @@
+use crate::game::deck::ModuleIndex;
 use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudAssets;
 use crate::game::hud::flux::flux_display;
@@ -63,8 +64,8 @@ fn sync_module_grid(
             .entity(entity)
             .despawn_related::<Children>()
             .with_children(|parent| {
-                for &slot in &player_deck.reactor {
-                    parent.spawn(module(&hud_assets, slot, Anchor::CenterRight));
+                for (i, &slot) in player_deck.reactor.iter().enumerate() {
+                    parent.spawn(module(&hud_assets, slot, Anchor::CenterRight, ModuleIndex(i)));
                 }
             });
     }

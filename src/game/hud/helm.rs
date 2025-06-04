@@ -1,3 +1,5 @@
+use crate::game::deck::IsHandModule;
+use crate::game::deck::ModuleIndex;
 use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudAssets;
 use crate::game::hud::module::module;
@@ -88,11 +90,15 @@ fn sync_hand(
                 for (i, &card) in player_deck.hand.iter().enumerate() {
                     if i == player_deck.selected_idx {
                         parent.spawn((
-                            module(&hud_assets, card, Anchor::TopCenter),
+                            module(&hud_assets, card, Anchor::TopCenter, ModuleIndex(i)),
                             Patch(|entity| r!(entity.get_mut::<Node>()).top = Vw(-2.0)),
+                            IsHandModule,
                         ));
                     } else {
-                        parent.spawn(module(&hud_assets, card, Anchor::TopCenter));
+                        parent.spawn((
+                            module(&hud_assets, card, Anchor::TopCenter, ModuleIndex(i)),
+                            IsHandModule,
+                        ));
                     }
                 }
             });

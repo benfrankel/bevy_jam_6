@@ -1,3 +1,6 @@
+use bevy::ui::Interaction::Pressed;
+
+use crate::game::deck::IsHandModule;
 use crate::game::deck::PlayerDeck;
 use crate::game::turn::Turn;
 use crate::prelude::*;
@@ -53,6 +56,8 @@ impl Configure for PlayerActions {
                 player_play_module
                     .in_set(UpdateSystems::RecordInput)
                     .run_if(action_just_pressed(Self::PlayModule)),
+                listen_hand_module_click
+                    .in_set(UpdateSystems::Update),
             ),
         );
     }
@@ -85,4 +90,16 @@ fn player_select_right(mut player_deck: ResMut<PlayerDeck>) {
 fn player_play_module(mut player_deck: ResMut<PlayerDeck>, mut next_turn: NextMut<Turn>) {
     player_deck.play_selected();
     next_turn.enter(Turn::Reactor);
+}
+
+fn listen_hand_module_click(
+    interaction_query: Query<&Interaction, With<IsHandModule>>,
+    player_deck: ResMut<PlayerDeck>,
+    next_turn: NextMut<Turn>,
+) {
+    for interaction in interaction_query {
+        if *interaction == Pressed {
+            return player_play_module(player_deck, next_turn);
+        }
+    }
 }
