@@ -49,9 +49,11 @@ fn spawn_level_up_menu(
                 height: Vh(90.),
                 padding: UiRect::axes(Vw(5.), Vh(5.)),
                 flex_direction: FlexDirection::Column,
+                border: UiRect::all(Px(3.)),
                 ..Node::DEFAULT
             },
-            BackgroundColor::from(Color::srgba(0.1, 0.1, 0.1, 0.8)),
+            BackgroundColor::from(Color::srgba(0.2, 0.2, 0.2, 0.9)),
+            BorderRadius::all(Vw(4.)),
             children![
                 widget::label_base(Vw(3.5), ThemeColor::White, "[b]The enemy ship escaped..."),
                 (
