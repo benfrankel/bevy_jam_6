@@ -121,7 +121,7 @@ pub fn paragraph(text: &'static str) -> impl Bundle {
     )
 }
 
-fn label_base(font_size: Val, text_color: ThemeColor, text: impl AsRef<str>) -> impl Bundle {
+pub fn label_base(font_size: Val, text_color: ThemeColor, text: impl AsRef<str>) -> impl Bundle {
     let text = text.as_ref();
     (
         Name::new(format!("Label(\"{text}\")")),
