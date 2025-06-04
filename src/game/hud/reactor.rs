@@ -64,7 +64,10 @@ fn sync_module_grid(
             .despawn_related::<Children>()
             .with_children(|parent| {
                 for &slot in &player_deck.reactor {
-                    parent.spawn(module(&hud_assets, slot, Anchor::CenterRight));
+                    parent.spawn((
+                        module(&hud_assets, slot),
+                        Tooltip::fixed(Anchor::CenterRight, slot.description()),
+                    ));
                 }
             });
     }

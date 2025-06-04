@@ -34,10 +34,7 @@ pub fn helm(hud_assets: &HudAssets) -> impl Bundle {
 fn hand() -> impl Bundle {
     (
         Name::new("Hand"),
-        Node {
-            column_gap: Vw(1.22),
-            ..Node::ROW_CENTER.full_size().abs()
-        },
+        Node::ROW_CENTER.full_size().abs(),
         IsHand,
     )
 }
@@ -80,27 +77,34 @@ fn sync_hand(
     mut commands: Commands,
     hud_assets: Res<HudAssets>,
     player_deck: Res<PlayerDeck>,
-    hand_query: Query<Entity, With<IsHand>>,
+    hand: Single<Entity, With<IsHand>>,
 ) {
     let selected_idx = player_deck.selected_idx;
-    for entity in &hand_query {
-        commands
-            .entity(entity)
-            .despawn_related::<Children>()
-            .with_children(|parent| {
-                for (i, &card) in player_deck.hand.iter().enumerate() {
-                    parent.spawn((
-                        module(&hud_assets, card, Anchor::TopCenter),
-                        HandIndex(i),
+    commands
+        .entity(*hand)
+        .despawn_related::<Children>()
+        .with_children(|parent| {
+            for (i, &item) in player_deck.hand.iter().enumerate() {
+                parent.spawn((
+                    Name::new("ModuleInteractionRegion"),
+                    Node {
+                        padding: UiRect::all(Vw(0.61)),
+                        ..Node::COLUMN_CENTER.full_height()
+                    },
+                    Interaction::default(),
+                    Tooltip::fixed(Anchor::TopCenter, item.description()),
+                    HandIndex(i),
+                    children![(
+                        module(&hud_assets, item),
                         Patch(move |entity| {
                             if i == selected_idx {
                                 r!(entity.get_mut::<Node>()).top = Vw(-2.0);
                             }
                         }),
-                    ));
-                }
-            });
-    }
+                    )],
+                ));
+            }
+        });
 }
 
 #[derive(Component, Reflect)]
@@ -121,9 +125,11 @@ impl Configure for HandIndex {
 
 fn apply_offset_to_selected_module(
     player_deck: Res<PlayerDeck>,
-    mut module_query: Query<(&mut Node, &HandIndex)>,
+    mut module_query: Query<(&mut Node, &ChildOf)>,
+    container_query: Query<&HandIndex>,
 ) {
-    for (mut node, index) in &mut module_query {
+    for (mut node, child_of) in &mut module_query {
+        let index = cq!(container_query.get(child_of.parent()));
         node.top = if index.0 == player_deck.selected_idx {
             Vw(-2.0)
         } else {

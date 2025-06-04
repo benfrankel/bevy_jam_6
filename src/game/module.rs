@@ -34,6 +34,34 @@ impl Module {
             status: ModuleStatus::FaceUp,
         }
     }
+
+    pub fn description(&self) -> RichText {
+        RichText::from_sections(parse_rich(match self.status {
+            ModuleStatus::FaceDown => "[b]Reactor module[r]".to_string(),
+            ModuleStatus::SlotEmpty => "[b]Reactor module[r]\n\nEmpty slot".to_string(),
+            _ => {
+                let condition = match self.condition {
+                    ModuleAction::Nothing => "Unconditionally ",
+                    ModuleAction::Missile => "After firing a missile, ",
+                    ModuleAction::Laser => "After firing a laser, ",
+                    ModuleAction::Fire => "After breathing fire, ",
+                    ModuleAction::Heal => "After repairing the hull, ",
+                };
+                let effect = match (&self.condition, &self.effect) {
+                    (_, ModuleAction::Nothing) => "do nothing",
+                    (ModuleAction::Missile, ModuleAction::Missile) => "fire another missile",
+                    (_, ModuleAction::Missile) => "fire a missile",
+                    (ModuleAction::Laser, ModuleAction::Laser) => "fire another laser",
+                    (_, ModuleAction::Laser) => "fire a laser",
+                    (ModuleAction::Fire, ModuleAction::Fire) => "breathe more fire",
+                    (_, ModuleAction::Fire) => "breathe fire",
+                    (ModuleAction::Heal, ModuleAction::Heal) => "repair the hull again",
+                    (_, ModuleAction::Heal) => "repair the hull",
+                };
+                format!("[b]Reactor module[r]\n\n{condition}{effect}.")
+            },
+        }))
+    }
 }
 
 #[derive(Reflect, Serialize, Deserialize, Copy, Clone, Default, Eq, PartialEq, Debug)]

@@ -4,7 +4,7 @@ use crate::game::module::ModuleAction;
 use crate::game::module::ModuleStatus;
 use crate::prelude::*;
 
-pub fn module(hud_assets: &HudAssets, module: Module, tooltip_anchor: Anchor) -> impl Bundle {
+pub fn module(hud_assets: &HudAssets, module: Module) -> impl Bundle {
     let background = match module.status {
         ModuleStatus::FaceUp => &hud_assets.module_face_up,
         ModuleStatus::FaceDown => &hud_assets.module_face_down,
@@ -36,32 +36,6 @@ pub fn module(hud_assets: &HudAssets, module: Module, tooltip_anchor: Anchor) ->
     }
     .clone();
 
-    let tooltip_text = match module.status {
-        ModuleStatus::FaceDown => "[b]Reactor module[r]".to_string(),
-        ModuleStatus::SlotEmpty => "[b]Reactor module[r]\n\nEmpty slot".to_string(),
-        _ => {
-            let condition = match module.condition {
-                ModuleAction::Nothing => "Unconditionally ",
-                ModuleAction::Missile => "After firing a missile, ",
-                ModuleAction::Laser => "After firing a laser, ",
-                ModuleAction::Fire => "After breathing fire, ",
-                ModuleAction::Heal => "After repairing the hull, ",
-            };
-            let effect = match (&module.condition, &module.effect) {
-                (_, ModuleAction::Nothing) => "do nothing",
-                (ModuleAction::Missile, ModuleAction::Missile) => "fire another missile",
-                (_, ModuleAction::Missile) => "fire a missile",
-                (ModuleAction::Laser, ModuleAction::Laser) => "fire another laser",
-                (_, ModuleAction::Laser) => "fire a laser",
-                (ModuleAction::Fire, ModuleAction::Fire) => "breathe more fire",
-                (_, ModuleAction::Fire) => "breathe fire",
-                (ModuleAction::Heal, ModuleAction::Heal) => "repair the hull again",
-                (_, ModuleAction::Heal) => "repair the hull",
-            };
-            format!("[b]Reactor module[r]\n\n{condition}{effect}.")
-        },
-    };
-
     (
         Name::new("Module"),
         ImageNode::from(background),
@@ -70,7 +44,7 @@ pub fn module(hud_assets: &HudAssets, module: Module, tooltip_anchor: Anchor) ->
             aspect_ratio: Some(1.0),
             ..Node::ROW_CENTER
         },
-        Tooltip::fixed(tooltip_anchor, parse_rich(tooltip_text)),
+        Pickable::IGNORE,
         children![
             (
                 Name::new("Condition"),
