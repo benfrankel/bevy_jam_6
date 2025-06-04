@@ -46,7 +46,7 @@ impl Health {
     pub fn new(max: f32) -> Self {
         Self { max, current: max }
     }
-    
+
     pub fn heal(&mut self, amount: f32) {
         self.current += amount;
         // TODO: Play an animation
@@ -106,10 +106,7 @@ fn sync_health_bar(
     }
 }
 
-fn increase_health_on_action(
-    trigger: Trigger<OnHeal>,
-    mut health_query: Query<&mut Health>,
-) {
+fn increase_health_on_action(trigger: Trigger<OnHeal>, mut health_query: Query<&mut Health>) {
     let ship = r!(trigger.get_target());
     let mut health = r!(health_query.get_mut(ship));
     health.heal(trigger.0);

@@ -1,5 +1,5 @@
 use crate::game::combat::faction::Faction;
-use crate::game::combat::health::{Health, OnHeal};
+use crate::game::combat::health::OnHeal;
 use crate::game::deck::EnemyDeck;
 use crate::game::deck::PlayerDeck;
 use crate::game::level::Level;
