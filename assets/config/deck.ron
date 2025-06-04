@@ -1,9 +1,9 @@
 (
     initial_storage: [
-        (Nothing, Missile),
         (Missile, Heal),
+        (Nothing, Missile),
         (Missile, Missile),
-        (Heal, Laser),
-        (Fire, Missile),
+        (Heal, Missile),
+        (Nothing, Heal),
     ],
 )
