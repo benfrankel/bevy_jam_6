@@ -74,7 +74,7 @@ impl Configure for Round {
             StateFlush,
             (
                 (Phase::Enemy, Phase::Setup).on_trans(increment_round),
-                Phase::ANY.on_disable(reset_round),
+                Level::ANY.on_exit(reset_round),
             ),
         );
     }

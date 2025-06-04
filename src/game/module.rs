@@ -39,10 +39,17 @@ impl Module {
     }
 
     pub fn description(&self) -> RichText {
+        let header = "[b]Reactor module[r]";
+        let heat = if matches!(self.status, ModuleStatus::SlotOverheated) {
+            " (OVERHEATED)".to_string()
+        } else if self.heat > f32::EPSILON {
+            format!(" ({} heat)", self.heat)
+        } else {
+            "".to_string()
+        };
         RichText::from_sections(parse_rich(match self.status {
-            ModuleStatus::FaceDown => "[b]Reactor module[r]".to_string(),
-            ModuleStatus::SlotEmpty => "[b]Reactor module[r]\n\nEmpty slot".to_string(),
-            ModuleStatus::SlotOverheated => "[b]Reactor module[r]\n\nOVERHEATED".to_string(),
+            ModuleStatus::FaceDown => header.to_string(),
+            ModuleStatus::SlotEmpty => format!("{header}\n\nEmpty slot"),
             _ => {
                 let condition = match self.condition {
                     ModuleAction::Nothing => "Unconditionally ",
@@ -62,7 +69,7 @@ impl Module {
                     (ModuleAction::Heal, ModuleAction::Heal) => "repair the hull again",
                     (_, ModuleAction::Heal) => "repair the hull",
                 };
-                format!("[b]Reactor module[r]\n\n{condition}{effect}.")
+                format!("{header}{heat}\n\n{condition}{effect}.")
             },
         }))
     }

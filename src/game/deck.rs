@@ -56,8 +56,8 @@ impl PlayerDeck {
         for slot in &mut self.reactor {
             cq!(!matches!(slot.status, ModuleStatus::SlotEmpty));
             slot.status = ModuleStatus::FaceUp;
+            slot.heat = 0.0;
             self.storage.push(*slot);
-            slot.status = ModuleStatus::SlotEmpty;
         }
         self.storage.append(&mut self.hand);
 
@@ -139,7 +139,7 @@ impl PlayerDeck {
 
     /// Determine whether the reactor is done yielding actions.
     pub fn is_reactor_done(&self) -> bool {
-        self.next_matching_module().is_some()
+        self.next_matching_module().is_none()
     }
 
     /// Simulate one reactor step and get the next action.
