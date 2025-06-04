@@ -10,7 +10,17 @@ use crate::game::ship::player_ship;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<(LevelAssets, Level)>();
+    app.configure::<(ConfigHandle<LevelConfig>, LevelAssets, Level)>();
+}
+
+#[derive(Asset, Reflect, Serialize, Deserialize, Default)]
+#[serde(deny_unknown_fields, default)]
+struct LevelConfig {
+    enemies: Vec<EnemyDeck>,
+}
+
+impl Config for LevelConfig {
+    const FILE: &'static str = "level.ron";
 }
 
 #[derive(AssetCollection, Resource, Reflect, Default, Debug)]
@@ -57,8 +67,9 @@ impl Configure for Level {
         app.add_systems(
             StateFlush,
             (
-                Level(1).on_enter(set_initial_player_deck),
-                Level::ANY.on_edge(reset_decks, spawn_level),
+                Level(0).on_enter(set_initial_player_deck),
+                state!(Level(1..)).on_enter(reset_player_deck),
+                Level::ANY.on_edge(reset_enemy_deck, (spawn_level, set_enemy_deck)),
             ),
         );
     }
@@ -72,17 +83,30 @@ fn set_initial_player_deck(
     *player_deck = deck_config.initial_player_deck();
 }
 
-fn reset_decks(mut player_deck: ResMut<PlayerDeck>, mut enemy_deck: ResMut<EnemyDeck>) {
+fn reset_player_deck(mut player_deck: ResMut<PlayerDeck>) {
     player_deck.reset();
+}
+
+fn reset_enemy_deck(mut enemy_deck: ResMut<EnemyDeck>) {
     enemy_deck.reset();
+}
+
+fn set_enemy_deck(
+    level: NextRef<Level>,
+    level_config: ConfigRef<LevelConfig>,
+    mut enemy_deck: ResMut<EnemyDeck>,
+) {
+    let level_config = r!(level_config.get());
+    let level = r!(level.get());
+    *enemy_deck = r!(level_config.enemies.get(level.0)).clone();
 }
 
 pub fn spawn_level(
     mut commands: Commands,
-    ship_config: ConfigRef<ShipConfig>,
     level: NextRef<Level>,
-    hud_assets: Res<HudAssets>,
     level_assets: Res<LevelAssets>,
+    hud_assets: Res<HudAssets>,
+    ship_config: ConfigRef<ShipConfig>,
     ship_assets: Res<ShipAssets>,
 ) {
     let ship_config = r!(ship_config.get());

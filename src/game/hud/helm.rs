@@ -91,7 +91,6 @@ fn sync_hand(
                         padding: UiRect::all(Vw(0.61)),
                         ..Node::COLUMN_CENTER.full_height()
                     },
-                    Interaction::default(),
                     Tooltip::fixed(Anchor::TopCenter, item.description()),
                     HandIndex(i),
                     children![(

@@ -1,0 +1,5 @@
+(
+    enemies: [
+        EnemyDeck(actions: [Missile, Missile, Missile, Missile, Missile, Missile]),
+    ],
+)

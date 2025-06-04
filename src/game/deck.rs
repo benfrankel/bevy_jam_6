@@ -156,8 +156,9 @@ impl PlayerDeck {
     }
 }
 
-#[derive(Resource, Reflect, Debug)]
+#[derive(Resource, Reflect, Serialize, Deserialize, Clone, Debug)]
 #[reflect(Resource)]
+#[serde(deny_unknown_fields, default)]
 pub struct EnemyDeck {
     pub flux: f32,
     pub actions: Vec<ModuleAction>,
@@ -175,7 +176,7 @@ impl Default for EnemyDeck {
     fn default() -> Self {
         Self {
             flux: 1.0,
-            actions: vec![ModuleAction::Missile; 6],
+            actions: vec![],
             action_idx: 0,
         }
     }
