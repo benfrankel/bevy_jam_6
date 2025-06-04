@@ -1,3 +1,4 @@
+use crate::game::deck::DeckConfig;
 use crate::game::deck::EnemyDeck;
 use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudAssets;
@@ -15,6 +16,8 @@ pub(super) fn plugin(app: &mut App) {
 #[derive(AssetCollection, Resource, Reflect, Default, Debug)]
 #[reflect(Resource)]
 pub struct LevelAssets {
+    #[asset(path = "image/space/level0.png")]
+    bg_level0: Handle<Image>,
     #[asset(path = "image/space/level1.png")]
     bg_level1: Handle<Image>,
     #[asset(path = "image/space/level2.png")]
@@ -33,8 +36,6 @@ pub struct LevelAssets {
     bg_level8: Handle<Image>,
     #[asset(path = "image/space/level9.png")]
     bg_level9: Handle<Image>,
-    #[asset(path = "image/space/level10.png")]
-    bg_level10: Handle<Image>,
 }
 
 impl Configure for LevelAssets {
@@ -53,8 +54,22 @@ impl Configure for Level {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.add_state::<Self>();
-        app.add_systems(StateFlush, Level::ANY.on_edge(reset_decks, spawn_level));
+        app.add_systems(
+            StateFlush,
+            (
+                Level(1).on_enter(set_initial_player_deck),
+                Level::ANY.on_edge(reset_decks, spawn_level),
+            ),
+        );
     }
+}
+
+fn set_initial_player_deck(
+    deck_config: ConfigRef<DeckConfig>,
+    mut player_deck: ResMut<PlayerDeck>,
+) {
+    let deck_config = r!(deck_config.get());
+    *player_deck = deck_config.initial_player_deck();
 }
 
 fn reset_decks(mut player_deck: ResMut<PlayerDeck>, mut enemy_deck: ResMut<EnemyDeck>) {
@@ -91,6 +106,7 @@ fn background(level_assets: &LevelAssets, level: usize) -> impl Bundle {
         Name::new("Background"),
         Sprite::from_image(
             match level {
+                0 => &level_assets.bg_level0,
                 1 => &level_assets.bg_level1,
                 2 => &level_assets.bg_level2,
                 3 => &level_assets.bg_level3,
@@ -100,8 +116,7 @@ fn background(level_assets: &LevelAssets, level: usize) -> impl Bundle {
                 7 => &level_assets.bg_level7,
                 8 => &level_assets.bg_level8,
                 9 => &level_assets.bg_level9,
-                10 => &level_assets.bg_level10,
-                _ => &level_assets.bg_level1,
+                _ => &level_assets.bg_level0,
             }
             .clone(),
         ),

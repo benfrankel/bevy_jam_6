@@ -1,8 +1,6 @@
-use bevy::ui::Interaction::Pressed;
-
 use crate::game::deck::IsHandModule;
 use crate::game::deck::PlayerDeck;
-use crate::game::turn::Turn;
+use crate::game::phase::Phase;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -18,7 +16,10 @@ enum PlayerActions {
 
 impl Configure for PlayerActions {
     fn configure(app: &mut App) {
-        app.init_resource::<ActionState<Self>>();
+        let mut action_state = ActionState::<Self>::default();
+        action_state.disable_action(&Self::PlayModule);
+        app.insert_resource(action_state);
+
         app.insert_resource(
             InputMap::default()
                 .with(Self::SelectLeft, GamepadButton::DPadLeft)
@@ -38,10 +39,10 @@ impl Configure for PlayerActions {
         app.add_systems(
             StateFlush,
             (
-                Turn::Player.on_edge(disable_play_module, enable_play_module),
+                Phase::Player.on_edge(disable_play_module, enable_play_module),
                 Pause
                     .on_edge(enable_player_actions, disable_player_actions)
-                    .run_if(Turn::Player.will_update()),
+                    .run_if(Phase::Player.will_update()),
             ),
         );
         app.add_systems(
@@ -56,7 +57,7 @@ impl Configure for PlayerActions {
                 player_play_module
                     .in_set(UpdateSystems::RecordInput)
                     .run_if(action_just_pressed(Self::PlayModule)),
-                listen_hand_module_click.in_set(UpdateSystems::Update),
+                player_play_module_on_click.in_set(UpdateSystems::Update),
             ),
         );
     }
@@ -86,19 +87,17 @@ fn player_select_right(mut player_deck: ResMut<PlayerDeck>) {
     player_deck.advance_selected(1);
 }
 
-fn player_play_module(mut player_deck: ResMut<PlayerDeck>, mut next_turn: NextMut<Turn>) {
-    player_deck.play_selected();
-    next_turn.enter(Turn::Reactor);
+fn player_play_module(mut player_deck: ResMut<PlayerDeck>, mut next_phase: NextMut<Phase>) {
+    if player_deck.play_selected() {
+        next_phase.enter(Phase::Reactor);
+    }
 }
 
-fn listen_hand_module_click(
+fn player_play_module_on_click(
     interaction_query: Query<&Interaction, With<IsHandModule>>,
-    player_deck: ResMut<PlayerDeck>,
-    next_turn: NextMut<Turn>,
+    mut player_actions: ResMut<ActionState<PlayerActions>>,
 ) {
-    for interaction in interaction_query {
-        if *interaction == Pressed {
-            return player_play_module(player_deck, next_turn);
-        }
+    if interaction_query.iter().any(|&x| x == Interaction::Pressed) {
+        player_actions.press(&PlayerActions::PlayModule);
     }
 }

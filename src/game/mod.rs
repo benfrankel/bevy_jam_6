@@ -4,8 +4,8 @@ pub mod hud;
 pub mod level;
 pub mod missile;
 pub mod module;
+pub mod phase;
 pub mod ship;
-pub mod turn;
 
 use crate::prelude::*;
 
@@ -18,7 +18,7 @@ pub(super) fn plugin(app: &mut App) {
         missile::plugin,
         module::plugin,
         ship::plugin,
-        turn::plugin,
+        phase::plugin,
     ));
 }
 

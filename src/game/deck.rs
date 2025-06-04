@@ -17,16 +17,24 @@ pub(super) fn plugin(app: &mut App) {
 #[derive(Asset, Reflect, Serialize, Deserialize, Default, Debug)]
 #[serde(deny_unknown_fields, default)]
 pub struct DeckConfig {
-    hand: Vec<Module>,
+    initial_storage: Vec<(ModuleAction, ModuleAction)>,
 }
 
 impl Config for DeckConfig {
-    const FILE: &'static str = "starter.ron";
+    const FILE: &'static str = "deck.ron";
 }
 
 impl DeckConfig {
-    pub fn starter(&self) -> Vec<Module> {
-        self.hand.clone()
+    pub fn initial_player_deck(&self) -> PlayerDeck {
+        let mut deck = PlayerDeck::default();
+        deck.storage = self
+            .initial_storage
+            .iter()
+            .copied()
+            .map(|(x, y)| Module::new(x, y))
+            .collect();
+        deck.reactor.extend([Module::EMPTY; 3]);
+        deck
     }
 }
 
@@ -50,7 +58,7 @@ impl Configure for ModuleIndex {
     }
 }
 
-#[derive(Resource, Reflect, Debug)]
+#[derive(Resource, Reflect, Debug, Default)]
 #[reflect(Resource)]
 pub struct PlayerDeck {
     pub flux: f32,
@@ -70,47 +78,10 @@ impl Configure for PlayerDeck {
     }
 }
 
-impl Default for PlayerDeck {
-    fn default() -> Self {
-        Self {
-            flux: 0.0,
-            storage: vec![
-                Module::new(ModuleAction::Laser, ModuleAction::Heal),
-                Module::new(ModuleAction::Missile, ModuleAction::Missile),
-                Module::new(ModuleAction::Missile, ModuleAction::Missile),
-                Module::new(ModuleAction::Missile, ModuleAction::Missile),
-                Module::new(ModuleAction::Missile, ModuleAction::Missile),
-                Module::new(ModuleAction::Missile, ModuleAction::Missile),
-                Module::new(ModuleAction::Missile, ModuleAction::Missile),
-                Module::new(ModuleAction::Missile, ModuleAction::Missile),
-            ],
-            hand: vec![
-                Module::new(ModuleAction::Nothing, ModuleAction::Missile),
-                Module::new(ModuleAction::Laser, ModuleAction::Heal),
-                Module::new(ModuleAction::Missile, ModuleAction::Missile),
-                Module::new(ModuleAction::Heal, ModuleAction::Laser),
-                Module::new(ModuleAction::Fire, ModuleAction::Missile),
-            ],
-            selected_idx: 0,
-            reactor: vec![Module::EMPTY; 9],
-            next_slot: 0,
-            last_effect: ModuleAction::Nothing,
-        }
-    }
-}
-
 impl PlayerDeck {
     /// Discard all cards in the deck.
     pub fn reset(&mut self) {
         *self = default();
-        /*
-        self.flux = 0.0;
-        for slot in &mut self.reactor {
-            *slot = Module::EMPTY;
-        }
-        self.storage.append(&mut self.hand);
-        self.selected_idx = 0;
-        */
     }
 
     /// Advance the selected module index by the given step.
@@ -121,9 +92,18 @@ impl PlayerDeck {
             .min(self.hand.len().saturating_sub(1));
     }
 
-    /// Play the currently selected module.
-    pub fn play_selected(&mut self) {
-        rq!(!self.hand.is_empty());
+    /// Draw a random module from storage to hand.
+    pub fn draw(&mut self) {
+        rq!(!self.storage.is_empty());
+        let idx = thread_rng().gen_range(0..self.storage.len());
+        let draw = self.storage.swap_remove(idx);
+        self.hand.push(draw);
+    }
+
+    /// Try to play the currently selected module from hand to reactor,
+    /// returning false if it's not possible.
+    pub fn play_selected(&mut self) -> bool {
+        rq!(!self.hand.is_empty() && !self.reactor.is_empty());
 
         // Remove the selected module from hand.
         let idx = self.selected_idx;
@@ -143,21 +123,16 @@ impl PlayerDeck {
             self.next_slot = 0;
         }
 
-        // Draw a new module to hand.
-        if !self.storage.is_empty() {
-            let idx = thread_rng().gen_range(0..self.storage.len());
-            let draw = self.storage.swap_remove(idx);
-            self.hand.push(draw);
-        }
-
         // Clamp selected index within new hand size.
         self.selected_idx = self
             .selected_idx
             .clamp(0, self.hand.len().saturating_sub(1));
+
+        true
     }
 
-    /// Whether the deck is done yielding actions.
-    pub fn is_done(&self) -> bool {
+    /// Determine whether the reactor is done yielding actions.
+    pub fn is_reactor_done(&self) -> bool {
         !self.reactor.iter().any(|module| {
             matches!(module.status, ModuleStatus::SlotInactive)
                 && (matches!(module.condition, ModuleAction::Nothing)
@@ -165,8 +140,8 @@ impl PlayerDeck {
         })
     }
 
-    /// Simulate one step and get the next action.
-    pub fn step(&mut self) -> Option<ModuleAction> {
+    /// Simulate one reactor step and get the next action.
+    pub fn step_reactor(&mut self) -> Option<ModuleAction> {
         // Search for a matching module.
         for module in &mut self.reactor {
             cq!(matches!(module.status, ModuleStatus::SlotInactive));
@@ -189,6 +164,22 @@ impl PlayerDeck {
         }
 
         None
+    }
+
+    /// Determines whether setup is complete.
+    pub fn is_setup_done(&self) -> bool {
+        self.storage.is_empty() || self.hand.len() >= 5
+    }
+
+    /// Steps setting up the deck, returning false if setup was already complete.
+    pub fn step_setup(&mut self) -> bool {
+        if !self.storage.is_empty() && self.hand.len() < 5 {
+            self.draw();
+        } else {
+            return false;
+        }
+
+        true
     }
 }
 
@@ -222,7 +213,7 @@ impl EnemyDeck {
         *self = default();
     }
 
-    /// Whether the deck is done yielding actions.
+    /// Determine whether the deck is done yielding actions.
     pub fn is_done(&self) -> bool {
         self.action_idx >= self.actions.len()
     }

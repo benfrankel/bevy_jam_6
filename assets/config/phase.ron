@@ -1,4 +1,9 @@
 (
+    setup_cooldown: 0.5,
+    setup_cooldown_decay: 0.8,
+    setup_first_cooldown: 0.8,
+    setup_last_cooldown: 1.5,
+
     reactor_cooldown: 0.5,
     reactor_cooldown_decay: 0.8,
     reactor_first_cooldown: 0.8,
