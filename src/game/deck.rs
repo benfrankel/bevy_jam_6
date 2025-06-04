@@ -20,15 +20,16 @@ impl Config for DeckConfig {
 
 impl DeckConfig {
     pub fn initial_player_deck(&self) -> PlayerDeck {
-        let mut deck = PlayerDeck::default();
-        deck.storage = self
-            .initial_storage
-            .iter()
-            .copied()
-            .map(|(x, y)| Module::new(x, y))
-            .collect();
-        deck.reactor.extend([Module::EMPTY; 3]);
-        deck
+        PlayerDeck {
+            storage: self
+                .initial_storage
+                .iter()
+                .copied()
+                .map(|(x, y)| Module::new(x, y))
+                .collect(),
+            reactor: vec![Module::EMPTY; 3],
+            ..default()
+        }
     }
 }
 
