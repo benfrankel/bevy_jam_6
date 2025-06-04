@@ -18,6 +18,7 @@ pub struct Module {
     pub condition: ModuleAction,
     pub effect: ModuleAction,
     pub status: ModuleStatus,
+    pub heat: f32,
 }
 
 impl Module {
@@ -25,6 +26,7 @@ impl Module {
         condition: ModuleAction::Nothing,
         effect: ModuleAction::Nothing,
         status: ModuleStatus::SlotEmpty,
+        heat: 0.0,
     };
 
     pub fn new(condition: ModuleAction, effect: ModuleAction) -> Self {
@@ -32,6 +34,7 @@ impl Module {
             condition,
             effect,
             status: ModuleStatus::FaceUp,
+            heat: 0.0,
         }
     }
 
