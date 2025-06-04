@@ -62,6 +62,8 @@ pub struct HudAssets {
     module_slot_inactive: Handle<Image>,
     #[asset(path = "image/module/slot_active.png")]
     module_slot_active: Handle<Image>,
+    #[asset(path = "image/module/slot_overheated.png")]
+    module_slot_overheated: Handle<Image>,
 
     // Reactor module icons.
     #[asset(path = "image/module/icon/nothing_condition.png")]

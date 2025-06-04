@@ -38,8 +38,7 @@ pub struct PlayerDeck {
     pub storage: Vec<Module>,
     pub hand: Vec<Module>,
     pub selected_idx: usize,
-    pub reactor: Vec<Module>,
-    pub next_slot: usize,
+    pub reactor: Vec<(Module, f32)>,
     pub last_effect: ModuleAction,
 }
 
@@ -54,18 +53,18 @@ impl PlayerDeck {
     /// Reset deck.
     pub fn reset(&mut self) {
         // Discard modules from reactor / hand to storage.
-        for module in &mut self.reactor {
-            cq!(!matches!(module.status, ModuleStatus::SlotEmpty));
-            module.status = ModuleStatus::FaceUp;
-            self.storage.push(*module);
-            module.status = ModuleStatus::SlotEmpty;
+        for (slot, _) in &mut self.reactor {
+            cq!(!matches!(slot.status, ModuleStatus::SlotEmpty));
+            slot.status = ModuleStatus::FaceUp;
+            self.storage.push(*slot);
+            slot.status = ModuleStatus::SlotEmpty;
         }
         self.storage.append(&mut self.hand);
 
-        // Create a new deck from storage and reactor.
+        // Create a new deck from storage and number of reactor slots.
         *self = Self {
             storage: core::mem::take(&mut self.storage),
-            reactor: vec![Module::EMPTY; self.reactor.len()],
+            reactor: vec![(Module::EMPTY, 0.0); self.reactor.len()],
             ..default()
         };
     }
@@ -95,63 +94,85 @@ impl PlayerDeck {
     /// returning false if it's not possible.
     pub fn play_selected(&mut self) -> bool {
         rq!(!self.hand.is_empty() && !self.reactor.is_empty());
+        let slot_idx = rq!(self.next_slot_idx());
 
         // Remove the selected module from hand.
         let idx = self.selected_idx;
         let mut selected = self.hand.remove(idx);
-
-        // Place it in the next reactor slot.
-        let idx = self.next_slot;
-        if !matches!(self.reactor[idx].status, ModuleStatus::SlotEmpty) {
-            let mut replaced = self.reactor[idx];
-            replaced.status = ModuleStatus::FaceUp;
-            self.storage.push(replaced);
-        }
-        selected.status = ModuleStatus::SlotInactive;
-        self.reactor[idx] = selected;
-        self.next_slot += 1;
-        if self.next_slot >= self.reactor.len() {
-            self.next_slot = 0;
-        }
-
-        // Clamp selected index within new hand size.
         self.selected_idx = self
             .selected_idx
             .clamp(0, self.hand.len().saturating_sub(1));
 
+        // Place it in the next available reactor slot.
+        let (slot, heat) = &mut self.reactor[slot_idx];
+        if !matches!(slot.status, ModuleStatus::SlotEmpty) {
+            slot.status = ModuleStatus::FaceUp;
+            self.storage.push(*slot);
+        }
+        selected.status = ModuleStatus::SlotInactive;
+        *slot = selected;
+        *heat = 0.0;
+
         true
+    }
+
+    /// Determine the next available reactor slot.
+    fn next_slot_idx(&self) -> Option<usize> {
+        self.reactor
+            .iter()
+            .position(|(slot, _)| matches!(slot.status, ModuleStatus::SlotEmpty))
+            .or_else(|| {
+                self.reactor
+                    .iter()
+                    .position(|(slot, _)| matches!(slot.status, ModuleStatus::SlotOverheated))
+            })
     }
 
     /// Determine whether the reactor is done yielding actions.
     pub fn is_reactor_done(&self) -> bool {
-        !self.reactor.iter().any(|module| {
-            matches!(module.status, ModuleStatus::SlotInactive)
-                && (matches!(module.condition, ModuleAction::Nothing)
-                    || module.condition == self.last_effect)
+        !self.reactor.iter().any(|(slot, _)| {
+            matches!(slot.status, ModuleStatus::SlotInactive)
+                && (matches!(slot.condition, ModuleAction::Nothing)
+                    || slot.condition == self.last_effect)
         })
     }
 
     /// Simulate one reactor step and get the next action.
     pub fn step_reactor(&mut self) -> Option<ModuleAction> {
         // Search for a matching module.
-        for module in &mut self.reactor {
-            cq!(matches!(module.status, ModuleStatus::SlotInactive));
-            cq!(matches!(module.condition, ModuleAction::Nothing)
-                || module.condition == self.last_effect);
+        for (slot, heat) in &mut self.reactor {
+            cq!(matches!(slot.status, ModuleStatus::SlotInactive));
+            cq!(matches!(slot.condition, ModuleAction::Nothing)
+                || slot.condition == self.last_effect);
 
             // Activate the module.
-            module.status = ModuleStatus::SlotActive;
-            self.last_effect = module.effect;
+            slot.status = ModuleStatus::SlotActive;
+            self.last_effect = slot.effect;
             self.flux += 1.0;
-            return Some(module.effect);
+            *heat += self.flux;
+            return Some(slot.effect);
         }
 
         // If there was no match, reset the reactor.
         self.last_effect = ModuleAction::Nothing;
         self.flux = 0.0;
-        for module in &mut self.reactor {
-            cq!(matches!(module.status, ModuleStatus::SlotActive));
-            module.status = ModuleStatus::SlotInactive;
+        for (slot, _) in &mut self.reactor {
+            cq!(matches!(slot.status, ModuleStatus::SlotActive));
+            slot.status = ModuleStatus::SlotInactive;
+        }
+
+        // And if the reactor is full, mark at least one module as overheated.
+        if self
+            .reactor
+            .iter()
+            .all(|(slot, _)| matches!(slot.status, ModuleStatus::SlotInactive))
+        {
+            let (slot, _) = r!(self
+                .reactor
+                .iter_mut()
+                .rev()
+                .max_by_key(|(_, heat)| (heat * 100.0) as i64));
+            slot.status = ModuleStatus::SlotOverheated;
         }
 
         None

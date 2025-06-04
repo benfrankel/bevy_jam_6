@@ -11,6 +11,7 @@ pub fn module(hud_assets: &HudAssets, module: Module) -> impl Bundle {
         ModuleStatus::SlotEmpty => &hud_assets.module_slot_empty,
         ModuleStatus::SlotInactive => &hud_assets.module_slot_inactive,
         ModuleStatus::SlotActive => &hud_assets.module_slot_active,
+        ModuleStatus::SlotOverheated => &hud_assets.module_slot_overheated,
     }
     .clone();
 

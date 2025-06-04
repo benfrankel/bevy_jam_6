@@ -101,7 +101,7 @@ fn set_up_decks(
     if level == 0 {
         *player_deck = deck_config.initial_player_deck();
     }
-    player_deck.reactor = vec![Module::EMPTY; level_setup.reactor_slots];
+    player_deck.reactor = vec![(Module::EMPTY, 0.0); level_setup.reactor_slots];
     *enemy_deck = level_setup.enemy.clone();
 }
 

@@ -39,6 +39,7 @@ impl Module {
         RichText::from_sections(parse_rich(match self.status {
             ModuleStatus::FaceDown => "[b]Reactor module[r]".to_string(),
             ModuleStatus::SlotEmpty => "[b]Reactor module[r]\n\nEmpty slot".to_string(),
+            ModuleStatus::SlotOverheated => "[b]Reactor module[r]\n\nOVERHEATED".to_string(),
             _ => {
                 let condition = match self.condition {
                     ModuleAction::Nothing => "Unconditionally ",
@@ -82,6 +83,7 @@ pub enum ModuleStatus {
     SlotEmpty,
     SlotInactive,
     SlotActive,
+    SlotOverheated,
 }
 
 #[derive(Event, Reflect, Debug)]
