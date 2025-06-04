@@ -1,5 +1,73 @@
 (
-    enemies: [
-        EnemyDeck(actions: [Missile, Missile, Missile, Missile, Missile, Missile]),
+    levels: [
+        // Level 0:
+        LevelSetup(
+            enemy: EnemyDeck(actions: [Missile, Missile, Missile]),
+            enemy_health: 25,
+            reactor_slots: 3,
+        ),
+
+        // Level 1:
+        LevelSetup(
+            enemy: EnemyDeck(actions: [Missile, Missile, Missile, Missile, Missile, Missile]),
+            enemy_health: 50,
+            reactor_slots: 3,
+        ),
+
+        // Level 2:
+        LevelSetup(
+            enemy: EnemyDeck(actions: [Missile, Missile, Missile, Missile, Missile, Missile]),
+            enemy_health: 100,
+            reactor_slots: 6,
+        ),
+
+        // Level 3:
+        LevelSetup(
+            enemy: EnemyDeck(actions: [Missile, Missile, Missile, Missile, Missile, Missile]),
+            enemy_health: 200,
+            reactor_slots: 6,
+        ),
+
+        // Level 4:
+        LevelSetup(
+            enemy: EnemyDeck(actions: [Missile, Missile, Missile, Missile, Missile, Missile]),
+            enemy_health: 300,
+            reactor_slots: 9,
+        ),
+
+        // Level 5:
+        LevelSetup(
+            enemy: EnemyDeck(actions: [Missile, Missile, Missile, Missile, Missile, Missile]),
+            enemy_health: 400,
+            reactor_slots: 9,
+        ),
+
+        // Level 6:
+        LevelSetup(
+            enemy: EnemyDeck(actions: [Missile, Missile, Missile, Missile, Missile, Missile]),
+            enemy_health: 500,
+            reactor_slots: 12,
+        ),
+
+        // Level 7:
+        LevelSetup(
+            enemy: EnemyDeck(actions: [Missile, Missile, Missile, Missile, Missile, Missile]),
+            enemy_health: 600,
+            reactor_slots: 12,
+        ),
+
+        // Level 8:
+        LevelSetup(
+            enemy: EnemyDeck(actions: [Missile, Missile, Missile, Missile, Missile, Missile]),
+            enemy_health: 700,
+            reactor_slots: 15,
+        ),
+
+        // Level 9:
+        LevelSetup(
+            enemy: EnemyDeck(actions: [Missile, Missile, Missile, Missile, Missile, Missile]),
+            enemy_health: 800,
+            reactor_slots: 18,
+        ),
     ],
 )

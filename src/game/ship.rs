@@ -44,7 +44,7 @@ pub fn player_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets) -> impl B
     )
 }
 
-pub fn enemy_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets) -> impl Bundle {
+pub fn enemy_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets, health: f32) -> impl Bundle {
     let weapons = ship_config.enemy_weapons.clone();
     let health_bar_transform =
         Transform::from_translation(ship_config.enemy_health_bar_offset.extend(0.1))
@@ -55,7 +55,7 @@ pub fn enemy_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets) -> impl Bu
         IsEnemyShip,
         Faction::Enemy,
         ship(ship_assets.enemy_image.clone()),
-        Health::new(100.0),
+        Health::new(health),
         Collider::rectangle(167.0, 15.0),
         CollisionLayers::new(GameLayer::Enemy, LayerMask::ALL),
         Children::spawn(SpawnWith(move |parent: &mut ChildSpawner| {

@@ -26,7 +26,6 @@ impl DeckConfig {
                 .copied()
                 .map(|(x, y)| Module::new(x, y))
                 .collect(),
-            reactor: vec![Module::EMPTY; 3],
             ..default()
         }
     }
@@ -52,9 +51,28 @@ impl Configure for PlayerDeck {
 }
 
 impl PlayerDeck {
-    /// Discard all cards in the deck.
+    /// Reset deck.
     pub fn reset(&mut self) {
-        *self = default();
+        // Discard modules from reactor / hand to storage.
+        for module in &mut self.reactor {
+            cq!(!matches!(module.status, ModuleStatus::SlotEmpty));
+            module.status = ModuleStatus::FaceUp;
+            self.storage.push(*module);
+            module.status = ModuleStatus::SlotEmpty;
+        }
+        self.storage.append(&mut self.hand);
+
+        // Create a new deck from storage and reactor.
+        *self = Self {
+            storage: core::mem::take(&mut self.storage),
+            reactor: vec![Module::EMPTY; self.reactor.len()],
+            ..default()
+        };
+    }
+
+    /// Shuffle storage.
+    pub fn shuffle(&mut self, rng: &mut impl Rng) {
+        self.storage.shuffle(rng);
     }
 
     /// Advance the selected module index by the given step.

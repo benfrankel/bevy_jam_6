@@ -3,6 +3,7 @@ use crate::game::deck::EnemyDeck;
 use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudAssets;
 use crate::game::hud::hud;
+use crate::game::module::Module;
 use crate::game::ship::ShipAssets;
 use crate::game::ship::ShipConfig;
 use crate::game::ship::enemy_ship;
@@ -16,11 +17,19 @@ pub(super) fn plugin(app: &mut App) {
 #[derive(Asset, Reflect, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields, default)]
 struct LevelConfig {
-    enemies: Vec<EnemyDeck>,
+    levels: Vec<LevelSetup>,
 }
 
 impl Config for LevelConfig {
     const FILE: &'static str = "level.ron";
+}
+
+#[derive(Reflect, Serialize, Deserialize, Default)]
+#[serde(deny_unknown_fields, default)]
+struct LevelSetup {
+    enemy: EnemyDeck,
+    enemy_health: f32,
+    reactor_slots: usize,
 }
 
 #[derive(AssetCollection, Resource, Reflect, Default, Debug)]
@@ -66,52 +75,51 @@ impl Configure for Level {
         app.add_state::<Self>();
         app.add_systems(
             StateFlush,
-            (
-                Level(0).on_enter(set_initial_player_deck),
-                state!(Level(1..)).on_enter(reset_player_deck),
-                Level::ANY.on_edge(reset_enemy_deck, (spawn_level, set_enemy_deck)),
-            ),
+            Level::ANY.on_edge(reset_decks, (set_up_decks, spawn_level)),
         );
     }
 }
 
-fn set_initial_player_deck(
-    deck_config: ConfigRef<DeckConfig>,
-    mut player_deck: ResMut<PlayerDeck>,
-) {
-    let deck_config = r!(deck_config.get());
-    *player_deck = deck_config.initial_player_deck();
-}
-
-fn reset_player_deck(mut player_deck: ResMut<PlayerDeck>) {
+fn reset_decks(mut player_deck: ResMut<PlayerDeck>, mut enemy_deck: ResMut<EnemyDeck>) {
     player_deck.reset();
-}
-
-fn reset_enemy_deck(mut enemy_deck: ResMut<EnemyDeck>) {
+    player_deck.shuffle(&mut thread_rng());
     enemy_deck.reset();
 }
 
-fn set_enemy_deck(
+fn set_up_decks(
     level: NextRef<Level>,
     level_config: ConfigRef<LevelConfig>,
+    deck_config: ConfigRef<DeckConfig>,
+    mut player_deck: ResMut<PlayerDeck>,
     mut enemy_deck: ResMut<EnemyDeck>,
 ) {
+    let level = r!(level.get()).0;
     let level_config = r!(level_config.get());
-    let level = r!(level.get());
-    *enemy_deck = r!(level_config.enemies.get(level.0)).clone();
+    let level_setup = r!(level_config.levels.get(level));
+    let deck_config = r!(deck_config.get());
+
+    if level == 0 {
+        *player_deck = deck_config.initial_player_deck();
+    }
+    player_deck.reactor = vec![Module::EMPTY; level_setup.reactor_slots];
+    *enemy_deck = level_setup.enemy.clone();
 }
 
-pub fn spawn_level(
+fn spawn_level(
     mut commands: Commands,
     level: NextRef<Level>,
+    level_config: ConfigRef<LevelConfig>,
     level_assets: Res<LevelAssets>,
     hud_assets: Res<HudAssets>,
     ship_config: ConfigRef<ShipConfig>,
     ship_assets: Res<ShipAssets>,
 ) {
+    let level = r!(level.get()).0;
+    let level_config = r!(level_config.get());
+    let level_setup = r!(level_config.levels.get(level));
     let ship_config = r!(ship_config.get());
 
-    commands.spawn(background(&level_assets, level.unwrap().0));
+    commands.spawn(background(&level_assets, level));
     commands.spawn((hud(&hud_assets), DespawnOnExitState::<Level>::default()));
     commands.spawn((
         player_ship(ship_config, &ship_assets),
@@ -119,7 +127,7 @@ pub fn spawn_level(
         Transform::from_xyz(61.0, -46.0, 2.0),
     ));
     commands.spawn((
-        enemy_ship(ship_config, &ship_assets),
+        enemy_ship(ship_config, &ship_assets, level_setup.enemy_health),
         DespawnOnExitState::<Level>::default(),
         Transform::from_xyz(59.0, 93.0, 0.0),
     ));

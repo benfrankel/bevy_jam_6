@@ -3,7 +3,20 @@ use crate::game::phase::Phase;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
+    app.add_systems(
+        Update,
+        Phase::Player.on_update(skip_player_phase.run_if(player_has_nothing_to_do)),
+    );
+
     app.configure::<PlayerActions>();
+}
+
+fn skip_player_phase(mut next_phase: NextMut<Phase>) {
+    next_phase.enter(Phase::Reactor);
+}
+
+fn player_has_nothing_to_do(player_deck: Res<PlayerDeck>) -> bool {
+    player_deck.hand.is_empty() && player_deck.storage.is_empty()
 }
 
 #[derive(Actionlike, Reflect, Copy, Clone, Eq, PartialEq, Hash, Debug)]
