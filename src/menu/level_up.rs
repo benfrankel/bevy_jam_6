@@ -51,7 +51,7 @@ fn spawn_level_up_menu(
                 flex_direction: FlexDirection::Column,
                 ..Node::DEFAULT
             },
-            BackgroundColor::from(Color::srgba(0.2, 0.2, 0.2, 0.8)),
+            BackgroundColor::from(Color::srgba(0.1, 0.1, 0.1, 0.8)),
             children![
                 widget::label_base(Vw(3.5), ThemeColor::White, "[b]The enemy ship escaped..."),
                 (
@@ -71,12 +71,10 @@ fn spawn_level_up_menu(
                         flex_grow: 1.,
                         ..Node::DEFAULT
                     },
-                    children![
-                        widget::row_of_buttons(children![widget::button(
-                            "Keep up the pursuit",
-                            enter_next_level,
-                        )]),
-                    ]
+                    children![widget::row_of_buttons(children![widget::button(
+                        "Keep up the pursuit",
+                        enter_next_level,
+                    )]),]
                 ),
             ],
         )],
