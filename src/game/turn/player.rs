@@ -56,8 +56,7 @@ impl Configure for PlayerActions {
                 player_play_module
                     .in_set(UpdateSystems::RecordInput)
                     .run_if(action_just_pressed(Self::PlayModule)),
-                listen_hand_module_click
-                    .in_set(UpdateSystems::Update),
+                listen_hand_module_click.in_set(UpdateSystems::Update),
             ),
         );
     }
