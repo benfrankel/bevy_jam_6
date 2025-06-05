@@ -113,16 +113,7 @@ pub fn row_of_buttons(children: impl Bundle) -> impl Bundle {
 }
 
 pub fn stretch(children: impl Bundle) -> impl Bundle {
-    (
-        Name::new("Stretch"),
-        Node {
-            align_items: AlignItems::Center,
-            justify_content: JustifyContent::Center,
-            flex_grow: 1.0,
-            ..default()
-        },
-        children,
-    )
+    (Name::new("Stretch"), Node::ROW_CENTER.grow(), children)
 }
 
 pub fn header(text: impl AsRef<str>) -> impl Bundle {

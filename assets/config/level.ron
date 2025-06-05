@@ -3,20 +3,25 @@
         // Level 0:
         LevelSetup(
             enemy_deck: EnemyDeck(actions: [Missile, Missile, Missile]),
-            enemy_health: 25,
+            enemy_health: 20,
+            reward_reactor_slots: 1,
+            reward_health: 50,
         ),
 
         // Level 1:
         LevelSetup(
             enemy_deck: EnemyDeck(actions: [Missile, Missile, Missile, Missile, Missile, Missile]),
             enemy_health: 50,
-            reward_reactor_slots: 3,
+            reward_reactor_slots: 1,
+            reward_health: 50,
         ),
 
         // Level 2:
         LevelSetup(
             enemy_deck: EnemyDeck(actions: [Missile, Missile, Missile, Missile, Missile, Missile]),
             enemy_health: 100,
+            reward_reactor_slots: 1,
+            reward_health: 50,
         ),
 
         // Level 3:

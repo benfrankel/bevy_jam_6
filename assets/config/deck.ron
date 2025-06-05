@@ -1,5 +1,6 @@
 (
     initial_player_deck: PlayerDeck(
+        health: 50,
         storage: [
             Module(condition: Nothing, effect: Missile),
             Module(condition: Nothing, effect: Heal),
@@ -12,6 +13,6 @@
             Module(status: SlotEmpty),
             Module(status: SlotEmpty),
             Module(status: SlotEmpty),
-        ]
+        ],
     ),
 )

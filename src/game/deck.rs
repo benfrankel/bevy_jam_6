@@ -21,6 +21,7 @@ impl Config for DeckConfig {
 #[reflect(Resource)]
 #[serde(deny_unknown_fields, default)]
 pub struct PlayerDeck {
+    pub health: f32,
     pub flux: f32,
     pub storage: Vec<Module>,
     pub hand: Vec<Module>,
@@ -188,6 +189,7 @@ pub struct EnemyDeck {
     pub flux: f32,
     pub actions: Vec<ModuleAction>,
     pub action_idx: usize,
+    /// The maximum number of actions to be performed on the first round.
     pub action_limit: usize,
 }
 
@@ -201,7 +203,7 @@ impl Configure for EnemyDeck {
 impl Default for EnemyDeck {
     fn default() -> Self {
         Self {
-            flux: 1.0,
+            flux: 0.0,
             actions: vec![],
             action_idx: 0,
             action_limit: 1,
@@ -227,9 +229,11 @@ impl EnemyDeck {
     pub fn step(&mut self, round: usize) -> Option<ModuleAction> {
         if self.is_done(round) {
             self.action_idx = 0;
+            self.flux = 1.0;
             None
         } else {
             self.action_idx += 1;
+            self.flux += 1.0;
             Some(self.actions[self.action_idx - 1])
         }
     }

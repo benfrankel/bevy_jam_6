@@ -17,10 +17,7 @@ fn spawn_defeat_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
             children![
                 widget::big_label("Defeat"),
                 (
-                    Node {
-                        flex_grow: 1.,
-                        ..Node::COLUMN_CENTER
-                    },
+                    Node::COLUMN_CENTER.grow(),
                     children![widget::column_of_buttons(children![
                         widget::wide_button("Try again", restart_game),
                         widget::wide_button("Main menu", quit_to_title),

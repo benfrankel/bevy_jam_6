@@ -17,10 +17,7 @@ fn spawn_victory_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
             children![
                 widget::big_label("Victory"),
                 (
-                    Node {
-                        flex_grow: 1.,
-                        ..Node::COLUMN_CENTER
-                    },
+                    Node::COLUMN_CENTER.grow(),
                     children![widget::column_of_buttons(children![
                         widget::wide_button("Play Again", restart_game),
                         widget::wide_button("Main menu", quit_to_title),

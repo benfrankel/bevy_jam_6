@@ -30,6 +30,7 @@ pub struct LevelSetup {
     pub enemy_deck: EnemyDeck,
     pub enemy_health: f32,
     pub reward_reactor_slots: usize,
+    pub reward_health: f32,
 }
 
 #[derive(AssetCollection, Resource, Reflect, Default, Debug)]
@@ -78,8 +79,7 @@ impl Configure for Level {
             Level::ANY.on_edge(
                 reset_decks,
                 (
-                    set_up_decks,
-                    spawn_level,
+                    (set_up_decks, spawn_level).chain(),
                     (Menu::release, Menu::clear).chain(),
                 ),
             ),
@@ -119,6 +119,7 @@ fn spawn_level(
     hud_assets: Res<HudAssets>,
     ship_config: ConfigRef<ShipConfig>,
     ship_assets: Res<ShipAssets>,
+    player_deck: Res<PlayerDeck>,
 ) {
     let level = r!(level.get()).0;
     let level_config = r!(level_config.get());
@@ -128,7 +129,7 @@ fn spawn_level(
     commands.spawn(background(&level_assets, level));
     commands.spawn((hud(&hud_assets), DespawnOnExitState::<Level>::default()));
     commands.spawn((
-        player_ship(ship_config, &ship_assets),
+        player_ship(ship_config, &ship_assets, player_deck.health),
         DespawnOnExitState::<Level>::default(),
         Transform::from_xyz(61.0, -46.0, 2.0),
     ));

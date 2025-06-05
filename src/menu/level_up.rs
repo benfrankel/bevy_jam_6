@@ -40,30 +40,35 @@ fn spawn_level_up_menu(
         widget::overlay(),
         children![(
             Name::new("LevelUpPopup"),
-            widget::popup_window(Vw(50.), Vh(90.), None, None),
+            widget::popup_window(Vw(50.0), Vh(90.0), None, None),
             children![
-                widget::label_base(Vw(3.5), ThemeColor::White, "[b]The enemy ship escaped..."),
+                widget::header("[b]They got away!"),
                 (
                     Node {
-                        margin: UiRect::axes(Vw(0.), Vh(3.5)),
+                        margin: UiRect::vertical(Vh(3.5)),
                         ..Node::DEFAULT
                     },
                     widget::small_label(format!(
-                        "Reactor upgraded: +{} slots",
+                        "Reactor upgrade: +{} slots",
                         level_setup.reward_reactor_slots,
                     )),
                 ),
                 (
                     Node {
-                        flex_direction: FlexDirection::Column,
-                        justify_content: JustifyContent::Center,
-                        flex_grow: 1.,
+                        margin: UiRect::vertical(Vh(3.5)),
                         ..Node::DEFAULT
                     },
+                    widget::small_label(format!(
+                        "Ship upgrade: +{} hull",
+                        level_setup.reward_health,
+                    )),
+                ),
+                (
+                    Node::COLUMN_CENTER.grow(),
                     children![widget::row_of_buttons(children![widget::button(
-                        "Keep up the pursuit",
+                        "Next star",
                         enter_next_level,
-                    )]),]
+                    )])]
                 ),
             ],
         )],

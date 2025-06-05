@@ -28,7 +28,7 @@ fn spawn_credits_menu(
                     widget::header("[b]Credits"),
                     widget::label("Pyrious (Lead)"),
                     spacer(),
-                    widget::label("Eden (Audio Engineer)"),
+                    widget::label("Median (Music and SFX)"),
                     spacer(),
                     widget::label("Jayclees (Developer)"),
                     spacer(),

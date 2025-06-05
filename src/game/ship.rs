@@ -32,7 +32,7 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
-pub fn player_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets) -> impl Bundle {
+pub fn player_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets, health: f32) -> impl Bundle {
     let weapons = ship_config.player_weapons.clone();
     let image = ship_assets.player_image.clone();
 
@@ -40,7 +40,7 @@ pub fn player_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets) -> impl B
         Name::new("PlayerShip"),
         IsPlayerShip,
         Faction::Player,
-        Health::new(100.0),
+        Health::new(health),
         Visibility::default(),
         RigidBody::Kinematic,
         MaxLinearSpeed(ship_config.player_speed_max),

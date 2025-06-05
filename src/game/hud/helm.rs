@@ -36,14 +36,7 @@ fn left_helm() -> impl Bundle {
 }
 
 fn hand() -> impl Bundle {
-    (
-        Name::new("Hand"),
-        Node {
-            flex_grow: 1.0,
-            ..Node::ROW_CENTER
-        },
-        IsHand,
-    )
+    (Name::new("Hand"), Node::ROW_CENTER.grow(), IsHand)
 }
 
 fn right_helm(hud_assets: &HudAssets) -> impl Bundle {
