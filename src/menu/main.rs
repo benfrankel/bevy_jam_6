@@ -1,4 +1,3 @@
-use crate::game::level::LevelAssets;
 use crate::menu::Menu;
 use crate::menu::MenuRoot;
 use crate::prelude::*;
@@ -11,21 +10,12 @@ pub(super) fn plugin(app: &mut App) {
 fn spawn_main_menu(
     mut commands: Commands,
     menu_root: Res<MenuRoot>,
-    level_assets: Res<LevelAssets>,
     theme_config: ConfigRef<ThemeConfig>,
 ) {
     let theme_config = r!(theme_config.get());
-    commands.spawn((
-        Name::new("Background"),
-        Sprite::from_image(level_assets.bg_level0.clone()),
-        Transform::from_xyz(0.0, 0.0, -2.0),
-        DespawnOnExitState::<Menu>::Recursive,
-    ));
     commands.entity(menu_root.ui).with_child((
         Name::new("MainMenuContainer"),
-        Node {
-            ..Node::DEFAULT.full_size()
-        },
+        Node::DEFAULT.full_size(),
         children![
             (
                 Name::new("ButtonsContainer"),
@@ -33,13 +23,13 @@ fn spawn_main_menu(
                     width: Vw(1. / 3. * 100.),
                     justify_content: JustifyContent::Center,
                     border: UiRect::right(Px(1.5)),
-                    ..Node::DEFAULT
+                    ..default()
                 },
                 BackgroundColor::from(theme_config.colors[ThemeColor::Popup]),
                 BorderColor::from(theme_config.colors[ThemeColor::BorderColor]),
                 BoxShadow::from(ShadowStyle {
                     y_offset: Vh(0.),
-                    ..ShadowStyle::default()
+                    ..default()
                 }),
                 children![widget::column_of_buttons(children![
                     widget::button("Play", open_intro),
@@ -58,7 +48,7 @@ fn spawn_main_menu(
                     width: Vw(2. / 3. * 100.),
                     justify_content: JustifyContent::Center,
                     padding: UiRect::top(Vh(15.)),
-                    ..Node::DEFAULT
+                    ..default()
                 },
                 BackgroundColor::from(theme_config.colors[ThemeColor::Overlay]),
                 children![widget::header("[b]Bevy Jam 6"),],

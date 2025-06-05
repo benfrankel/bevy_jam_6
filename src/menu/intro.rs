@@ -1,4 +1,3 @@
-use crate::game::level::LevelAssets;
 use crate::menu::Menu;
 use crate::menu::MenuRoot;
 use crate::prelude::*;
@@ -13,16 +12,9 @@ pub(super) fn plugin(app: &mut App) {
 fn spawn_intro_menu(
     mut commands: Commands,
     menu_root: Res<MenuRoot>,
-    level_assets: Res<LevelAssets>,
     theme_config: ConfigRef<ThemeConfig>,
 ) {
     let theme_config = r!(theme_config.get());
-    commands.spawn((
-        Name::new("Background"),
-        Sprite::from_image(level_assets.bg_level0.clone()),
-        Transform::from_xyz(0.0, 0.0, -2.0),
-        DespawnOnExitState::<Menu>::Recursive,
-    ));
     commands.entity(menu_root.ui).with_child(((
         Node::COLUMN_CENTER.full_size(),
         BackgroundColor::from(theme_config.colors[ThemeColor::Overlay]),

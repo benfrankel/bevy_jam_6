@@ -3,6 +3,7 @@ use crate::core::audio::music_audio;
 use crate::game::hud::HudAssets;
 use crate::game::level::Level;
 use crate::game::level::LevelAssets;
+use crate::game::missile::MissileAssets;
 use crate::game::ship::ShipAssets;
 use crate::menu::Menu;
 use crate::prelude::*;
@@ -34,8 +35,9 @@ fn spawn_gameplay_screen(
 pub fn load_collections(state: LoadingState<BevyState<Screen>>) -> LoadingState<BevyState<Screen>> {
     state
         .load_collection::<GameplayAssets>()
-        .load_collection::<LevelAssets>()
         .load_collection::<HudAssets>()
+        .load_collection::<LevelAssets>()
+        .load_collection::<MissileAssets>()
         .load_collection::<ShipAssets>()
 }
 
@@ -44,10 +46,6 @@ pub fn load_collections(state: LoadingState<BevyState<Screen>>) -> LoadingState<
 struct GameplayAssets {
     #[asset(path = "audio/music/545458__bertsz__bit-forest-evil-theme-music.ogg")]
     music: Handle<AudioSource>,
-    #[asset(path = "image/ship/player.png")]
-    player_ship_sprite: Handle<Image>,
-    #[asset(path = "image/ship/enemy.png")]
-    enemy_ship_sprite: Handle<Image>,
 }
 
 impl Configure for GameplayAssets {

@@ -21,10 +21,17 @@ pub(super) fn plugin(app: &mut App) {
 fn spawn_title_screen(
     mut commands: Commands,
     audio_settings: Res<AudioSettings>,
-    assets: Res<TitleAssets>,
+    title_assets: Res<TitleAssets>,
 ) {
     commands.spawn((
-        music_audio(&audio_settings, assets.music.clone()),
+        Name::new("Background"),
+        ImageNode::from(title_assets.background.clone()),
+        Node::DEFAULT.full_size().abs(),
+        GlobalZIndex(-2),
+        DespawnOnExitState::<Screen>::Recursive,
+    ));
+    commands.spawn((
+        music_audio(&audio_settings, title_assets.music.clone()),
         DespawnOnExitState::<Screen>::Recursive,
     ));
 }
@@ -34,6 +41,8 @@ fn spawn_title_screen(
 pub struct TitleAssets {
     #[asset(path = "audio/music/240376__edtijo__happy-8bit-pixel-adenture.ogg")]
     music: Handle<AudioSource>,
+    #[asset(path = "image/space/level0.png")]
+    background: Handle<Image>,
 }
 
 impl Configure for TitleAssets {
