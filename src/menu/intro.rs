@@ -3,7 +3,6 @@ use crate::menu::MenuRoot;
 use crate::prelude::*;
 use crate::screen::Screen;
 use crate::screen::fade::fade_out;
-use crate::theme::color::ThemeConfig;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(StateFlush, Menu::Intro.on_enter(spawn_intro_menu));
