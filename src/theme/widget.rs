@@ -46,10 +46,7 @@ pub fn popup_window(
         Node {
             width,
             height,
-            padding: UiRect::axes(
-                padding_x.unwrap_or(Vw(5.)),
-                padding_y.unwrap_or(Vh(5.)),
-            ),
+            padding: UiRect::axes(padding_x.unwrap_or(Vw(5.)), padding_y.unwrap_or(Vh(5.))),
             flex_direction: FlexDirection::Column,
             border: UiRect::all(Px(1.)),
             ..Node::DEFAULT
