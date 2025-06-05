@@ -63,7 +63,7 @@ pub struct MissileConfig {
     initial_speed_spread: f32,
     max_speed: f32,
     thruster_force: f32,
-    homing_coefficient: f32,
+    homing_approach: f32,
     homing_target_spread: Vec2,
 }
 
@@ -81,7 +81,7 @@ impl Default for MissileConfig {
             initial_angle_spread: 0.0,
             max_speed: f32::INFINITY,
             thruster_force: 0.0,
-            homing_coefficient: 1.0,
+            homing_approach: 1.0,
             homing_target_spread: Vec2::ZERO,
         }
     }
@@ -155,7 +155,7 @@ fn apply_missile_homing(
         // Approach the rotation exponentially.
         let time_scale = velocity.length() / missile_config.max_speed;
         let decay = missile_config
-            .homing_coefficient
+            .homing_approach
             .powf(time.delta_secs() * time_scale);
         let rotation = full_rotation * (1.0 - decay).clamp(0.0, 1.0);
         velocity.0 = Vec2::from_angle(rotation).rotate(velocity.0);

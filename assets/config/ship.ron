@@ -2,6 +2,12 @@
     player_weapons: [Vec2(-9.5, 7), Vec2(9.5, 7)],
     player_health_bar_offset: Vec2(0, -22),
     player_health_bar_size: Vec2(100, 5),
+    player_accel_max: 400,
+    player_speed_approach: 0.01,
+    player_speed_sensitivity: 3,
+    player_speed_max: 120,
+    player_tilt_sensitivity: 10,
+    player_tilt_max: 18,
 
     enemy_weapons: [Vec2(-43, -8), Vec2(-27, -8), Vec2(38, -8)],
     enemy_health_bar_offset: Vec2(0, 30),

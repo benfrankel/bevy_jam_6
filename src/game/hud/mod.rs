@@ -1,5 +1,5 @@
 mod flux;
-mod helm;
+pub mod helm;
 mod module;
 mod reactor;
 

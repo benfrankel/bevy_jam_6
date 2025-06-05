@@ -1,8 +1,12 @@
+use crate::core::camera::CameraRoot;
 use crate::game::GameLayer;
 use crate::game::combat::death::OnDeath;
 use crate::game::combat::faction::Faction;
 use crate::game::combat::health::Health;
+use crate::game::combat::health::IsHealthBar;
 use crate::game::combat::health::health_bar;
+use crate::game::deck::PlayerDeck;
+use crate::game::hud::helm::HandIndex;
 use crate::menu::Menu;
 use crate::prelude::*;
 
@@ -14,6 +18,63 @@ pub(super) fn plugin(app: &mut App) {
         IsEnemyShip,
         IsWeapon,
     )>();
+
+    app.add_systems(
+        Update,
+        (
+            tilt_player_ship_with_velocity.in_set(UpdateSystems::Update),
+            navigate_player_ship_toward_selected_module.in_set(UpdateSystems::Update),
+        )
+            .chain(),
+    );
+}
+
+fn navigate_player_ship_toward_selected_module(
+    time: Res<Time>,
+    camera_root: Res<CameraRoot>,
+    camera_query: Query<(&Camera, &GlobalTransform)>,
+    hand_index_query: Query<(&HandIndex, &GlobalTransform)>,
+    ship_config: ConfigRef<ShipConfig>,
+    player_ship: Single<(&mut LinearVelocity, &GlobalTransform), With<IsPlayerShip>>,
+    player_deck: Res<PlayerDeck>,
+) {
+    let ship_config = r!(ship_config.get());
+    let (camera, camera_gt) = r!(camera_query.get(camera_root.primary));
+    let (_, target_gt) = rq!(hand_index_query
+        .iter()
+        .find(|(index, _)| index.0 == player_deck.selected_idx));
+    let target_pos = r!(camera.viewport_to_world_2d(camera_gt, target_gt.translation().xy()));
+
+    let (mut velocity, gt) = player_ship.into_inner();
+    let delta = target_pos.x - gt.translation().x;
+    let target_speed = ship_config.player_speed_sensitivity * delta;
+    let delta_speed = target_speed - velocity.x;
+    let dt = time.delta_secs();
+    let decay = ship_config.player_speed_approach.powf(dt);
+    let approach = (1.0 - decay).clamp(0.0, 1.0) * delta_speed;
+    let accel = approach.clamp(
+        -ship_config.player_accel_max * dt,
+        ship_config.player_accel_max * dt,
+    );
+
+    velocity.x += accel;
+}
+
+fn tilt_player_ship_with_velocity(
+    ship_config: ConfigRef<ShipConfig>,
+    player_ship: Single<(&Children, &LinearVelocity, &MaxLinearSpeed), With<IsPlayerShip>>,
+    mut transform_query: Query<&mut Transform, Without<IsHealthBar>>,
+) {
+    let ship_config = r!(ship_config.get());
+    let (children, velocity, max_speed) = player_ship.into_inner();
+    let angle = (-ship_config.player_tilt_sensitivity * velocity.x / max_speed.0)
+        .clamp(-ship_config.player_tilt_max, ship_config.player_tilt_max);
+    let rotation = Quat::from_rotation_z(angle.to_radians());
+
+    for &child in children {
+        let mut transform = cq!(transform_query.get_mut(child));
+        transform.rotation = rotation;
+    }
 }
 
 pub fn player_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets) -> impl Bundle {
@@ -21,16 +82,20 @@ pub fn player_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets) -> impl B
     let health_bar_transform =
         Transform::from_translation(ship_config.player_health_bar_offset.extend(0.1))
             .with_scale(ship_config.player_health_bar_size.extend(1.0));
+    let image = ship_assets.player_image.clone();
 
     (
         Name::new("PlayerShip"),
         IsPlayerShip,
         Faction::Player,
-        ship(ship_assets.player_image.clone()),
         Health::new(100.0),
+        Visibility::default(),
+        RigidBody::Kinematic,
+        MaxLinearSpeed(ship_config.player_speed_max),
         Collider::rectangle(85.0, 10.0),
         CollisionLayers::new(GameLayer::Player, LayerMask::ALL),
         Children::spawn(SpawnWith(move |parent: &mut ChildSpawner| {
+            parent.spawn((Name::new("Sprite"), Sprite::from_image(image)));
             parent.spawn((health_bar(), health_bar_transform));
 
             let rotation = Rot2::turn_fraction(0.25).to_quat();
@@ -54,8 +119,9 @@ pub fn enemy_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets, health: f3
         Name::new("EnemyShip"),
         IsEnemyShip,
         Faction::Enemy,
-        ship(ship_assets.enemy_image.clone()),
         Health::new(health),
+        Sprite::from_image(ship_assets.enemy_image.clone()),
+        RigidBody::Kinematic,
         Collider::rectangle(167.0, 15.0),
         CollisionLayers::new(GameLayer::Enemy, LayerMask::ALL),
         Children::spawn(SpawnWith(move |parent: &mut ChildSpawner| {
@@ -80,10 +146,6 @@ fn open_level_up_menu_on_death(_: Trigger<OnDeath>, mut menu: ResMut<NextStateSt
     menu.acquire();
 }
 
-fn ship(sprite: Handle<Image>) -> impl Bundle {
-    (Sprite::from_image(sprite), RigidBody::Kinematic)
-}
-
 fn weapon() -> impl Bundle {
     (
         Name::new("Weapon"),
@@ -99,6 +161,12 @@ pub struct ShipConfig {
     player_weapons: Vec<Vec2>,
     player_health_bar_offset: Vec2,
     player_health_bar_size: Vec2,
+    player_accel_max: f32,
+    player_speed_approach: f32,
+    player_speed_sensitivity: f32,
+    player_speed_max: f32,
+    player_tilt_sensitivity: f32,
+    player_tilt_max: f32,
 
     enemy_weapons: Vec<Vec2>,
     enemy_health_bar_offset: Vec2,

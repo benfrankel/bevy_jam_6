@@ -108,7 +108,7 @@ fn sync_hand(
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
-pub struct HandIndex(usize);
+pub struct HandIndex(pub usize);
 
 impl Configure for HandIndex {
     fn configure(app: &mut App) {

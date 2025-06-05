@@ -27,7 +27,7 @@ impl Config for LevelConfig {
 #[derive(Reflect, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields, default)]
 pub struct LevelSetup {
-    pub enemy: EnemyDeck,
+    pub enemy_deck: EnemyDeck,
     pub enemy_health: f32,
     pub reward_reactor_slots: usize,
 }
@@ -108,7 +108,7 @@ fn set_up_decks(
     if level == 0 {
         *player_deck = deck_config.initial_player_deck.clone();
     }
-    *enemy_deck = level_setup.enemy.clone();
+    *enemy_deck = level_setup.enemy_deck.clone();
 }
 
 fn spawn_level(
