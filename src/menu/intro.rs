@@ -12,12 +12,10 @@ pub(super) fn plugin(app: &mut App) {
 fn spawn_intro_menu(
     mut commands: Commands,
     menu_root: Res<MenuRoot>,
-    theme_config: ConfigRef<ThemeConfig>,
 ) {
-    let theme_config = r!(theme_config.get());
     commands.entity(menu_root.ui).with_child(((
         Node::COLUMN_CENTER.full_size(),
-        BackgroundColor::from(theme_config.colors[ThemeColor::Overlay]),
+        ThemeColor::Overlay.set::<BackgroundColor>(),
         children![
             widget::header("[b]How to play"),
             widget::paragraph("Be skillful,\nwin the game!\nPress P to pause."),
