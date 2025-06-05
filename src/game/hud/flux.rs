@@ -48,7 +48,7 @@ fn sync_flux_label(
     for (mut text, mut shake) in &mut label_query {
         let new_text = RichText::from_sections(parse_rich(format!("flux {}x", player_deck.flux)));
         if !text.sections.is_empty() && text.sections[0].value != new_text.sections[0].value {
-            shake.magnitude += hud_config.flux_shake_magnitude * player_deck.flux;
+            shake.magnitude += hud_config.flux_shake_magnitude * player_deck.flux.max(3.0);
             shake.decay = hud_config.flux_shake_decay;
         }
         *text = new_text;
