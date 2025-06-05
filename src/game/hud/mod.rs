@@ -21,7 +21,7 @@ pub fn hud(hud_assets: &HudAssets) -> impl Bundle {
             reactor(hud_assets),
             (
                 Name::new("Column"),
-                ..Node::COLUMN.reverse().grow(),
+                Node::COLUMN.reverse().grow(),
                 children![helm(hud_assets)],
             )
         ],
