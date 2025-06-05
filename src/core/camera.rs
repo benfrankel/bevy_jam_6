@@ -15,22 +15,21 @@ pub(super) fn plugin(app: &mut App) {
 #[serde(deny_unknown_fields)]
 struct CameraConfig {
     scaling_mode: ScalingMode,
-    zoom: Vec2,
+    zoom: f32,
 }
 
 impl Config for CameraConfig {
     const FILE: &'static str = "camera.ron";
 
     fn on_load(&self, world: &mut World) {
-        let (projection, mut transform) = r!(world
-            .query::<(&mut Projection, &mut Transform)>()
-            .get_mut(world, world.resource::<CameraRoot>().primary));
+        let camera = r!(world.get_resource::<CameraRoot>()).primary;
+        let projection = r!(world.query::<&mut Projection>().get_mut(world, camera));
 
-        transform.scale = self.zoom.recip().extend(1.0);
         let projection = r!(match projection.into_inner() {
             Projection::Orthographic(x) => Some(x),
             _ => None,
         });
+        projection.scale = self.zoom.recip();
         projection.scaling_mode = self.scaling_mode;
     }
 }

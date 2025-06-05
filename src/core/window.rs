@@ -6,7 +6,6 @@ use bevy::window::WindowResolution;
 
 use crate::prelude::*;
 
-// 960 x 540
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(WindowPlugin {
         primary_window: Some(Window {
@@ -14,7 +13,7 @@ pub(super) fn plugin(app: &mut App) {
             title: "Bevy Jam 6".to_string(),
             mode: WindowMode::Windowed,
             present_mode: PresentMode::AutoVsync,
-            resolution: WindowResolution::new(940.0, 540.0),
+            resolution: WindowResolution::new(960.0, 540.0).with_scale_factor_override(1.0),
             fit_canvas_to_parent: true,
             ..default()
         }),

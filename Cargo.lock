@@ -1794,9 +1794,9 @@ checksum = "56ed6191a7e78c36abdb16ab65341eefd73d64d303fffccdbb00d51e4205967b"
 
 [[package]]
 name = "bumpalo"
-version = "3.17.0"
+version = "3.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1628fb46dfa0b37568d12e5edd512553eccf6a22a78e8bde00bb4aed84d5bdbf"
+checksum = "c1b094a32014c3d1f3944e4808e0e7c70e97dae0660886a8eb6dbc52d745badc"
 
 [[package]]
 name = "bytemuck"
@@ -4711,9 +4711,9 @@ dependencies = [
 
 [[package]]
 name = "pyri_tooltip"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5c0b8ff02dbb20d3bcc0766685122aadf52518415e6c44f39d0418065aeb6835"
+checksum = "bfbc17fcf94c4a6db7a66449ff3be5c77ca9156d123508d89368fe548498ed22"
 dependencies = [
  "bevy_app",
  "bevy_asset",

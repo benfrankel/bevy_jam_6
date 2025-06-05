@@ -207,17 +207,18 @@ fn navigate_player_ship_toward_selected_module(
     time: Res<Time>,
     camera_root: Res<CameraRoot>,
     camera_query: Query<(&Camera, &GlobalTransform)>,
-    hand_index_query: Query<(&HandIndex, &GlobalTransform)>,
+    hand_index_query: Query<(&HandIndex, &GlobalTransform, &ComputedNode)>,
     ship_config: ConfigRef<ShipConfig>,
     player_ship: Single<(&mut LinearVelocity, &GlobalTransform), With<IsPlayerShip>>,
     player_deck: Res<PlayerDeck>,
 ) {
     let ship_config = r!(ship_config.get());
     let (camera, camera_gt) = r!(camera_query.get(camera_root.primary));
-    let (_, target_gt) = rq!(hand_index_query
+    let (_, target_gt, target_computed_node) = rq!(hand_index_query
         .iter()
-        .find(|(index, _)| index.0 == player_deck.selected_idx));
-    let target_pos = r!(camera.viewport_to_world_2d(camera_gt, target_gt.translation().xy()));
+        .find(|(index, ..)| index.0 == player_deck.selected_idx));
+    let viewport_pos = target_gt.translation().xy() * target_computed_node.inverse_scale_factor;
+    let target_pos = r!(camera.viewport_to_world_2d(camera_gt, viewport_pos));
 
     let (mut velocity, gt) = player_ship.into_inner();
     let delta = target_pos.x - gt.translation().x;
