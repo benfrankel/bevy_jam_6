@@ -45,7 +45,7 @@ fn spawn_level_up_menu(
             align_items: AlignItems::Center,
             ..Node::DEFAULT.full_size()
         },
-        BackgroundColor::from(Color::srgba(0., 0., 0., 0.5)),
+        BackgroundColor::from(theme_config.colors[ThemeColor::Overlay]),
         Transform::default(),
         children![(
             Name::new("LevelUpPopup"),

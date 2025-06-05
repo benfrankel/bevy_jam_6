@@ -59,6 +59,7 @@ fn spawn_main_menu(
                     padding: UiRect::top(Vh(15.)),
                     ..Node::DEFAULT
                 },
+                BackgroundColor::from(theme_config.colors[ThemeColor::Overlay]),
                 children![widget::header("[b]Bevy Jam 6"),],
             ),
         ],
