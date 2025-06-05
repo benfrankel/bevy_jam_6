@@ -65,7 +65,7 @@ fn sync_module_grid(
             .with_children(|parent| {
                 for &slot in &player_deck.reactor {
                     parent.spawn((
-                        module(&hud_assets, slot),
+                        module(&hud_assets, slot, player_deck.heat_capacity),
                         Tooltip::fixed(Anchor::CenterRight, slot.description()),
                     ));
                 }

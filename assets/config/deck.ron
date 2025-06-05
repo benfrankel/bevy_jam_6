@@ -1,6 +1,7 @@
 (
     initial_player_deck: PlayerDeck(
-        health: 50,
+        max_health: 50,
+
         storage: [
             Module(condition: Heal, effect: Heal),
         ],
@@ -12,6 +13,8 @@
             Module(condition: Heal, effect: Missile),
         ],
         selected_idx: 2,
+
+        heat_capacity: 8,
         reactor: [
             Module(status: SlotEmpty),
             Module(status: SlotEmpty),

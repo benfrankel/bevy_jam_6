@@ -4,7 +4,11 @@ use crate::game::module::ModuleAction;
 use crate::game::module::ModuleStatus;
 use crate::prelude::*;
 
-pub fn module(hud_assets: &HudAssets, module: Module) -> impl Bundle {
+pub(super) fn plugin(app: &mut App) {
+    app.configure::<IsModuleSlotGlow>();
+}
+
+pub fn module(hud_assets: &HudAssets, module: Module, heat_capacity: f32) -> impl Bundle {
     let background = match module.status {
         ModuleStatus::FaceUp => &hud_assets.module_face_up,
         ModuleStatus::FaceDown => &hud_assets.module_face_down,
@@ -37,6 +41,21 @@ pub fn module(hud_assets: &HudAssets, module: Module) -> impl Bundle {
     }
     .clone();
 
+    let heat = if matches!(
+        module.status,
+        ModuleStatus::SlotInactive | ModuleStatus::SlotOverheated
+    ) {
+        (module.heat / heat_capacity.max(1.0)).clamp(0.0, 1.0)
+    } else {
+        0.0
+    };
+    let glow = if matches!(module.status, ModuleStatus::SlotOverheated) {
+        &hud_assets.module_slot_full_glow
+    } else {
+        &hud_assets.module_slot_glow
+    }
+    .clone();
+
     (
         Name::new("Module"),
         ImageNode::from(background),
@@ -59,6 +78,24 @@ pub fn module(hud_assets: &HudAssets, module: Module) -> impl Bundle {
                 Node::default().full_size().abs(),
                 Pickable::IGNORE,
             ),
+            (
+                Name::new("Glow"),
+                IsModuleSlotGlow,
+                ImageNode::from(glow).with_color(Color::srgb(0.831, 0.463, 0.459).with_alpha(heat)),
+                Node::default().full_size().abs(),
+                ZIndex(1),
+                Pickable::IGNORE,
+            ),
         ],
     )
+}
+
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
+struct IsModuleSlotGlow;
+
+impl Configure for IsModuleSlotGlow {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+    }
 }

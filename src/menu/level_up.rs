@@ -21,6 +21,9 @@ fn apply_level_up_rewards(
     let level = r!(level.get()).0;
     let level_config = r!(level_config.get());
     let level_setup = r!(level_config.levels.get(level));
+
+    player_deck.max_health += level_setup.reward_max_health;
+    player_deck.heat_capacity += level_setup.reward_heat_capacity;
     player_deck
         .reactor
         .extend(vec![Module::EMPTY; level_setup.reward_reactor_slots]);
@@ -60,7 +63,7 @@ fn spawn_level_up_menu(
                     },
                     widget::small_label(format!(
                         "Ship upgrade: +{} hull",
-                        level_setup.reward_health,
+                        level_setup.reward_max_health,
                     )),
                 ),
                 (

@@ -10,7 +10,7 @@ use crate::prelude::*;
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(ConfigHandle<HudConfig>, HudAssets)>();
 
-    app.add_plugins((flux::plugin, reactor::plugin, helm::plugin));
+    app.add_plugins((flux::plugin, helm::plugin, module::plugin, reactor::plugin));
 }
 
 pub fn hud(hud_assets: &HudAssets) -> impl Bundle {
@@ -48,7 +48,7 @@ pub struct HudAssets {
     #[asset(path = "image/ui/helm.png")]
     helm: Handle<Image>,
 
-    // Reactor module background images.
+    // Reactor module background images and VFX.
     #[asset(path = "image/module/face_up.png")]
     module_face_up: Handle<Image>,
     #[asset(path = "image/module/face_down.png")]
@@ -61,6 +61,10 @@ pub struct HudAssets {
     module_slot_active: Handle<Image>,
     #[asset(path = "image/module/slot_overheated.png")]
     module_slot_overheated: Handle<Image>,
+    #[asset(path = "image/module/glow.png")]
+    module_slot_glow: Handle<Image>,
+    #[asset(path = "image/module/full_glow.png")]
+    module_slot_full_glow: Handle<Image>,
 
     // Reactor module icons.
     #[asset(path = "image/module/icon/nothing_condition.png")]

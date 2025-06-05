@@ -29,8 +29,9 @@ impl Config for LevelConfig {
 pub struct LevelSetup {
     pub enemy_deck: EnemyDeck,
     pub enemy_health: f32,
+    pub reward_max_health: f32,
+    pub reward_heat_capacity: f32,
     pub reward_reactor_slots: usize,
-    pub reward_health: f32,
 }
 
 #[derive(AssetCollection, Resource, Reflect, Default, Debug)]
@@ -129,7 +130,7 @@ fn spawn_level(
     commands.spawn(background(&level_assets, level));
     commands.spawn((hud(&hud_assets), DespawnOnExitState::<Level>::default()));
     commands.spawn((
-        player_ship(ship_config, &ship_assets, player_deck.health),
+        player_ship(ship_config, &ship_assets, player_deck.max_health),
         DespawnOnExitState::<Level>::default(),
         Transform::from_xyz(61.0, -46.0, 2.0),
     ));

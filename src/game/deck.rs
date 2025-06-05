@@ -21,11 +21,17 @@ impl Config for DeckConfig {
 #[reflect(Resource)]
 #[serde(deny_unknown_fields, default)]
 pub struct PlayerDeck {
-    pub health: f32,
-    pub flux: f32,
+    // Ship:
+    pub max_health: f32,
+
+    // Helm:
     pub storage: Vec<Module>,
     pub hand: Vec<Module>,
     pub selected_idx: usize,
+
+    // Reactor:
+    pub flux: f32,
+    pub heat_capacity: f32,
     pub reactor: Vec<Module>,
     pub last_effect: ModuleAction,
 }
@@ -51,7 +57,8 @@ impl PlayerDeck {
 
         // Create a new deck from storage and number of reactor slots.
         *self = Self {
-            health: self.health,
+            max_health: self.max_health,
+            heat_capacity: self.heat_capacity,
             storage: core::mem::take(&mut self.storage),
             reactor: vec![Module::EMPTY; self.reactor.len()],
             ..default()
