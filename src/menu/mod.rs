@@ -5,6 +5,7 @@ mod level_up;
 mod main;
 mod pause;
 mod settings;
+mod victory;
 
 use crate::prelude::*;
 
@@ -51,6 +52,7 @@ pub enum Menu {
     Settings,
     LevelUp,
     Defeat,
+    Victory,
     Credits,
 }
 
@@ -72,6 +74,7 @@ impl Configure for Menu {
             settings::plugin,
             level_up::plugin,
             defeat::plugin,
+            victory::plugin,
             credits::plugin,
         ));
     }

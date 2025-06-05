@@ -25,7 +25,7 @@ fn spawn_credits_menu(
             (
                 widget::popup_window(Vw(70.), Vh(90.), None, None),
                 children![
-                    widget::header("[b]Settings"),
+                    widget::header("[b]Credits"),
                     widget::label("Pyrious (Lead)"),
                     spacer(),
                     widget::label("Eden (Audio Engineer)"),

@@ -8,6 +8,7 @@ use crate::game::combat::health::IsHealthBar;
 use crate::game::combat::health::health_bar;
 use crate::game::deck::PlayerDeck;
 use crate::game::hud::helm::HandIndex;
+use crate::game::level::Level;
 use crate::menu::Menu;
 use crate::prelude::*;
 
@@ -103,13 +104,22 @@ pub fn enemy_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets, health: f3
             }
         })),
         Patch(|entity| {
-            entity.observe(open_level_up_menu_on_death);
+            entity.observe(on_enemy_death);
         }),
     )
 }
 
-fn open_level_up_menu_on_death(_: Trigger<OnDeath>, mut menu: ResMut<NextStateStack<Menu>>) {
-    menu.push(Menu::LevelUp);
+fn on_enemy_death(
+    _: Trigger<OnDeath>,
+    mut menu: ResMut<NextStateStack<Menu>>,
+    level: NextRef<Level>,
+) {
+    if r!(level.get()).0 == 9 {
+        menu.push(Menu::Victory);
+    } else {
+        menu.push(Menu::LevelUp);
+    }
+
     menu.acquire();
 }
 
