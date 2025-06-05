@@ -1,8 +1,8 @@
 use crate::menu::Menu;
 use crate::menu::MenuRoot;
+use crate::menu::quit_to_title;
+use crate::menu::restart_game;
 use crate::prelude::*;
-use crate::screen::Screen;
-use crate::screen::fade::fade_out;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(StateFlush, Menu::Pause.on_enter(spawn_pause_menu));
@@ -28,12 +28,4 @@ fn open_settings(_: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Men
 
 fn close_menu(_: Trigger<Pointer<Click>>, mut menu: NextMut<Menu>) {
     menu.disable();
-}
-
-fn restart_game(_: Trigger<Pointer<Click>>, mut commands: Commands) {
-    commands.spawn(fade_out(Screen::Gameplay));
-}
-
-fn quit_to_title(_: Trigger<Pointer<Click>>, mut commands: Commands) {
-    commands.spawn(fade_out(Screen::Title));
 }

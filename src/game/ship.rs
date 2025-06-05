@@ -63,6 +63,9 @@ pub fn player_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets) -> impl B
                 })),
             ),
         ],
+        Patch(|entity| {
+            entity.observe(open_defeat_menu_on_death);
+        }),
     )
 }
 
@@ -100,6 +103,11 @@ pub fn enemy_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets, health: f3
 
 fn open_level_up_menu_on_death(_: Trigger<OnDeath>, mut menu: ResMut<NextStateStack<Menu>>) {
     menu.push(Menu::LevelUp);
+    menu.acquire();
+}
+
+fn open_defeat_menu_on_death(_: Trigger<OnDeath>, mut menu: ResMut<NextStateStack<Menu>>) {
+    menu.push(Menu::Defeat);
     menu.acquire();
 }
 

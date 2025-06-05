@@ -40,13 +40,7 @@ fn spawn_level_up_menu(
     let theme_config = r!(theme_config.get());
 
     commands.entity(menu_root.ui).with_child((
-        Node {
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            ..Node::DEFAULT.full_size()
-        },
-        BackgroundColor::from(theme_config.colors[ThemeColor::Overlay]),
-        Transform::default(),
+        widget::overlay(theme_config),
         children![(
             Name::new("LevelUpPopup"),
             widget::popup_window(Vw(50.), Vh(90.), theme_config, None, None),

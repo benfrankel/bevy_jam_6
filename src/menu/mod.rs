@@ -1,3 +1,4 @@
+mod defeat;
 mod intro;
 mod level_up;
 mod main;
@@ -5,6 +6,8 @@ mod pause;
 mod settings;
 
 use crate::prelude::*;
+use crate::screen::Screen;
+use crate::screen::fade::fade_out;
 
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(MenuRoot, Menu, MenuAction)>();
@@ -48,6 +51,7 @@ pub enum Menu {
     Pause,
     Settings,
     LevelUp,
+    Defeat,
 }
 
 impl Configure for Menu {
@@ -67,6 +71,7 @@ impl Configure for Menu {
             pause::plugin,
             settings::plugin,
             level_up::plugin,
+            defeat::plugin,
         ));
     }
 }
@@ -92,4 +97,12 @@ impl Configure for MenuAction {
                 .run_if(Menu::is_enabled.and(action_just_pressed(Self::Back))),
         );
     }
+}
+
+fn restart_game(_: Trigger<Pointer<Click>>, mut commands: Commands) {
+    commands.spawn(fade_out(Screen::Gameplay));
+}
+
+fn quit_to_title(_: Trigger<Pointer<Click>>, mut commands: Commands) {
+    commands.spawn(fade_out(Screen::Title));
 }

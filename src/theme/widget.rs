@@ -5,7 +5,7 @@ use crate::animation::offset::NodeOffset;
 use crate::prelude::*;
 use crate::theme::color::ThemeConfig;
 
-pub fn overlay(z: i32) -> impl Bundle {
+pub fn nonblocking_overlay(z: i32) -> impl Bundle {
     (
         Name::new("Overlay"),
         Node::DEFAULT.full_size().abs(),
@@ -20,6 +20,18 @@ pub fn blocking_overlay(z: i32) -> impl Bundle {
         Node::DEFAULT.full_size().abs(),
         FocusPolicy::Block,
         GlobalZIndex(z),
+    )
+}
+
+pub fn overlay(theme_config: &ThemeConfig) -> impl Bundle {
+    (
+        Node {
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            ..Node::DEFAULT.full_size()
+        },
+        BackgroundColor::from(theme_config.colors[ThemeColor::Overlay]),
+        FocusPolicy::Block,
     )
 }
 

@@ -55,7 +55,7 @@ fn spawn_fade_in(mut commands: Commands) {
 /// A screen transition animation for entering the current [`Screen`].
 pub fn fade_in() -> impl Bundle {
     (
-        widget::overlay(1000),
+        widget::nonblocking_overlay(1000),
         FadeIn::new(FADE_IN_SECS),
         ThemeColor::Body.set::<BackgroundColor>(),
     )
