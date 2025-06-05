@@ -67,7 +67,7 @@ impl Configure for LevelAssets {
 }
 
 #[derive(State, Reflect, Copy, Clone, Default, Eq, PartialEq, Debug)]
-#[state(log_flush, react)]
+#[state(log_flush, react, before(Menu))]
 #[reflect(Resource)]
 pub struct Level(pub usize);
 
