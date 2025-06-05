@@ -24,14 +24,14 @@
         // Popup
         Srgba(Srgba(red: 0.106, green: 0.118, blue: 0.122, alpha: 0.850)),
         // Overlay
-        Srgba(Srgba(red: 0.000, green: 0.000, blue: 0.000, alpha: 0.800)),
+        Srgba(Srgba(red: 0.000, green: 0.000, blue: 0.000, alpha: 0.600)),
         // RainbowOverlay
-        Oklcha(Oklcha(lightness: 0.450, chroma: 0.130, hue: 0.000, alpha: 0.080)),
+        Oklcha(Oklcha(lightness: 0.700, chroma: 0.120, hue: 0.000, alpha: 0.015)),
         // BorderColor
         Srgba(Srgba(red: 0.300, green: 0.300, blue: 0.300, alpha: 1.000)),
 
         // MonitorText
-        Srgba(Srgba(red: 0.584, green: 0.847, blue: 0.859, alpha: 1.000)),
+        Srgba(Srgba(red: 0.000, green: 0.761, blue: 0.761, alpha: 1.000)),
         // IconText
         Srgba(Srgba(red: 0.451, green: 0.361, blue: 0.349, alpha: 1.000)),
     )),

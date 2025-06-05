@@ -52,18 +52,17 @@ pub fn popup_window(
         Node {
             width,
             height,
-            padding: UiRect::axes(padding_x.unwrap_or(Vw(5.)), padding_y.unwrap_or(Vh(5.))),
-            flex_direction: FlexDirection::Column,
-            border: UiRect::all(Px(1.)),
-            ..Node::DEFAULT
+            padding: UiRect::axes(padding_x.unwrap_or(Vw(5.0)), padding_y.unwrap_or(Vh(5.0))),
+            border: UiRect::all(Px(1.0)),
+            ..Node::COLUMN
         },
         ThemeColor::Popup.set::<BackgroundColor>(),
-        BorderRadius::all(Vw(4.)),
+        BorderRadius::all(Vw(4.0)),
         ThemeColor::BorderColor.set::<BorderColor>(),
         BoxShadow::from(ShadowStyle {
-            x_offset: Vw(0.),
-            y_offset: Vh(0.),
-            ..ShadowStyle::default()
+            x_offset: Val::ZERO,
+            y_offset: Val::ZERO,
+            ..default()
         }),
         FocusPolicy::Block,
     )

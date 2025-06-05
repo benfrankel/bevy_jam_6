@@ -22,7 +22,11 @@ fn spawn_main_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
                 ThemeColor::Popup.set::<BackgroundColor>(),
                 ThemeColor::BorderColor.set::<BorderColor>(),
                 BoxShadow::from(ShadowStyle {
-                    y_offset: Vh(0.),
+                    color: Color::BLACK.with_alpha(0.882),
+                    x_offset: Val::ZERO,
+                    y_offset: Val::ZERO,
+                    spread_radius: Vw(2.0),
+                    blur_radius: Vw(4.0),
                     ..default()
                 }),
                 children![widget::column_of_buttons(children![
