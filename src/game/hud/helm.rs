@@ -152,6 +152,7 @@ fn play_module_on_click(
     module_query: Query<(), With<HandIndex>>,
     mut player_actions: ResMut<ActionState<PlayerActions>>,
 ) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     let target = rq!(trigger.get_target());
     rq!(module_query.contains(target));
     player_actions.press(&PlayerActions::PlayModule);
