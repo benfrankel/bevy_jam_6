@@ -67,9 +67,14 @@ pub fn player_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets, health: f
             ),
         ],
         Patch(|entity| {
-            entity.observe(open_defeat_menu_on_death);
+            entity.observe(lose_level);
         }),
     )
+}
+
+fn lose_level(_: Trigger<OnDeath>, mut menu: ResMut<NextStateStack<Menu>>) {
+    menu.push(Menu::Defeat);
+    menu.acquire();
 }
 
 pub fn enemy_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets, health: f32) -> impl Bundle {
@@ -104,27 +109,17 @@ pub fn enemy_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets, health: f3
             }
         })),
         Patch(|entity| {
-            entity.observe(on_enemy_death);
+            entity.observe(win_level);
         }),
     )
 }
 
-fn on_enemy_death(
-    _: Trigger<OnDeath>,
-    mut menu: ResMut<NextStateStack<Menu>>,
-    level: NextRef<Level>,
-) {
+fn win_level(_: Trigger<OnDeath>, mut menu: ResMut<NextStateStack<Menu>>, level: NextRef<Level>) {
     if r!(level.get()).0 == 9 {
         menu.push(Menu::Victory);
     } else {
         menu.push(Menu::LevelUp);
     }
-
-    menu.acquire();
-}
-
-fn open_defeat_menu_on_death(_: Trigger<OnDeath>, mut menu: ResMut<NextStateStack<Menu>>) {
-    menu.push(Menu::Defeat);
     menu.acquire();
 }
 

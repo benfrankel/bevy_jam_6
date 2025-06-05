@@ -114,7 +114,8 @@ impl Configure for IsMissile {
                 apply_missile_thrusters.in_set(UpdateSystems::Update),
                 apply_missile_homing.in_set(UpdateSystems::Update),
                 rotate_with_velocity.in_set(UpdateSystems::Update),
-            ),
+            )
+                .in_set(PausableSystems),
         );
     }
 }

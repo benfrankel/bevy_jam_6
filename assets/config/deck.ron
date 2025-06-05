@@ -2,13 +2,16 @@
     initial_player_deck: PlayerDeck(
         health: 50,
         storage: [
+            Module(condition: Heal, effect: Heal),
+        ],
+        hand: [
             Module(condition: Nothing, effect: Missile),
             Module(condition: Nothing, effect: Heal),
             Module(condition: Missile, effect: Missile),
             Module(condition: Missile, effect: Heal),
             Module(condition: Heal, effect: Missile),
-            Module(condition: Heal, effect: Heal),
         ],
+        selected_idx: 2,
         reactor: [
             Module(status: SlotEmpty),
             Module(status: SlotEmpty),

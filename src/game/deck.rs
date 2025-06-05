@@ -51,10 +51,15 @@ impl PlayerDeck {
 
         // Create a new deck from storage and number of reactor slots.
         *self = Self {
+            health: self.health,
             storage: core::mem::take(&mut self.storage),
             reactor: vec![Module::EMPTY; self.reactor.len()],
             ..default()
         };
+
+        // Perform setup and select the module in the middle.
+        while self.step_setup() {}
+        self.selected_idx = 2;
     }
 
     /// Shuffle storage.
