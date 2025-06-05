@@ -12,4 +12,7 @@
     enemy_weapons: [Vec2(-43, -8), Vec2(-27, -8), Vec2(38, -8)],
     enemy_health_bar_offset: Vec2(0, 30),
     enemy_health_bar_size: Vec2(200, 5),
+    enemy_oscillate_amplitude: Vec2(6, 0),
+    enemy_oscillate_phase: Vec2(0, 1),
+    enemy_oscillate_rate: Vec2(1, 1),
 )

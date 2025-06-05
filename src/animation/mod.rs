@@ -1,5 +1,7 @@
 pub mod backup;
+pub mod lifetime;
 pub mod offset;
+pub mod oscillate;
 pub mod shake;
 
 use bevy::transform::systems::mark_dirty_trees;
@@ -12,7 +14,13 @@ use crate::prelude::*;
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(SaveBackupSystems, PostTransformSystems, PostColorSystems)>();
 
-    app.add_plugins((backup::plugin, offset::plugin, shake::plugin));
+    app.add_plugins((
+        backup::plugin,
+        lifetime::plugin,
+        offset::plugin,
+        oscillate::plugin,
+        shake::plugin,
+    ));
 }
 
 #[derive(SystemSet, Clone, Eq, PartialEq, Hash, Debug)]

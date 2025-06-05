@@ -1,3 +1,4 @@
+use crate::animation::oscillate::Oscillate;
 use crate::core::camera::CameraRoot;
 use crate::game::GameLayer;
 use crate::game::combat::death::OnDeath;
@@ -24,8 +25,7 @@ pub(super) fn plugin(app: &mut App) {
         (
             tilt_player_ship_with_velocity.in_set(UpdateSystems::Update),
             navigate_player_ship_toward_selected_module.in_set(UpdateSystems::Update),
-        )
-            .chain(),
+        ),
     );
 }
 
@@ -84,6 +84,11 @@ pub fn enemy_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets, health: f3
         RigidBody::Kinematic,
         Collider::rectangle(167.0, 15.0),
         CollisionLayers::new(GameLayer::Enemy, LayerMask::ALL),
+        Oscillate::new(
+            ship_config.enemy_oscillate_amplitude,
+            ship_config.enemy_oscillate_phase,
+            ship_config.enemy_oscillate_rate,
+        ),
         Children::spawn(SpawnWith(move |parent: &mut ChildSpawner| {
             parent.spawn((health_bar(), health_bar_transform));
 
@@ -136,6 +141,9 @@ pub struct ShipConfig {
     enemy_weapons: Vec<Vec2>,
     enemy_health_bar_offset: Vec2,
     enemy_health_bar_size: Vec2,
+    enemy_oscillate_amplitude: Vec2,
+    enemy_oscillate_phase: Vec2,
+    enemy_oscillate_rate: Vec2,
 }
 
 impl Config for ShipConfig {
