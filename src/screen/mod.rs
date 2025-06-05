@@ -8,7 +8,6 @@ use bevy::ecs::schedule::ScheduleConfigs;
 use bevy::ecs::system::ScheduleSystem;
 
 use crate::core::camera::CameraRoot;
-use crate::core::window::WindowReady;
 use crate::game::level::Level;
 use crate::menu::Menu;
 use crate::prelude::*;
@@ -51,13 +50,7 @@ impl FromWorld for ScreenRoot {
 #[derive(
     State, Copy, Clone, Default, Eq, PartialEq, Hash, Debug, Reflect, Serialize, Deserialize,
 )]
-#[state(
-    after(WindowReady),
-    before(Menu, Pause, Level),
-    react,
-    bevy_state,
-    log_flush
-)]
+#[state(before(Menu, Pause, Level), react, bevy_state, log_flush)]
 pub enum Screen {
     #[default]
     Splash,
@@ -68,19 +61,16 @@ pub enum Screen {
 
 impl Configure for Screen {
     fn configure(app: &mut App) {
-        app.add_state::<Self>();
+        app.init_state::<Self>();
         app.add_plugins(ProgressPlugin::<BevyState<Self>>::new());
         app.configure::<IsLoadingBarFill<Self>>();
         app.add_systems(
             StateFlush,
-            (
-                WindowReady.on_enter(Screen::enable_default),
-                Screen::ANY.on_exit((
-                    Pause::disable,
-                    (Menu::release, Menu::clear).chain(),
-                    reset_screen_camera,
-                )),
-            ),
+            Screen::ANY.on_exit((
+                Pause::disable,
+                (Menu::release, Menu::clear).chain(),
+                reset_screen_camera,
+            )),
         );
         app.add_plugins((
             splash::plugin,

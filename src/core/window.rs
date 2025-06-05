@@ -6,43 +6,23 @@ use bevy::window::WindowResolution;
 
 use crate::prelude::*;
 
+// 960 x 540
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(WindowPlugin {
         primary_window: Some(Window {
             name: Some("bevy_app".to_string()),
+            title: "Bevy Jam 6".to_string(),
+            mode: WindowMode::Windowed,
+            present_mode: PresentMode::AutoVsync,
+            resolution: WindowResolution::new(940.0, 540.0),
             fit_canvas_to_parent: true,
-            visible: false,
             ..default()
         }),
         exit_condition: ExitCondition::OnPrimaryClosed,
         ..default()
     });
 
-    app.configure::<(ConfigHandle<WindowConfig>, WindowRoot, WindowReady)>();
-}
-
-#[derive(Asset, Reflect, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct WindowConfig {
-    title: String,
-    window_mode: WindowMode,
-    present_mode: PresentMode,
-    resolution: WindowResolution,
-}
-
-impl Config for WindowConfig {
-    const FILE: &'static str = "window.ron";
-
-    fn on_load(&self, world: &mut World) {
-        r!(world.get_resource_mut::<NextStateBuffer<_>>()).enable(WindowReady);
-
-        let window_root = r!(world.get_resource::<WindowRoot>());
-        let mut window = r!(world.get_mut::<Window>(window_root.primary));
-        window.title.clone_from(&self.title);
-        window.mode = self.window_mode;
-        window.present_mode = self.present_mode;
-        window.resolution = self.resolution.clone();
-    }
+    app.configure::<WindowRoot>();
 }
 
 #[derive(Resource, Reflect)]
@@ -67,21 +47,4 @@ impl FromWorld for WindowRoot {
                 .unwrap(),
         }
     }
-}
-
-#[derive(State, Reflect, Copy, Clone, Default, Eq, PartialEq, Debug)]
-#[state(log_flush)]
-#[reflect(Resource)]
-pub struct WindowReady;
-
-impl Configure for WindowReady {
-    fn configure(app: &mut App) {
-        app.register_type::<Self>();
-        app.add_state::<Self>();
-        app.add_systems(StateFlush, Self.on_enter(show_window));
-    }
-}
-
-fn show_window(window_root: Res<WindowRoot>, mut window_query: Query<&mut Window>) {
-    r!(window_query.get_mut(window_root.primary)).visible = true;
 }

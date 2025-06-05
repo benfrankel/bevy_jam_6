@@ -1,5 +1,3 @@
-use pyri_state::schedule::ResolveStateSystems;
-
 use crate::core::dev::DevConfig;
 use crate::prelude::*;
 use crate::screen::Screen;
@@ -7,14 +5,6 @@ use crate::screen::ScreenTime;
 
 pub(super) fn plugin(app: &mut App) {
     app.init_resource::<StateDebugSettings>();
-
-    // Skip to a custom initial screen.
-    app.add_systems(
-        StateFlush,
-        enter_initial_screen
-            .in_set(ResolveStateSystems::<Screen>::Compute)
-            .run_if(Screen::ANY.will_enable()),
-    );
 
     // Extend loading screen.
     app.add_systems(
@@ -29,11 +19,9 @@ pub(super) fn plugin(app: &mut App) {
 
 pub(super) fn on_load(config: &DevConfig, world: &mut World) {
     r!(world.get_resource_mut::<StateDebugSettings>()).log_flush = config.log_state_flush;
-}
-
-fn enter_initial_screen(config: ConfigRef<DevConfig>, mut screen: NextMut<Screen>) {
-    let config = r!(config.get());
-    screen.enter(rq!(config.initial_screen));
+    if let Some(screen) = config.initial_screen {
+        r!(world.get_resource_mut::<NextStateBuffer<Screen>>()).enter(screen);
+    }
 }
 
 fn force_loading_screen(config: ConfigRef<DevConfig>, screen: CurrentRef<Screen>) -> Progress {
