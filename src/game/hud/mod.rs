@@ -1,6 +1,7 @@
 mod flux;
 pub mod helm;
 mod module;
+mod phase;
 mod reactor;
 
 use crate::game::hud::helm::helm;
@@ -10,7 +11,13 @@ use crate::prelude::*;
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(ConfigHandle<HudConfig>, HudAssets)>();
 
-    app.add_plugins((flux::plugin, helm::plugin, module::plugin, reactor::plugin));
+    app.add_plugins((
+        flux::plugin,
+        helm::plugin,
+        module::plugin,
+        phase::plugin,
+        reactor::plugin,
+    ));
 }
 
 pub fn hud(hud_assets: &HudAssets) -> impl Bundle {
@@ -89,6 +96,16 @@ pub struct HudAssets {
     heal_condition_icon: Handle<Image>,
     #[asset(path = "image/module/icon/heal_effect.png")]
     heal_effect_icon: Handle<Image>,
+
+    // Phase display.
+    #[asset(path = "image/ui/phase_setup.png")]
+    phase_setup: Handle<Image>,
+    #[asset(path = "image/ui/phase_player.png")]
+    phase_player: Handle<Image>,
+    #[asset(path = "image/ui/phase_reactor.png")]
+    phase_reactor: Handle<Image>,
+    #[asset(path = "image/ui/phase_enemy.png")]
+    phase_enemy: Handle<Image>,
 
     // Buttons.
     #[asset(path = "image/ui/info_button.png")]

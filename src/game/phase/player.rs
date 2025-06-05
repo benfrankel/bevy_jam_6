@@ -91,12 +91,10 @@ fn enable_end_turn(mut player_actions: ResMut<ActionState<PlayerActions>>) {
 }
 
 fn disable_player_actions(mut player_actions: ResMut<ActionState<PlayerActions>>) {
-    info!("PLAYER ACTIONS: Disable");
     player_actions.disable();
 }
 
 fn enable_player_actions(mut player_actions: ResMut<ActionState<PlayerActions>>) {
-    info!("PLAYER ACTIONS: Enable");
     player_actions.enable();
 }
 

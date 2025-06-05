@@ -34,7 +34,7 @@ impl Config for PhaseConfig {
 }
 
 #[derive(State, Reflect, Copy, Clone, Default, Eq, PartialEq, Debug)]
-#[state(log_flush, after(Level))]
+#[state(log_flush, react, after(Level))]
 #[reflect(Resource)]
 pub enum Phase {
     #[default]

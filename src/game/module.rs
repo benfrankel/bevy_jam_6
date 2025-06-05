@@ -161,7 +161,7 @@ fn on_module_action(
         ModuleAction::Fire => {},
 
         ModuleAction::Heal => {
-            commands.entity(ship).trigger(OnHeal(1. * flux));
+            commands.entity(ship).trigger(OnHeal(flux));
         },
 
         _ => {},
