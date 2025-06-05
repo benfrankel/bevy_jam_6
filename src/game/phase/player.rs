@@ -24,12 +24,14 @@ pub enum PlayerActions {
     SelectLeft,
     SelectRight,
     PlayModule,
+    EndTurn,
 }
 
 impl Configure for PlayerActions {
     fn configure(app: &mut App) {
         let mut action_state = ActionState::<Self>::default();
         action_state.disable_action(&Self::PlayModule);
+        action_state.disable_action(&Self::EndTurn);
         app.insert_resource(action_state);
 
         app.insert_resource(
@@ -45,13 +47,14 @@ impl Configure for PlayerActions {
                 .with(Self::PlayModule, GamepadButton::East)
                 .with(Self::PlayModule, KeyCode::Space)
                 .with(Self::PlayModule, KeyCode::Enter)
-                .with(Self::PlayModule, KeyCode::NumpadEnter),
+                .with(Self::PlayModule, KeyCode::NumpadEnter)
+                .with(Self::EndTurn, KeyCode::KeyE),
         );
         app.add_plugins(InputManagerPlugin::<Self>::default());
         app.add_systems(
             StateFlush,
             (
-                Phase::Player.on_edge(disable_play_module, enable_play_module),
+                Phase::Player.on_edge(disable_end_turn, enable_end_turn),
                 Pause
                     .on_edge(enable_player_actions, disable_player_actions)
                     .run_if(Phase::Player.will_update()),
@@ -69,17 +72,22 @@ impl Configure for PlayerActions {
                 player_play_module
                     .in_set(UpdateSystems::RecordInput)
                     .run_if(action_just_pressed(Self::PlayModule)),
+                player_end_turn
+                    .in_set(UpdateSystems::RecordInput)
+                    .run_if(action_just_pressed(Self::EndTurn)),
             ),
         );
     }
 }
 
-fn disable_play_module(mut player_actions: ResMut<ActionState<PlayerActions>>) {
+fn disable_end_turn(mut player_actions: ResMut<ActionState<PlayerActions>>) {
     player_actions.disable_action(&PlayerActions::PlayModule);
+    player_actions.disable_action(&PlayerActions::EndTurn);
 }
 
-fn enable_play_module(mut player_actions: ResMut<ActionState<PlayerActions>>) {
+fn enable_end_turn(mut player_actions: ResMut<ActionState<PlayerActions>>) {
     player_actions.enable_action(&PlayerActions::PlayModule);
+    player_actions.enable_action(&PlayerActions::EndTurn);
 }
 
 fn disable_player_actions(mut player_actions: ResMut<ActionState<PlayerActions>>) {
@@ -102,4 +110,8 @@ fn player_play_module(mut player_deck: ResMut<PlayerDeck>, mut next_phase: NextM
     if player_deck.play_selected() {
         next_phase.enter(Phase::Reactor);
     }
+}
+
+fn player_end_turn(mut next_phase: NextMut<Phase>) {
+    next_phase.enter(Phase::Reactor);
 }

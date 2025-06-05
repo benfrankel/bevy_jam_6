@@ -1,8 +1,12 @@
+use bevy::ecs::system::IntoObserverSystem;
+
+use crate::animation::offset::NodeOffset;
 use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudAssets;
 use crate::game::hud::module::module;
 use crate::game::phase::player::PlayerActions;
 use crate::prelude::*;
+use crate::screen::gameplay::GameplayAction;
 
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(IsHand, HandIndex, IsStorage, IsStorageLabel)>();
@@ -16,26 +20,141 @@ pub fn helm(hud_assets: &HudAssets) -> impl Bundle {
             aspect_ratio: Some(356.0 / 58.0),
             ..Node::ROW.full_width()
         },
-        children![
-            hand(),
-            (
-                Name::new("Row"),
-                Node {
-                    padding: UiRect::all(Vw(1.69)),
-                    ..Node::ROW_MID.reverse().full_width()
-                },
-                Pickable::IGNORE,
-                children![storage(hud_assets)],
-            ),
-        ],
+        children![left_helm(), hand(), right_helm(hud_assets)],
+    )
+}
+
+fn left_helm() -> impl Bundle {
+    (
+        Name::new("LeftHelm"),
+        Node {
+            width: Vw(12.083),
+            padding: UiRect::all(Vw(1.69)),
+            ..Node::COLUMN_CENTER.full_height()
+        },
     )
 }
 
 fn hand() -> impl Bundle {
     (
         Name::new("Hand"),
-        Node::ROW_CENTER.full_size().abs(),
+        Node {
+            flex_grow: 1.0,
+            ..Node::ROW_CENTER
+        },
         IsHand,
+    )
+}
+
+fn right_helm(hud_assets: &HudAssets) -> impl Bundle {
+    (
+        Name::new("RightHelm"),
+        Node {
+            width: Vw(12.083),
+            padding: UiRect::top(Vw(1.0416)).with_bottom(Vw(1.4583)),
+            row_gap: Vw(0.41666),
+            ..Node::COLUMN_CENTER.full_height()
+        },
+        children![storage(hud_assets), mini_buttons(hud_assets)],
+    )
+}
+
+fn mini_buttons(hud_assets: &HudAssets) -> impl Bundle {
+    (
+        Name::new("MiniButtons"),
+        Node {
+            column_gap: Vw(0.625),
+            ..Node::ROW
+        },
+        children![
+            info_button(hud_assets),
+            pause_button(hud_assets),
+            skip_button(hud_assets),
+        ],
+    )
+}
+
+fn info_button(hud_assets: &HudAssets) -> impl Bundle {
+    (
+        Name::new("InfoButton"),
+        mini_button_base(
+            hud_assets.info_button.clone(),
+            "[b]Info mode (I)[r]\n\nToggle informational tooltips.",
+            toggle_tooltips,
+        ),
+    )
+}
+
+fn pause_button(hud_assets: &HudAssets) -> impl Bundle {
+    (
+        Name::new("PauseButton"),
+        mini_button_base(
+            hud_assets.pause_button.clone(),
+            "[b]Pause (P)[r]\n\nOpen the pause menu.",
+            open_pause_menu,
+        ),
+    )
+}
+
+fn skip_button(hud_assets: &HudAssets) -> impl Bundle {
+    (
+        Name::new("SkipButton"),
+        mini_button_base(
+            hud_assets.skip_button.clone(),
+            "[b]End turn (E)[r]\n\nEnd your turn without playing a module from your hand.",
+            player_end_turn,
+        ),
+    )
+}
+
+fn toggle_tooltips(
+    trigger: Trigger<Pointer<Click>>,
+    mut gameplay_action: ResMut<ActionState<GameplayAction>>,
+) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
+    gameplay_action.press(&GameplayAction::ToggleTooltips);
+}
+
+fn open_pause_menu(
+    trigger: Trigger<Pointer<Click>>,
+    mut gameplay_action: ResMut<ActionState<GameplayAction>>,
+) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
+    gameplay_action.press(&GameplayAction::Pause);
+}
+
+fn player_end_turn(
+    trigger: Trigger<Pointer<Click>>,
+    mut player_actions: ResMut<ActionState<PlayerActions>>,
+) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
+    player_actions.press(&PlayerActions::EndTurn);
+}
+
+fn mini_button_base<E, B, M, I>(image: Handle<Image>, description: &str, action: I) -> impl Bundle
+where
+    E: Event,
+    B: Bundle,
+    I: Sync + IntoObserverSystem<E, B, M>,
+{
+    (
+        Button,
+        ImageNode::from(image),
+        Node {
+            width: Vw(2.5),
+            aspect_ratio: Some(1.0),
+            ..default()
+        },
+        NodeOffset::default(),
+        InteractionTheme {
+            hovered: NodeOffset::new(Val::ZERO, Vw(-0.2083)),
+            pressed: NodeOffset::new(Val::ZERO, Vw(0.2083)),
+            ..default()
+        },
+        Tooltip::fixed(Anchor::TopCenter, parse_rich(description)),
+        Patch(|entity| {
+            entity.observe(action);
+        }),
     )
 }
 

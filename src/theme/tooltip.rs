@@ -27,5 +27,9 @@ pub(super) fn plugin(app: &mut App) {
         ))
         .id();
 
-    app.add_plugins(TooltipPlugin { container, text });
+    app.add_plugins(TooltipPlugin {
+        container,
+        text,
+        ..default()
+    });
 }

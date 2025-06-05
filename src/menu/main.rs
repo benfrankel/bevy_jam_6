@@ -27,7 +27,6 @@ fn spawn_main_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
                     y_offset: Val::ZERO,
                     spread_radius: Vw(2.0),
                     blur_radius: Vw(4.0),
-                    ..default()
                 }),
                 children![widget::column_of_buttons(children![
                     widget::button("Play", open_intro),

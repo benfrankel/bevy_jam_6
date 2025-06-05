@@ -59,6 +59,7 @@ impl Configure for GameplayAssets {
 pub enum GameplayAction {
     Pause,
     CloseMenu,
+    ToggleTooltips,
 }
 
 impl Configure for GameplayAction {
@@ -69,7 +70,8 @@ impl Configure for GameplayAction {
                 .with(Self::Pause, GamepadButton::Start)
                 .with(Self::Pause, KeyCode::Escape)
                 .with(Self::Pause, KeyCode::KeyP)
-                .with(Self::CloseMenu, KeyCode::KeyP),
+                .with(Self::CloseMenu, KeyCode::KeyP)
+                .with(Self::ToggleTooltips, KeyCode::KeyI),
         );
         app.add_plugins(InputManagerPlugin::<Self>::default());
         app.add_systems(
@@ -81,6 +83,9 @@ impl Configure for GameplayAction {
                 Menu::clear
                     .in_set(UpdateSystems::RecordInput)
                     .run_if(Menu::is_enabled.and(action_just_pressed(Self::CloseMenu))),
+                toggle_tooltips
+                    .in_set(UpdateSystems::RecordInput)
+                    .run_if(action_just_pressed(Self::ToggleTooltips)),
             )),
         );
     }
@@ -93,4 +98,8 @@ fn spawn_pause_overlay(mut commands: Commands) {
         DespawnOnExitState::<Screen>::default(),
         DespawnOnDisableState::<Menu>::default(),
     ));
+}
+
+fn toggle_tooltips(mut tooltip_settings: ResMut<TooltipSettings>) {
+    tooltip_settings.enabled ^= true;
 }

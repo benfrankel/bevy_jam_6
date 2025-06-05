@@ -1,5 +1,5 @@
 pub mod fade;
-mod gameplay;
+pub mod gameplay;
 mod loading;
 mod splash;
 mod title;

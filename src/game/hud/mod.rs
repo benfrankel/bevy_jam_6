@@ -86,6 +86,14 @@ pub struct HudAssets {
     heal_condition_icon: Handle<Image>,
     #[asset(path = "image/module/icon/heal_effect.png")]
     heal_effect_icon: Handle<Image>,
+
+    // Buttons.
+    #[asset(path = "image/ui/info_button.png")]
+    info_button: Handle<Image>,
+    #[asset(path = "image/ui/pause_button.png")]
+    pause_button: Handle<Image>,
+    #[asset(path = "image/ui/skip_button.png")]
+    skip_button: Handle<Image>,
 }
 
 impl Configure for HudAssets {

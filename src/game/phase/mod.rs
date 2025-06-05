@@ -36,7 +36,7 @@ impl Config for PhaseConfig {
 #[derive(State, Reflect, Copy, Clone, Default, Eq, PartialEq, Debug)]
 #[state(log_flush, after(Level))]
 #[reflect(Resource)]
-enum Phase {
+pub enum Phase {
     #[default]
     Setup,
     Player,
