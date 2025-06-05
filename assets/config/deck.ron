@@ -6,6 +6,7 @@
             Module(condition: Missile, effect: Missile),
             Module(condition: Missile, effect: Heal),
             Module(condition: Heal, effect: Missile),
+            Module(condition: Heal, effect: Heal),
         ],
         reactor: [
             Module(status: SlotEmpty),

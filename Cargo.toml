@@ -83,6 +83,8 @@ variadics_please = "1"
 getrandom = { version = "0.3", features = ["wasm_js"] }
 
 [patch.crates-io]
+# TODO: Workaround for <https://github.com/Jondolf/avian/pull/752>.
+avian2d = { git = "https://github.com/Jondolf/avian" }
 # TODO: Workaround for <https://github.com/NiklasEi/bevy_asset_loader/issues/219>.
 bevy_asset_loader = { git = "https://github.com/benfrankel/bevy_asset_loader.git", branch = "direct-depend" }
 bevy_editor_pls = { git = "https://github.com/benfrankel/bevy_editor_pls.git", branch = "bevy-0-16" }

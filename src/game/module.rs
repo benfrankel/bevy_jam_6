@@ -115,16 +115,20 @@ fn on_module_action(
     missile_config: ConfigRef<MissileConfig>,
     missile_assets: Res<MissileAssets>,
     ship_query: Query<(&Children, &Faction)>,
+    children_query: Query<&Children>,
     weapon_query: Query<&GlobalTransform, With<IsWeapon>>,
 ) {
     // Choose a weapon on the ship.
     let rng = &mut thread_rng();
     let ship = r!(trigger.get_target());
     let (children, &faction) = r!(ship_query.get(ship));
-    let weapons = children
-        .iter()
-        .filter_map(|entity| weapon_query.get(entity).ok())
-        .collect::<Vec<_>>();
+    let mut weapons = Vec::<&_>::new();
+    for &child in children {
+        weapons.extend(weapon_query.get(child));
+        for &child in children_query.get(child).into_iter().flatten() {
+            weapons.extend(weapon_query.get(child));
+        }
+    }
     let weapon_gt = r!(weapons.choose(&mut thread_rng()));
     let weapon_transform = weapon_gt.compute_transform();
 

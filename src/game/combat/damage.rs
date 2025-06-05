@@ -35,7 +35,7 @@ fn deal_damage_on_collision(
     let hitbox = r!(trigger.get_target());
     let damage = rq!(damage_query.get(hitbox));
 
-    let hurtbox = trigger.collider;
+    let hurtbox = trigger.body.unwrap_or(trigger.collider);
     rq!(health_query.contains(hurtbox));
 
     commands.entity(hitbox).try_despawn();
