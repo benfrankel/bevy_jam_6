@@ -36,7 +36,7 @@ pub struct LevelSetup {
 #[reflect(Resource)]
 pub struct LevelAssets {
     #[asset(path = "image/space/level0.png")]
-    bg_level0: Handle<Image>,
+    pub bg_level0: Handle<Image>,
     #[asset(path = "image/space/level1.png")]
     bg_level1: Handle<Image>,
     #[asset(path = "image/space/level2.png")]
