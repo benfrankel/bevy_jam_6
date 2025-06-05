@@ -5,6 +5,7 @@ use crate::game::module::Module;
 use crate::menu::Menu;
 use crate::menu::MenuRoot;
 use crate::prelude::*;
+use crate::theme::color::ThemeConfig;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(
@@ -31,10 +32,13 @@ fn spawn_level_up_menu(
     menu_root: Res<MenuRoot>,
     level_config: ConfigRef<LevelConfig>,
     level: CurrentRef<Level>,
+    theme_config: ConfigRef<ThemeConfig>,
 ) {
     let level = r!(level.get()).0;
     let level_config = r!(level_config.get());
     let level_setup = r!(level_config.levels.get(level));
+    let theme_config = r!(theme_config.get());
+
     commands.entity(menu_root.ui).with_child((
         Node {
             justify_content: JustifyContent::Center,
@@ -44,16 +48,24 @@ fn spawn_level_up_menu(
         BackgroundColor::from(Color::srgba(0., 0., 0., 0.5)),
         Transform::default(),
         children![(
+            Name::new("LevelUpPopup"),
             Node {
                 width: Vw(50.),
                 height: Vh(90.),
                 padding: UiRect::axes(Vw(5.), Vh(5.)),
                 flex_direction: FlexDirection::Column,
-                border: UiRect::all(Px(3.)),
+                border: UiRect::all(Px(1.5)),
                 ..Node::DEFAULT
             },
-            BackgroundColor::from(Color::srgba(0.2, 0.2, 0.2, 0.9)),
+            // BackgroundColor::from(Color::srgba(0.2, 0.2, 0.2, 0.9)),
+            BackgroundColor::from(theme_config.colors[ThemeColor::Popup]),
             BorderRadius::all(Vw(4.)),
+            BorderColor::from(theme_config.colors[ThemeColor::BorderColor]),
+            BoxShadow::from(ShadowStyle {
+                x_offset: Vw(0.),
+                y_offset: Vh(0.),
+                ..ShadowStyle::default()
+            }),
             children![
                 widget::label_base(Vw(3.5), ThemeColor::White, "[b]The enemy ship escaped..."),
                 (
