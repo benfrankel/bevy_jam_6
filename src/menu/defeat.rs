@@ -1,8 +1,8 @@
 use crate::menu::Menu;
 use crate::menu::MenuRoot;
-use crate::menu::quit_to_title;
-use crate::menu::restart_game;
 use crate::prelude::*;
+use crate::screen::Screen;
+use crate::screen::fade::fade_out;
 use crate::theme::color::ThemeConfig;
 
 pub(super) fn plugin(app: &mut App) {
@@ -28,11 +28,19 @@ fn spawn_defeat_menu(
                         ..Node::COLUMN_CENTER
                     },
                     children![widget::column_of_buttons(children![
-                        widget::wide_button("Restart", restart_game),
-                        widget::wide_button("Main Menu", quit_to_title),
+                        widget::wide_button("Try again", restart_game),
+                        widget::wide_button("Main menu", quit_to_title),
                     ])],
                 )
             ],
         )],
     ));
+}
+
+fn restart_game(_: Trigger<Pointer<Click>>, mut commands: Commands) {
+    commands.spawn(fade_out(Screen::Gameplay));
+}
+
+fn quit_to_title(_: Trigger<Pointer<Click>>, mut commands: Commands) {
+    commands.spawn(fade_out(Screen::Title));
 }

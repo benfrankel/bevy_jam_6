@@ -24,7 +24,9 @@ pub(super) fn plugin(app: &mut App) {
         Update,
         (
             tilt_player_ship_with_velocity.in_set(UpdateSystems::Update),
-            navigate_player_ship_toward_selected_module.in_set(UpdateSystems::Update),
+            navigate_player_ship_toward_selected_module
+                .in_set(UpdateSystems::Update)
+                .in_set(PausableSystems),
         ),
     );
 }

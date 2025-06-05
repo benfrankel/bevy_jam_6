@@ -6,8 +6,6 @@ mod pause;
 mod settings;
 
 use crate::prelude::*;
-use crate::screen::Screen;
-use crate::screen::fade::fade_out;
 
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(MenuRoot, Menu, MenuAction)>();
@@ -97,12 +95,4 @@ impl Configure for MenuAction {
                 .run_if(Menu::is_enabled.and(action_just_pressed(Self::Back))),
         );
     }
-}
-
-fn restart_game(_: Trigger<Pointer<Click>>, mut commands: Commands) {
-    commands.spawn(fade_out(Screen::Gameplay));
-}
-
-fn quit_to_title(_: Trigger<Pointer<Click>>, mut commands: Commands) {
-    commands.spawn(fade_out(Screen::Title));
 }
