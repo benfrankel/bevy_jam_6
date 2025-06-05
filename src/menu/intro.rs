@@ -8,10 +8,7 @@ pub(super) fn plugin(app: &mut App) {
     app.add_systems(StateFlush, Menu::Intro.on_enter(spawn_intro_menu));
 }
 
-fn spawn_intro_menu(
-    mut commands: Commands,
-    menu_root: Res<MenuRoot>,
-) {
+fn spawn_intro_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
     commands.entity(menu_root.ui).with_child(((
         Node::COLUMN_CENTER.full_size(),
         ThemeColor::Overlay.set::<BackgroundColor>(),
