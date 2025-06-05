@@ -164,7 +164,13 @@ impl PlayerDeck {
             slot.status = ModuleStatus::SlotInactive;
         }
 
-        // And if there are no available slots remaining, mark the hottest slot as overheated.
+        // Mark any naturally overheated slots.
+        for slot in &mut self.reactor {
+            cq!(matches!(slot.status, ModuleStatus::SlotInactive) && slot.heat > self.heat_capacity);
+            slot.status = ModuleStatus::SlotOverheated;
+        }
+
+        // If there are no available slots remaining, artificially mark the hottest slot as overheated.
         if self.next_available_slot().is_none() {
             let slot = r!(self
                 .reactor
