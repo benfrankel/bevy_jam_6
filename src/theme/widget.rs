@@ -3,7 +3,6 @@ use bevy::ecs::system::IntoObserverSystem;
 use crate::animation::backup::Backup;
 use crate::animation::offset::NodeOffset;
 use crate::prelude::*;
-use crate::theme::color::ThemeConfig;
 
 pub fn nonblocking_overlay(z: i32) -> impl Bundle {
     (
@@ -23,22 +22,24 @@ pub fn blocking_overlay(z: i32) -> impl Bundle {
     )
 }
 
-pub fn overlay(theme_config: &ThemeConfig) -> impl Bundle {
+pub fn overlay() -> impl Bundle {
     (
-        Node {
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            ..Node::DEFAULT.full_size()
-        },
-        BackgroundColor::from(theme_config.colors[ThemeColor::Overlay]),
+        Node::ROW_CENTER.full_size(),
+        ThemeColor::Overlay.set::<BackgroundColor>(),
         FocusPolicy::Block,
+    )
+}
+
+pub fn rainbow_overlay(z: i32) -> impl Bundle {
+    (
+        nonblocking_overlay(z),
+        // TODO
     )
 }
 
 pub fn popup_window(
     width: Val,
     height: Val,
-    theme_config: &ThemeConfig,
     padding_x: Option<Val>,
     padding_y: Option<Val>,
 ) -> impl Bundle {
@@ -51,9 +52,9 @@ pub fn popup_window(
             border: UiRect::all(Px(1.)),
             ..Node::DEFAULT
         },
-        BackgroundColor::from(theme_config.colors[ThemeColor::Popup]),
+        ThemeColor::Popup.set::<BackgroundColor>(),
         BorderRadius::all(Vw(4.)),
-        BorderColor::from(theme_config.colors[ThemeColor::BorderColor]),
+        ThemeColor::BorderColor.set::<BorderColor>(),
         BoxShadow::from(ShadowStyle {
             x_offset: Vw(0.),
             y_offset: Vh(0.),

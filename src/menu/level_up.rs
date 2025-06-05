@@ -5,7 +5,6 @@ use crate::game::module::Module;
 use crate::menu::Menu;
 use crate::menu::MenuRoot;
 use crate::prelude::*;
-use crate::theme::color::ThemeConfig;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(
@@ -32,18 +31,16 @@ fn spawn_level_up_menu(
     menu_root: Res<MenuRoot>,
     level_config: ConfigRef<LevelConfig>,
     level: CurrentRef<Level>,
-    theme_config: ConfigRef<ThemeConfig>,
 ) {
     let level = r!(level.get()).0;
     let level_config = r!(level_config.get());
     let level_setup = r!(level_config.levels.get(level));
-    let theme_config = r!(theme_config.get());
 
     commands.entity(menu_root.ui).with_child((
-        widget::overlay(theme_config),
+        widget::overlay(),
         children![(
             Name::new("LevelUpPopup"),
-            widget::popup_window(Vw(50.), Vh(90.), theme_config, None, None),
+            widget::popup_window(Vw(50.), Vh(90.), None, None),
             children![
                 widget::label_base(Vw(3.5), ThemeColor::White, "[b]The enemy ship escaped..."),
                 (

@@ -1,18 +1,12 @@
 use crate::menu::Menu;
 use crate::menu::MenuRoot;
 use crate::prelude::*;
-use crate::theme::color::ThemeConfig;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(StateFlush, Menu::Main.on_enter(spawn_main_menu));
 }
 
-fn spawn_main_menu(
-    mut commands: Commands,
-    menu_root: Res<MenuRoot>,
-    theme_config: ConfigRef<ThemeConfig>,
-) {
-    let theme_config = r!(theme_config.get());
+fn spawn_main_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
     commands.entity(menu_root.ui).with_child((
         Name::new("MainMenuContainer"),
         Node::DEFAULT.full_size(),
@@ -25,8 +19,8 @@ fn spawn_main_menu(
                     border: UiRect::right(Px(1.5)),
                     ..default()
                 },
-                BackgroundColor::from(theme_config.colors[ThemeColor::Popup]),
-                BorderColor::from(theme_config.colors[ThemeColor::BorderColor]),
+                ThemeColor::Popup.set::<BackgroundColor>(),
+                ThemeColor::BorderColor.set::<BorderColor>(),
                 BoxShadow::from(ShadowStyle {
                     y_offset: Vh(0.),
                     ..default()
@@ -50,7 +44,7 @@ fn spawn_main_menu(
                     padding: UiRect::top(Vh(15.)),
                     ..default()
                 },
-                BackgroundColor::from(theme_config.colors[ThemeColor::Overlay]),
+                ThemeColor::Overlay.set::<BackgroundColor>(),
                 children![widget::header("[b]Bevy Jam 6"),],
             ),
         ],

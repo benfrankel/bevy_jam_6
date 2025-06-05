@@ -3,23 +3,17 @@ use crate::menu::MenuRoot;
 use crate::prelude::*;
 use crate::screen::Screen;
 use crate::screen::fade::fade_out;
-use crate::theme::color::ThemeConfig;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(StateFlush, Menu::Defeat.on_enter(spawn_defeat_menu));
 }
 
-fn spawn_defeat_menu(
-    mut commands: Commands,
-    menu_root: Res<MenuRoot>,
-    theme_config: ConfigRef<ThemeConfig>,
-) {
-    let theme_config = r!(theme_config.get());
+fn spawn_defeat_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
     commands.entity(menu_root.ui).with_child((
         Name::new("DefeatPopup"),
-        widget::overlay(theme_config),
+        widget::overlay(),
         children![(
-            widget::popup_window(Vw(50.), Vh(90.), theme_config, None, None),
+            widget::popup_window(Vw(50.), Vh(90.), None, None),
             children![
                 widget::big_label("Defeat"),
                 (

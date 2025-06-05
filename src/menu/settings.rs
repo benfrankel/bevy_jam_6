@@ -2,11 +2,9 @@ use bevy_simple_prefs::Prefs;
 use bevy_simple_prefs::PrefsPlugin;
 
 use crate::core::audio::AudioSettings;
-use crate::game::level::LevelAssets;
 use crate::menu::Menu;
 use crate::menu::MenuRoot;
 use crate::prelude::*;
-use crate::theme::color::ThemeConfig;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(StateFlush, Menu::Settings.on_enter(spawn_settings_menu));
@@ -19,25 +17,13 @@ pub(super) fn plugin(app: &mut App) {
     )>();
 }
 
-fn spawn_settings_menu(
-    mut commands: Commands,
-    menu_root: Res<MenuRoot>,
-    level_assets: Res<LevelAssets>,
-    theme_config: ConfigRef<ThemeConfig>,
-) {
-    let theme_config = r!(theme_config.get());
-    commands.spawn((
-        Name::new("Background"),
-        Sprite::from_image(level_assets.bg_level0.clone()),
-        Transform::from_xyz(0.0, 0.0, -2.0),
-        DespawnOnExitState::<Menu>::Recursive,
-    ));
+fn spawn_settings_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
     commands.entity(menu_root.ui).with_child((
-        widget::overlay(theme_config),
+        widget::overlay(),
         children![
             Name::new("SettingsPopup"),
             (
-                widget::popup_window(Vw(90.), Vh(90.), theme_config, None, None),
+                widget::popup_window(Vw(90.), Vh(90.), None, None),
                 children![
                     widget::header("[b]Settings"),
                     grid(),
