@@ -25,6 +25,8 @@
         Srgba(Srgba(red: 0.106, green: 0.118, blue: 0.122, alpha: 0.850)),
         // Overlay
         Srgba(Srgba(red: 0.000, green: 0.000, blue: 0.000, alpha: 0.800)),
+        // RainbowOverlay
+        Oklcha(Oklcha(lightness: 0.450, chroma: 0.130, hue: 0.000, alpha: 0.080)),
         // BorderColor
         Srgba(Srgba(red: 0.300, green: 0.300, blue: 0.300, alpha: 1.000)),
 

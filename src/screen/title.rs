@@ -31,6 +31,10 @@ fn spawn_title_screen(
         DespawnOnExitState::<Screen>::Recursive,
     ));
     commands.spawn((
+        widget::rainbow_overlay(-1),
+        DespawnOnExitState::<Screen>::Recursive,
+    ));
+    commands.spawn((
         music_audio(&audio_settings, title_assets.music.clone()),
         DespawnOnExitState::<Screen>::Recursive,
     ));

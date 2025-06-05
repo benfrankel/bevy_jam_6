@@ -3,10 +3,11 @@ use bevy::ecs::system::IntoObserverSystem;
 use crate::animation::backup::Backup;
 use crate::animation::offset::NodeOffset;
 use crate::prelude::*;
+use crate::theme::color::Rainbow;
 
 pub fn nonblocking_overlay(z: i32) -> impl Bundle {
     (
-        Name::new("Overlay"),
+        Name::new("NonblockingOverlay"),
         Node::DEFAULT.full_size().abs(),
         Pickable::IGNORE,
         GlobalZIndex(z),
@@ -32,8 +33,12 @@ pub fn overlay() -> impl Bundle {
 
 pub fn rainbow_overlay(z: i32) -> impl Bundle {
     (
-        nonblocking_overlay(z),
-        // TODO
+        Name::new("RainbowOverlay"),
+        Node::DEFAULT.full_size().abs(),
+        Pickable::IGNORE,
+        GlobalZIndex(z),
+        ThemeColor::RainbowOverlay.set::<BackgroundColor>(),
+        Rainbow { rate: 0.1 },
     )
 }
 

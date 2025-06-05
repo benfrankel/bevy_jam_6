@@ -15,6 +15,7 @@ pub(super) fn plugin(app: &mut App) {
         ThemeColorFor<BackgroundColor>,
         ThemeColorFor<BorderColor>,
         ThemeColorForText,
+        Rainbow,
     )>();
 }
 
@@ -34,7 +35,7 @@ impl Config for ThemeConfig {
 
 // Note: The length of this array MUST equal the number of `ThemeColor` variants.
 #[derive(Reflect, Serialize, Deserialize)]
-pub struct ThemeColorList([Color; 14]);
+pub struct ThemeColorList([Color; 15]);
 
 impl Index<ThemeColor> for ThemeColorList {
     type Output = Color;
@@ -65,6 +66,7 @@ pub enum ThemeColor {
     // Other UI colors.
     Popup,
     Overlay,
+    RainbowOverlay,
     BorderColor,
 
     // Custom colors.
@@ -153,5 +155,31 @@ impl ColorMut for BackgroundColor {
 impl ColorMut for BorderColor {
     fn color_mut(&mut self) -> &mut Color {
         &mut self.0
+    }
+}
+
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
+pub struct Rainbow {
+    pub rate: f32,
+}
+
+impl Configure for Rainbow {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+        app.add_systems(
+            Update,
+            apply_rainbow
+                .in_set(UpdateSystems::SyncLate)
+                .after(apply_theme_color_for::<BackgroundColor>),
+        );
+    }
+}
+
+fn apply_rainbow(time: Res<Time>, mut rainbow_query: Query<(&mut BackgroundColor, &Rainbow)>) {
+    for (mut color, rainbow) in &mut rainbow_query {
+        color.0 = color
+            .0
+            .rotate_hue(360.0 * rainbow.rate * time.elapsed_secs());
     }
 }
