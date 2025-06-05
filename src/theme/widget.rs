@@ -3,6 +3,7 @@ use bevy::ecs::system::IntoObserverSystem;
 use crate::animation::backup::Backup;
 use crate::animation::offset::NodeOffset;
 use crate::prelude::*;
+use crate::theme::color::ThemeConfig;
 
 pub fn overlay(z: i32) -> impl Bundle {
     (
@@ -19,6 +20,37 @@ pub fn blocking_overlay(z: i32) -> impl Bundle {
         Node::DEFAULT.full_size().abs(),
         FocusPolicy::Block,
         GlobalZIndex(z),
+    )
+}
+
+pub fn popup_window(
+    width: Val,
+    height: Val,
+    theme_config: &ThemeConfig,
+    padding_x: Option<Val>,
+    padding_y: Option<Val>,
+) -> impl Bundle {
+    (
+        Node {
+            width,
+            height,
+            padding: UiRect::axes(
+                padding_x.unwrap_or(Vw(5.)),
+                padding_y.unwrap_or(Vh(5.)),
+            ),
+            flex_direction: FlexDirection::Column,
+            border: UiRect::all(Px(1.)),
+            ..Node::DEFAULT
+        },
+        BackgroundColor::from(theme_config.colors[ThemeColor::Popup]),
+        BorderRadius::all(Vw(4.)),
+        BorderColor::from(theme_config.colors[ThemeColor::BorderColor]),
+        BoxShadow::from(ShadowStyle {
+            x_offset: Vw(0.),
+            y_offset: Vh(0.),
+            ..ShadowStyle::default()
+        }),
+        FocusPolicy::Block,
     )
 }
 

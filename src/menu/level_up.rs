@@ -49,23 +49,7 @@ fn spawn_level_up_menu(
         Transform::default(),
         children![(
             Name::new("LevelUpPopup"),
-            Node {
-                width: Vw(50.),
-                height: Vh(90.),
-                padding: UiRect::axes(Vw(5.), Vh(5.)),
-                flex_direction: FlexDirection::Column,
-                border: UiRect::all(Px(1.5)),
-                ..Node::DEFAULT
-            },
-            // BackgroundColor::from(Color::srgba(0.2, 0.2, 0.2, 0.9)),
-            BackgroundColor::from(theme_config.colors[ThemeColor::Popup]),
-            BorderRadius::all(Vw(4.)),
-            BorderColor::from(theme_config.colors[ThemeColor::BorderColor]),
-            BoxShadow::from(ShadowStyle {
-                x_offset: Vw(0.),
-                y_offset: Vh(0.),
-                ..ShadowStyle::default()
-            }),
+            widget::popup_window(Vw(50.), Vh(90.), theme_config, None, None),
             children![
                 widget::label_base(Vw(3.5), ThemeColor::White, "[b]The enemy ship escaped..."),
                 (
