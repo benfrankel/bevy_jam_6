@@ -1,8 +1,34 @@
 use crate::animation::offset::NodeOffset;
+use crate::animation::offset::Offset;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<NodeShake>();
+    app.configure::<(Shake, NodeShake)>();
+}
+
+#[derive(Component, Reflect)]
+#[reflect(Component)]
+#[require(NodeOffset)]
+pub struct Shake {
+    pub magnitude: Vec2,
+    /// The base of an exponent.
+    pub decay: f32,
+}
+
+impl Configure for Shake {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+        app.add_systems(Update, apply_shake);
+    }
+}
+
+impl Default for Shake {
+    fn default() -> Self {
+        Self {
+            magnitude: Vec2::ZERO,
+            decay: 1.0,
+        }
+    }
 }
 
 #[derive(Component, Reflect)]
@@ -17,7 +43,7 @@ pub struct NodeShake {
 impl Configure for NodeShake {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
-        app.add_systems(Update, apply_shake);
+        app.add_systems(Update, apply_node_shake);
     }
 }
 
@@ -30,7 +56,21 @@ impl Default for NodeShake {
     }
 }
 
-fn apply_shake(time: Res<Time>, mut shake_query: Query<(&mut NodeShake, &mut NodeOffset)>) {
+fn apply_shake(time: Res<Time>, mut shake_query: Query<(&mut Shake, &mut Offset)>) {
+    let rng = &mut thread_rng();
+    for (mut shake, mut offset) in &mut shake_query {
+        cq!(shake.magnitude != Vec2::ZERO);
+
+        let point = Rectangle::from_size(shake.magnitude).sample_interior(rng);
+        offset.0.x = point.x;
+        offset.0.y = point.y;
+
+        let decay = shake.decay.powf(time.delta_secs());
+        shake.magnitude *= decay;
+    }
+}
+
+fn apply_node_shake(time: Res<Time>, mut shake_query: Query<(&mut NodeShake, &mut NodeOffset)>) {
     let rng = &mut thread_rng();
     for (mut shake, mut offset) in &mut shake_query {
         cq!(shake.magnitude != Vec2::ZERO);

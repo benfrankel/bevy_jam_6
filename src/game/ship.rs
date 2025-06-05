@@ -1,5 +1,8 @@
+use crate::animation::offset::Offset;
 use crate::animation::oscillate::Oscillate;
+use crate::animation::shake::Shake;
 use crate::core::camera::CameraRoot;
+use crate::game::combat::damage::OnDamage;
 use crate::game::GameLayer;
 use crate::game::combat::death::OnDeath;
 use crate::game::combat::faction::Faction;
@@ -8,6 +11,7 @@ use crate::game::combat::health::IsHealthBar;
 use crate::game::combat::health::health_bar;
 use crate::game::deck::PlayerDeck;
 use crate::game::hud::helm::HandIndex;
+use crate::game::hud::HudConfig;
 use crate::game::level::Level;
 use crate::menu::Menu;
 use crate::prelude::*;
@@ -92,6 +96,8 @@ pub fn enemy_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets, health: f3
         RigidBody::Kinematic,
         Collider::rectangle(167.0, 15.0),
         CollisionLayers::new(GameLayer::Enemy, LayerMask::ALL),
+        Offset::default(),
+        Shake::default(),
         Oscillate::new(
             ship_config.enemy_oscillate_amplitude,
             ship_config.enemy_oscillate_phase,
@@ -109,6 +115,7 @@ pub fn enemy_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets, health: f3
             }
         })),
         Patch(|entity| {
+            entity.observe(apply_shake);
             entity.observe(win_level);
         }),
     )
@@ -121,6 +128,17 @@ fn win_level(_: Trigger<OnDeath>, mut menu: ResMut<NextStateStack<Menu>>, level:
         menu.push(Menu::LevelUp);
     }
     menu.acquire();
+}
+
+fn apply_shake(
+    trigger: Trigger<OnDamage>,
+    mut shake: Single<&mut Shake, With<IsEnemyShip>>,
+    hud_config: ConfigRef<HudConfig>,
+) {
+    let damage = trigger.0;
+    let hud_config = r!(hud_config.get());
+    shake.magnitude += hud_config.enemy_ship_shake_magnitude * damage;
+    shake.decay = hud_config.enemy_ship_shake_decay;
 }
 
 fn weapon() -> impl Bundle {

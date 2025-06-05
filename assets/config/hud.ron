@@ -1,4 +1,6 @@
 (
+    enemy_ship_shake_magnitude: Vec2(2.5, 2.5),
+    enemy_ship_shake_decay: 0.000001,
     flux_shake_magnitude: Vec2(0.2, 0),
     flux_shake_decay: 0.000001,
 )

@@ -30,9 +30,11 @@ pub fn hud(hud_assets: &HudAssets) -> impl Bundle {
 
 #[derive(Asset, Reflect, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields, default)]
-struct HudConfig {
+pub(crate) struct HudConfig {
     flux_shake_magnitude: Vec2,
     flux_shake_decay: f32,
+    pub enemy_ship_shake_magnitude: Vec2,
+    pub enemy_ship_shake_decay: f32,
 }
 
 impl Config for HudConfig {
