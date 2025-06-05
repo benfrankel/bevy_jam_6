@@ -32,12 +32,12 @@ fn phase_display(hud_assets: &HudAssets, phase: &Phase) -> impl Bundle {
         Name::new("PhaseDisplay"),
         ImageNode::from(image),
         Node {
-            top: Vw(2.7083),
-            right: Vw(2.7083),
+            left: Vw(27.2917),
+            bottom: Vw(1.6666),
             width: Vw(8.75),
             aspect_ratio: Some(1.0),
             ..Node::DEFAULT.abs()
         },
-        Tooltip::fixed(Anchor::CenterLeft, parse_rich(description)),
+        Tooltip::fixed(Anchor::TopCenter, parse_rich(description)),
     )
 }
