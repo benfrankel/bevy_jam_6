@@ -1,3 +1,4 @@
+mod credits;
 mod defeat;
 mod intro;
 mod level_up;
@@ -50,6 +51,7 @@ pub enum Menu {
     Settings,
     LevelUp,
     Defeat,
+    Credits,
 }
 
 impl Configure for Menu {
@@ -70,6 +72,7 @@ impl Configure for Menu {
             settings::plugin,
             level_up::plugin,
             defeat::plugin,
+            credits::plugin,
         ));
     }
 }

@@ -44,6 +44,7 @@ fn spawn_main_menu(
                 children![widget::column_of_buttons(children![
                     widget::button("Play", open_intro),
                     widget::button("Settings", open_settings),
+                    widget::button("Credits", open_credits),
                     (
                         widget::button("Quit", quit_to_desktop),
                         #[cfg(feature = "web")]
@@ -64,18 +65,6 @@ fn spawn_main_menu(
             ),
         ],
     ));
-    // .with_child(widget::body(children![
-    //     widget::header("[b]Bevy Jam 6"),
-    //     widget::column_of_buttons(children![
-    //         widget::big_button("Play", open_intro),
-    //         widget::big_button("Settings", open_settings),
-    //         (
-    //             widget::big_button("Quit", quit_to_desktop),
-    //             #[cfg(feature = "web")]
-    //             InteractionDisabled(true),
-    //         ),
-    //     ]),
-    // ]));
 }
 
 fn open_intro(_: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Menu>>) {
@@ -84,6 +73,10 @@ fn open_intro(_: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Menu>>
 
 fn open_settings(_: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Menu>>) {
     menu.push(Menu::Settings);
+}
+
+fn open_credits(_: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Menu>>) {
+    menu.push(Menu::Credits);
 }
 
 fn quit_to_desktop(_: Trigger<Pointer<Click>>, mut app_exit: EventWriter<AppExit>) {
