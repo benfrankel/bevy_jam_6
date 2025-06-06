@@ -172,6 +172,6 @@ fn apply_fade_out_heal(
             commands.entity(entity).despawn();
         }
 
-        sprite.color = Color::srgba(1., 1., 1., sprite.color.alpha() * 0.93);
+        sprite.color = Color::srgba(1., 1., 1., sprite.color.alpha() * 0.92);
     }
 }
