@@ -28,6 +28,7 @@ pub struct PlayerDeck {
     pub storage: Vec<Module>,
     pub hand: Vec<Module>,
     pub selected_idx: usize,
+    pub just_drawn: Option<bool>,
 
     // Reactor:
     pub flux: f32,
@@ -89,6 +90,7 @@ impl PlayerDeck {
         let idx = thread_rng().gen_range(0..self.storage.len());
         let draw = self.storage.swap_remove(idx);
         self.hand.push(draw);
+        self.just_drawn = Some(true);
     }
 
     /// Try to play the currently selected module from hand to reactor,

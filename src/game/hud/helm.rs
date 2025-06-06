@@ -4,6 +4,7 @@ use crate::animation::offset::NodeOffset;
 use crate::animation::shake::NodeShake;
 use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudAssets;
+use crate::game::hud::HudConfig;
 use crate::game::hud::module::module;
 use crate::game::phase::player::PlayerActions;
 use crate::prelude::*;
@@ -11,6 +12,10 @@ use crate::screen::gameplay::GameplayAction;
 
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(IsHand, HandIndex, IsStorage, IsStorageLabel)>();
+    app.add_systems(
+        Update,
+        apply_shake_storage_on_draw.run_if(resource_changed::<PlayerDeck>),
+    );
 }
 
 pub fn helm(hud_assets: &HudAssets) -> impl Bundle {
@@ -163,6 +168,8 @@ fn storage(hud_assets: &HudAssets) -> impl Bundle {
         },
         Tooltip::fixed(Anchor::TopCenter, ""),
         IsStorage,
+        NodeOffset::default(),
+        NodeShake::default(),
         children![(
             widget::small_colored_label("", ThemeColor::IconText),
             IsStorageLabel,
@@ -332,4 +339,17 @@ fn sync_storage_label(
     for mut text in &mut storage_label_query {
         *text = RichText::from_sections(parse_rich(player_deck.storage.len().to_string()));
     }
+}
+
+fn apply_shake_storage_on_draw(
+    mut player_deck: ResMut<PlayerDeck>,
+    hud_config: ConfigRef<HudConfig>,
+    mut shake: Single<&mut NodeShake, With<IsStorage>>,
+) {
+    let hud_config = r!(hud_config.get());
+    if let Some(_) = player_deck.just_drawn {
+        player_deck.just_drawn = None;
+        shake.magnitude = hud_config.module_shake_magnitude;
+        shake.decay = hud_config.module_shake_decay;
+    };
 }
