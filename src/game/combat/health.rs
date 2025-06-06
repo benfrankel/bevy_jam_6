@@ -20,6 +20,10 @@ pub fn health_bar() -> impl Bundle {
 #[serde(deny_unknown_fields, default)]
 struct HealthConfig {
     health_bar_color_ramp: Vec<Color>,
+    heal_popup_offset: Vec2,
+    heal_popup_offset_spread: Vec2,
+    heal_popup_velocity: Vec2,
+    heal_popup_fade_rate: f32,
 }
 
 impl Config for HealthConfig {
@@ -153,28 +157,45 @@ impl Configure for IsHealPopup {
 fn spawn_heal_popup_on_heal(
     trigger: Trigger<OnHeal>,
     mut commands: Commands,
+    health_config: ConfigRef<HealthConfig>,
     health_assets: Res<HealthAssets>,
     transform_query: Query<&Transform>,
 ) {
     let target = r!(trigger.get_target());
+    let health_config = r!(health_config.get());
+
+    // Randomize position.
+    let rng = &mut thread_rng();
     let mut transform = *r!(transform_query.get(target));
-    transform.translation += vec3(0.0, 30.0, -1.0);
+    transform.translation += (health_config.heal_popup_offset
+        + health_config.heal_popup_offset_spread * rng.gen_range(-1.0..=1.0))
+    .extend(0.0);
+
+    // Randomize orientation.
+    let mut sprite = Sprite::from_image(health_assets.heal_popup.clone());
+    sprite.flip_x = rng.r#gen();
+    sprite.flip_y = rng.r#gen();
 
     commands.spawn((
         IsHealPopup,
         Sprite::from_image(health_assets.heal_popup.clone()),
         transform,
-        RigidBody::Dynamic,
-        LinearVelocity(vec2(0.0, 10.0)),
+        RigidBody::Kinematic,
+        LinearVelocity(health_config.heal_popup_velocity),
     ));
 }
 
 fn apply_fade_out_to_heal_popup(
     mut commands: Commands,
+    time: Res<Time>,
+    health_config: ConfigRef<HealthConfig>,
     heal_popup_query: Query<(Entity, &mut Sprite), With<IsHealPopup>>,
 ) {
+    let health_config = r!(health_config.get());
     for (entity, mut sprite) in heal_popup_query {
-        sprite.color = Color::WHITE.with_alpha(sprite.color.alpha() * 0.92);
+        let alpha = sprite.color.alpha() - health_config.heal_popup_fade_rate * time.delta_secs();
+        sprite.color = Color::WHITE.with_alpha(alpha);
+
         if sprite.color.alpha() < f32::EPSILON {
             commands.entity(entity).try_despawn();
         }
