@@ -26,11 +26,8 @@ pub fn flux_display() -> impl Bundle {
             ),
         ),
         children![(
-            Name::new("Label"),
             IsFluxLabel,
-            RichText::from_sections(parse_rich("a[b]c")).with_justify(JustifyText::Center),
-            DynamicFontSize::new(Vw(3.5)).with_step(8.0),
-            ThemeColorForText(vec![default(), default()]),
+            widget::colored_label("", default()),
             NodeShake::default(),
         )],
     )
@@ -55,18 +52,16 @@ impl Configure for IsFluxLabel {
 
 fn sync_flux_display_to_phase(
     phase: NextRef<Phase>,
-    mut label_query: Query<(&ChildOf, &mut ThemeColorForText), With<IsFluxLabel>>,
+    mut label_query: Query<&ChildOf, With<IsFluxLabel>>,
     mut border_query: Query<&mut ThemeColorFor<BorderColor>>,
 ) {
-    for (child_of, mut text_color) in &mut label_query {
+    for child_of in &mut label_query {
         let mut border_color = cq!(border_query.get_mut(child_of.parent()));
-        let color = if phase.will_be_in(&Phase::Reactor) {
+        border_color.0 = if phase.will_be_in(&Phase::Reactor) {
             ThemeColor::MonitorText
         } else {
             ThemeColor::MonitorDimText
         };
-        text_color.0[0] = color;
-        border_color.0 = color;
     }
 }
 
@@ -80,18 +75,14 @@ fn sync_flux_label(
 ) {
     let hud_config = r!(hud_config.get());
     for (mut text, mut text_color, mut shake) in &mut label_query {
-        text_color.0[1] = if player_deck.flux > f32::EPSILON {
-            ThemeColor::MonitorText
+        text_color.0 = if player_deck.flux > f32::EPSILON {
+            vec![ThemeColor::MonitorText]
         } else {
-            ThemeColor::MonitorDimText
+            vec![ThemeColor::MonitorDimText]
         };
 
-        let new_text = RichText::from_sections(
-            parse_rich("flux ")
-                .into_iter()
-                .chain(parse_rich(format!("{}x", player_deck.flux))),
-        );
-        if !text.sections.is_empty() && text.sections[1].value != new_text.sections[1].value {
+        let new_text = RichText::from_sections(parse_rich(format!("flux {}x", player_deck.flux)));
+        if !text.sections.is_empty() && text.sections[0].value != new_text.sections[0].value {
             shake.magnitude += hud_config.flux_shake_magnitude * player_deck.flux.max(3.0);
             shake.decay = hud_config.flux_shake_decay;
         }
