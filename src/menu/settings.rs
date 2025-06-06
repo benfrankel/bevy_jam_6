@@ -18,18 +18,13 @@ pub(super) fn plugin(app: &mut App) {
 }
 
 fn spawn_settings_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
-    commands.entity(menu_root.ui).with_child((
-        widget::overlay(),
+    commands.entity(menu_root.ui).with_child(widget::popup(
+        Vw(90.0),
+        Vh(90.0),
         children![
-            Name::new("SettingsPopup"),
-            (
-                widget::popup_window(Vw(90.), Vh(90.), None, None),
-                children![
-                    widget::header("[b]Settings"),
-                    grid(),
-                    widget::row_of_buttons(children![widget::wide_button("Back", go_back)]),
-                ],
-            ),
+            widget::header("[b]Settings"),
+            grid(),
+            widget::row_of_buttons(children![widget::wide_button("Back", go_back)]),
         ],
     ));
 }

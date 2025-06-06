@@ -1,6 +1,6 @@
-# Bevy Jam 6
+# Flux Pursuit
 
-This game was made in 9 days for [Bevy Jam 6](https://itch.io/jam/bevy-jam-6). [Try it online!](https://pyrious.itch.io/bevy-jam-6)
+This game was made in 9 days for [Bevy Jam 6](https://itch.io/jam/bevy-jam-6). [Try it online!](https://pyrious.itch.io/flux-pursuit)
 
 ## License
 

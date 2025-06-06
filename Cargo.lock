@@ -1048,34 +1048,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bevy_jam_6"
-version = "0.1.0"
-dependencies = [
- "avian2d",
- "bevy",
- "bevy_asset_loader",
- "bevy_common_assets",
- "bevy_editor_pls",
- "bevy_mod_debugdump",
- "bevy_simple_prefs",
- "bevy_state",
- "dirs",
- "getrandom 0.3.3",
- "iyes_progress",
- "lazy-regex",
- "leafwing-input-manager",
- "log",
- "pyri_state",
- "pyri_tooltip",
- "rand",
- "ron 0.10.1",
- "serde",
- "tiny_bail",
- "tracing",
- "variadics_please",
-]
-
-[[package]]
 name = "bevy_log"
 version = "0.16.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2707,6 +2679,34 @@ checksum = "7ced92e76e966ca2fd84c8f7aa01a4aea65b0eb6648d72f7c8f3e2764a67fece"
 dependencies = [
  "crc32fast",
  "miniz_oxide",
+]
+
+[[package]]
+name = "flux_pursuit"
+version = "0.1.0"
+dependencies = [
+ "avian2d",
+ "bevy",
+ "bevy_asset_loader",
+ "bevy_common_assets",
+ "bevy_editor_pls",
+ "bevy_mod_debugdump",
+ "bevy_simple_prefs",
+ "bevy_state",
+ "dirs",
+ "getrandom 0.3.3",
+ "iyes_progress",
+ "lazy-regex",
+ "leafwing-input-manager",
+ "log",
+ "pyri_state",
+ "pyri_tooltip",
+ "rand",
+ "ron 0.10.1",
+ "serde",
+ "tiny_bail",
+ "tracing",
+ "variadics_please",
 ]
 
 [[package]]

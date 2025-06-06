@@ -10,7 +10,7 @@ pub(super) fn plugin(app: &mut App) {
     app.add_plugins(WindowPlugin {
         primary_window: Some(Window {
             name: Some("bevy_app".to_string()),
-            title: "Bevy Jam 6".to_string(),
+            title: "Flux Pursuit".to_string(),
             mode: WindowMode::Windowed,
             present_mode: PresentMode::AutoVsync,
             resolution: WindowResolution::new(960.0, 540.0).with_scale_factor_override(1.0),

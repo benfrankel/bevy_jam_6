@@ -9,49 +9,50 @@ pub(super) fn plugin(app: &mut App) {
 fn spawn_main_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
     commands.entity(menu_root.ui).with_child((
         Name::new("MainMenuContainer"),
-        Node::DEFAULT.full_size(),
-        children![
-            (
-                Name::new("ButtonsContainer"),
-                Node {
-                    width: Vw(1. / 3. * 100.),
-                    justify_content: JustifyContent::Center,
-                    border: UiRect::right(Px(1.5)),
-                    ..default()
-                },
-                ThemeColor::Popup.set::<BackgroundColor>(),
-                ThemeColor::BorderColor.set::<BorderColor>(),
-                BoxShadow::from(ShadowStyle {
-                    color: Color::BLACK.with_alpha(0.882),
-                    x_offset: Val::ZERO,
-                    y_offset: Val::ZERO,
-                    spread_radius: Vw(2.0),
-                    blur_radius: Vw(4.0),
-                }),
-                children![widget::column_of_buttons(children![
-                    widget::button("Play", open_intro),
-                    widget::button("Settings", open_settings),
-                    widget::button("Credits", open_credits),
-                    (
-                        widget::button("Quit", quit_to_desktop),
-                        #[cfg(feature = "web")]
-                        InteractionDisabled(true),
-                    ),
-                ]),]
-            ),
-            (
-                Name::new("TitleContainer"),
-                Node {
-                    width: Vw(2. / 3. * 100.),
-                    justify_content: JustifyContent::Center,
-                    padding: UiRect::top(Vh(15.)),
-                    ..default()
-                },
-                ThemeColor::Overlay.set::<BackgroundColor>(),
-                children![widget::header("[b]Bevy Jam 6"),],
-            ),
-        ],
+        Node::ROW.full_size(),
+        children![side_panel(), title()],
     ));
+}
+
+fn side_panel() -> impl Bundle {
+    (
+        Name::new("SidePanel"),
+        Node {
+            padding: UiRect::all(Vw(2.0)),
+            border: UiRect::right(Px(1.0)),
+            ..Node::COLUMN_CENTER
+        },
+        ThemeColor::Popup.set::<BackgroundColor>(),
+        ThemeColor::BorderColor.set::<BorderColor>(),
+        BoxShadow::from(ShadowStyle {
+            color: Color::BLACK.with_alpha(0.882),
+            x_offset: Val::ZERO,
+            y_offset: Val::ZERO,
+            spread_radius: Vw(9.0),
+            blur_radius: Vw(2.0),
+        }),
+        children![widget::column_of_buttons(children![
+            widget::button("Play", open_intro),
+            widget::button("Settings", open_settings),
+            widget::button("Credits", open_credits),
+            (
+                widget::button("Quit", quit_to_desktop),
+                #[cfg(feature = "web")]
+                InteractionDisabled(true),
+            ),
+        ])],
+    )
+}
+
+fn title() -> impl Bundle {
+    (
+        Name::new("Title"),
+        Node {
+            padding: UiRect::top(Vw(6.0)),
+            ..Node::COLUMN_MID.full_size()
+        },
+        children![widget::header("[b]Flux Pursuit")],
+    )
 }
 
 fn open_intro(_: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Menu>>) {

@@ -1,5 +1,5 @@
 [package]
-name = "bevy_jam_6"
+name = "flux_pursuit"
 version = "0.1.0"
 edition = "2024"
 # TODO: Workaround for <https://github.com/DioxusLabs/dioxus/issues/4160>.

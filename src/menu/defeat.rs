@@ -9,22 +9,19 @@ pub(super) fn plugin(app: &mut App) {
 }
 
 fn spawn_defeat_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
-    commands.entity(menu_root.ui).with_child((
-        Name::new("DefeatPopup"),
-        widget::overlay(),
-        children![(
-            widget::popup_window(Vw(50.), Vh(90.), None, None),
-            children![
-                widget::big_label("Defeat"),
-                (
-                    Node::COLUMN_CENTER.grow(),
-                    children![widget::column_of_buttons(children![
-                        widget::wide_button("Try again", restart_game),
-                        widget::wide_button("Main menu", quit_to_title),
-                    ])],
-                )
-            ],
-        )],
+    commands.entity(menu_root.ui).with_child(widget::popup(
+        Vw(50.0),
+        Vh(90.0),
+        children![
+            widget::big_label("Defeat"),
+            (
+                Node::COLUMN_CENTER.grow(),
+                children![widget::column_of_buttons(children![
+                    widget::wide_button("Try again", restart_game),
+                    widget::wide_button("Main menu", quit_to_title),
+                ])],
+            )
+        ],
     ));
 }
 

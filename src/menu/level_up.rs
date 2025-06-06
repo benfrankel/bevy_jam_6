@@ -39,42 +39,39 @@ fn spawn_level_up_menu(
     let level_config = r!(level_config.get());
     let level_setup = r!(level_config.levels.get(level));
 
-    commands.entity(menu_root.ui).with_child((
-        widget::overlay(),
-        children![(
-            Name::new("LevelUpPopup"),
-            widget::popup_window(Vw(50.0), Vh(90.0), None, None),
-            children![
-                widget::header("[b]They got away!"),
-                (
-                    Node {
-                        margin: UiRect::vertical(Vh(3.5)),
-                        ..Node::DEFAULT
-                    },
-                    widget::small_label(format!(
-                        "Reactor upgrade: +{} slots",
-                        level_setup.reward_reactor_slots,
-                    )),
-                ),
-                (
-                    Node {
-                        margin: UiRect::vertical(Vh(3.5)),
-                        ..Node::DEFAULT
-                    },
-                    widget::small_label(format!(
-                        "Ship upgrade: +{} hull",
-                        level_setup.reward_max_health,
-                    )),
-                ),
-                (
-                    Node::COLUMN_CENTER.grow(),
-                    children![widget::row_of_buttons(children![widget::button(
-                        "Next star",
-                        enter_next_level,
-                    )])]
-                ),
-            ],
-        )],
+    commands.entity(menu_root.ui).with_child(widget::popup(
+        Vw(50.0),
+        Vh(90.0),
+        children![
+            widget::header("[b]They got away!"),
+            (
+                Node {
+                    margin: UiRect::vertical(Vh(3.5)),
+                    ..Node::DEFAULT
+                },
+                widget::small_label(format!(
+                    "Reactor upgrade: +{} slots",
+                    level_setup.reward_reactor_slots,
+                )),
+            ),
+            (
+                Node {
+                    margin: UiRect::vertical(Vh(3.5)),
+                    ..Node::DEFAULT
+                },
+                widget::small_label(format!(
+                    "Ship upgrade: +{} hull",
+                    level_setup.reward_max_health,
+                )),
+            ),
+            (
+                Node::COLUMN_CENTER.grow(),
+                children![widget::row_of_buttons(children![widget::button(
+                    "Next star",
+                    enter_next_level,
+                )])]
+            ),
+        ],
     ));
 }
 

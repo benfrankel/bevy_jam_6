@@ -10,9 +10,17 @@ pub(super) fn plugin(app: &mut App) {
                 padding: UiRect::all(Vw(1.0)),
                 ..default()
             },
-            BackgroundColor(Color::srgba(0.106, 0.118, 0.122, 0.9)),
+            BackgroundColor(Color::srgba(0.106, 0.118, 0.122, 0.5)),
+            BoxShadow(vec![ShadowStyle {
+                color: Color::BLACK.with_alpha(0.5),
+                x_offset: Val::ZERO,
+                y_offset: Val::ZERO,
+                spread_radius: Vw(0.5),
+                blur_radius: Vw(0.5),
+            }]),
             Visibility::Hidden,
             GlobalZIndex(999),
+            Pickable::IGNORE,
         ))
         .id();
 
@@ -23,6 +31,7 @@ pub(super) fn plugin(app: &mut App) {
             Node::default(),
             RichText::default(),
             DynamicFontSize::new(Vw(2.0)).with_step(8.0),
+            Pickable::IGNORE,
             ChildOf(container),
         ))
         .id();

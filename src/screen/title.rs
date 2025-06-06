@@ -23,21 +23,22 @@ fn spawn_title_screen(
     audio_settings: Res<AudioSettings>,
     title_assets: Res<TitleAssets>,
 ) {
+    commands.spawn(background(&title_assets));
     commands.spawn((
+        music_audio(&audio_settings, title_assets.music.clone()),
+        DespawnOnExitState::<Screen>::Recursive,
+    ));
+}
+
+fn background(title_assets: &TitleAssets) -> impl Bundle {
+    (
         Name::new("Background"),
         ImageNode::from(title_assets.background.clone()),
         Node::DEFAULT.full_size().abs(),
         GlobalZIndex(-2),
         DespawnOnExitState::<Screen>::Recursive,
-    ));
-    commands.spawn((
-        widget::rainbow_overlay(-1),
-        DespawnOnExitState::<Screen>::Recursive,
-    ));
-    commands.spawn((
-        music_audio(&audio_settings, title_assets.music.clone()),
-        DespawnOnExitState::<Screen>::Recursive,
-    ));
+        children![widget::rainbow_overlay(), widget::dimming_overlay()],
+    )
 }
 
 #[derive(AssetCollection, Resource, Reflect, Default)]

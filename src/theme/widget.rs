@@ -23,36 +23,31 @@ pub fn blocking_overlay(z: i32) -> impl Bundle {
     )
 }
 
-pub fn overlay() -> impl Bundle {
+pub fn dimming_overlay() -> impl Bundle {
     (
+        Name::new("DimmingOverlay"),
         Node::ROW_CENTER.full_size(),
         ThemeColor::Overlay.set::<BackgroundColor>(),
         FocusPolicy::Block,
     )
 }
 
-pub fn rainbow_overlay(z: i32) -> impl Bundle {
+pub fn rainbow_overlay() -> impl Bundle {
     (
         Name::new("RainbowOverlay"),
         Node::DEFAULT.full_size().abs(),
         Pickable::IGNORE,
-        GlobalZIndex(z),
         ThemeColor::RainbowOverlay.set::<BackgroundColor>(),
         Rainbow { rate: 0.1 },
     )
 }
 
-pub fn popup_window(
-    width: Val,
-    height: Val,
-    padding_x: Option<Val>,
-    padding_y: Option<Val>,
-) -> impl Bundle {
-    (
+pub fn popup(width: Val, height: Val, children: impl Bundle) -> impl Bundle {
+    center(children![(
         Node {
             width,
             height,
-            padding: UiRect::axes(padding_x.unwrap_or(Vw(5.0)), padding_y.unwrap_or(Vh(5.0))),
+            padding: UiRect::all(Vw(4.0)),
             border: UiRect::all(Px(1.0)),
             ..Node::COLUMN
         },
@@ -65,7 +60,8 @@ pub fn popup_window(
             ..default()
         }),
         FocusPolicy::Block,
-    )
+        children,
+    )])
 }
 
 pub fn body(children: impl Bundle) -> impl Bundle {
@@ -80,9 +76,9 @@ pub fn body(children: impl Bundle) -> impl Bundle {
     )
 }
 
-pub fn column_center(children: impl Bundle) -> impl Bundle {
+pub fn center(children: impl Bundle) -> impl Bundle {
     (
-        Name::new("ColumnCenter"),
+        Name::new("Center"),
         Node::COLUMN_CENTER.full_size(),
         children,
     )
@@ -225,7 +221,7 @@ where
             height,
             ..Node::ROW_CENTER
         },
-        BorderRadius::MAX,
+        BorderRadius::all(Px(8.0)),
         ThemeColor::default().set::<BackgroundColor>(),
         InteractionTheme {
             none: ThemeColor::Primary.set::<BackgroundColor>(),
