@@ -1,7 +1,6 @@
 mod flux;
 pub mod helm;
 mod module;
-mod phase;
 mod reactor;
 
 use crate::game::GameAssets;
@@ -12,13 +11,7 @@ use crate::prelude::*;
 pub(super) fn plugin(app: &mut App) {
     app.configure::<ConfigHandle<HudConfig>>();
 
-    app.add_plugins((
-        flux::plugin,
-        helm::plugin,
-        module::plugin,
-        phase::plugin,
-        reactor::plugin,
-    ));
+    app.add_plugins((flux::plugin, helm::plugin, module::plugin, reactor::plugin));
 }
 
 pub fn hud(game_assets: &GameAssets) -> impl Bundle {

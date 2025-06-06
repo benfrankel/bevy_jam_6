@@ -6,12 +6,13 @@ use crate::game::GameAssets;
 use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudConfig;
 use crate::game::hud::module::module;
+use crate::game::phase::Phase;
 use crate::game::phase::player::PlayerActions;
 use crate::prelude::*;
 use crate::screen::gameplay::GameplayAction;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<(IsHand, HandIndex, IsStorage, IsStorageLabel)>();
+    app.configure::<(IsPhaseDisplay, IsHand, HandIndex, IsStorage, IsStorageLabel)>();
     app.add_systems(
         Update,
         apply_shake_storage_on_draw.run_if(resource_changed::<PlayerDeck>),
@@ -34,10 +35,25 @@ fn left_helm() -> impl Bundle {
     (
         Name::new("LeftHelm"),
         Node {
-            width: Vw(12.083),
-            padding: UiRect::all(Vw(1.69)),
-            ..Node::COLUMN_CENTER.full_height()
+            left: Vw(-0.2083),
+            width: Vw(12.0833),
+            ..Node::ROW_CENTER.full_height()
         },
+        children![phase_display()],
+    )
+}
+
+fn phase_display() -> impl Bundle {
+    (
+        Name::new("PhaseDisplay"),
+        IsPhaseDisplay,
+        ImageNode::default(),
+        Node {
+            width: Vw(9.1666),
+            aspect_ratio: Some(1.0),
+            ..Node::DEFAULT
+        },
+        Tooltip::fixed(Anchor::TopCenter, ""),
     )
 }
 
@@ -49,12 +65,32 @@ fn right_helm(game_assets: &GameAssets) -> impl Bundle {
     (
         Name::new("RightHelm"),
         Node {
-            width: Vw(12.083),
+            width: Vw(12.0833),
             padding: UiRect::top(Vw(1.0416)).with_bottom(Vw(1.4583)),
             row_gap: Vw(0.41666),
             ..Node::COLUMN_CENTER.full_height()
         },
         children![storage(game_assets), mini_buttons(game_assets)],
+    )
+}
+
+fn storage(game_assets: &GameAssets) -> impl Bundle {
+    (
+        Name::new("Storage"),
+        ImageNode::from(game_assets.module_face_down.clone()),
+        Node {
+            width: Vw(6.6666),
+            aspect_ratio: Some(1.0),
+            ..Node::ROW_CENTER
+        },
+        Tooltip::fixed(Anchor::TopCenter, ""),
+        IsStorage,
+        NodeOffset::default(),
+        NodeShake::default(),
+        children![(
+            widget::small_colored_label("", ThemeColor::IconText),
+            IsStorageLabel,
+        )],
     )
 }
 
@@ -157,24 +193,39 @@ where
     )
 }
 
-fn storage(game_assets: &GameAssets) -> impl Bundle {
-    (
-        Name::new("Storage"),
-        ImageNode::from(game_assets.module_face_down.clone()),
-        Node {
-            width: Vw(6.6666),
-            aspect_ratio: Some(1.0),
-            ..Node::ROW_CENTER
-        },
-        Tooltip::fixed(Anchor::TopCenter, ""),
-        IsStorage,
-        NodeOffset::default(),
-        NodeShake::default(),
-        children![(
-            widget::small_colored_label("", ThemeColor::IconText),
-            IsStorageLabel,
-        )],
-    )
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
+struct IsPhaseDisplay;
+
+impl Configure for IsPhaseDisplay {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+        app.add_systems(StateFlush, Phase::ANY.on_enter(sync_phase_display));
+    }
+}
+
+fn sync_phase_display(
+    phase: NextRef<Phase>,
+    game_assets: Res<GameAssets>,
+    mut phase_display_query: Query<(&mut ImageNode, &mut Tooltip), With<IsPhaseDisplay>>,
+) {
+    let phase = r!(phase.get());
+    for (mut image_node, mut tooltip) in &mut phase_display_query {
+        image_node.image = match phase {
+            Phase::Setup => &game_assets.phase_setup,
+            Phase::Player => &game_assets.phase_player,
+            Phase::Reactor => &game_assets.phase_reactor,
+            Phase::Enemy => &game_assets.phase_enemy,
+        }
+        .clone();
+        tooltip.content =
+            TooltipContent::Primary(RichText::from_sections(parse_rich(match phase {
+                Phase::Setup => "[b]Setup phase[r]\n\nPreparing the ship.",
+                Phase::Player => "[b]Player phase[r]\n\nAwaiting your command.",
+                Phase::Reactor => "[b]Reactor phase[r]\n\nDirecting power to the reactor.",
+                Phase::Enemy => "[b]Enemy phase[r]\n\nSustaining the enemy's barrage.",
+            })));
+    }
 }
 
 #[derive(Component, Reflect, Debug)]
