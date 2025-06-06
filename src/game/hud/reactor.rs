@@ -1,6 +1,7 @@
 use crate::animation::shake::NodeShake;
 use crate::game::deck::PlayerDeck;
-use crate::game::hud::{HudAssets, HudConfig};
+use crate::game::hud::HudAssets;
+use crate::game::hud::HudConfig;
 use crate::game::hud::flux::flux_display;
 use crate::game::hud::module::module;
 use crate::prelude::*;

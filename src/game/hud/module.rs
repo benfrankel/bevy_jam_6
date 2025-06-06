@@ -1,6 +1,6 @@
 use crate::animation::offset::NodeOffset;
 use crate::animation::shake::NodeShake;
-use crate::game::hud::{HudAssets, HudConfig};
+use crate::game::hud::HudAssets;
 use crate::game::module::Module;
 use crate::game::module::ModuleAction;
 use crate::game::module::ModuleStatus;
