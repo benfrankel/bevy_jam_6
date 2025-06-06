@@ -2,8 +2,8 @@ use bevy::ecs::system::IntoObserverSystem;
 
 use crate::animation::offset::NodeOffset;
 use crate::animation::shake::NodeShake;
+use crate::game::GameAssets;
 use crate::game::deck::PlayerDeck;
-use crate::game::hud::HudAssets;
 use crate::game::hud::HudConfig;
 use crate::game::hud::module::module;
 use crate::game::phase::player::PlayerActions;
@@ -18,15 +18,15 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
-pub fn helm(hud_assets: &HudAssets) -> impl Bundle {
+pub fn helm(game_assets: &GameAssets) -> impl Bundle {
     (
         Name::new("Helm"),
-        ImageNode::from(hud_assets.helm.clone()),
+        ImageNode::from(game_assets.helm.clone()),
         Node {
             aspect_ratio: Some(356.0 / 58.0),
             ..Node::ROW.full_width()
         },
-        children![left_helm(), hand(), right_helm(hud_assets)],
+        children![left_helm(), hand(), right_helm(game_assets)],
     )
 }
 
@@ -45,7 +45,7 @@ fn hand() -> impl Bundle {
     (Name::new("Hand"), Node::ROW_CENTER.grow(), IsHand)
 }
 
-fn right_helm(hud_assets: &HudAssets) -> impl Bundle {
+fn right_helm(game_assets: &GameAssets) -> impl Bundle {
     (
         Name::new("RightHelm"),
         Node {
@@ -54,11 +54,11 @@ fn right_helm(hud_assets: &HudAssets) -> impl Bundle {
             row_gap: Vw(0.41666),
             ..Node::COLUMN_CENTER.full_height()
         },
-        children![storage(hud_assets), mini_buttons(hud_assets)],
+        children![storage(game_assets), mini_buttons(game_assets)],
     )
 }
 
-fn mini_buttons(hud_assets: &HudAssets) -> impl Bundle {
+fn mini_buttons(game_assets: &GameAssets) -> impl Bundle {
     (
         Name::new("MiniButtons"),
         Node {
@@ -66,40 +66,40 @@ fn mini_buttons(hud_assets: &HudAssets) -> impl Bundle {
             ..Node::ROW
         },
         children![
-            info_button(hud_assets),
-            pause_button(hud_assets),
-            skip_button(hud_assets),
+            info_button(game_assets),
+            pause_button(game_assets),
+            skip_button(game_assets),
         ],
     )
 }
 
-fn info_button(hud_assets: &HudAssets) -> impl Bundle {
+fn info_button(game_assets: &GameAssets) -> impl Bundle {
     (
         Name::new("InfoButton"),
         mini_button_base(
-            hud_assets.info_button.clone(),
+            game_assets.info_button.clone(),
             "[b]Info mode (I)[r]\n\nToggle informational tooltips.",
             toggle_tooltips,
         ),
     )
 }
 
-fn pause_button(hud_assets: &HudAssets) -> impl Bundle {
+fn pause_button(game_assets: &GameAssets) -> impl Bundle {
     (
         Name::new("PauseButton"),
         mini_button_base(
-            hud_assets.pause_button.clone(),
+            game_assets.pause_button.clone(),
             "[b]Pause (P)[r]\n\nOpen the pause menu.",
             open_pause_menu,
         ),
     )
 }
 
-fn skip_button(hud_assets: &HudAssets) -> impl Bundle {
+fn skip_button(game_assets: &GameAssets) -> impl Bundle {
     (
         Name::new("SkipButton"),
         mini_button_base(
-            hud_assets.skip_button.clone(),
+            game_assets.skip_button.clone(),
             "[b]End turn (E)[r]\n\nEnd your turn without playing a module from your hand.",
             player_end_turn,
         ),
@@ -157,10 +157,10 @@ where
     )
 }
 
-fn storage(hud_assets: &HudAssets) -> impl Bundle {
+fn storage(game_assets: &GameAssets) -> impl Bundle {
     (
         Name::new("Storage"),
-        ImageNode::from(hud_assets.module_face_down.clone()),
+        ImageNode::from(game_assets.module_face_down.clone()),
         Node {
             width: Vw(6.6666),
             aspect_ratio: Some(1.0),
@@ -195,7 +195,7 @@ impl Configure for IsHand {
 
 fn sync_hand(
     mut commands: Commands,
-    hud_assets: Res<HudAssets>,
+    game_assets: Res<GameAssets>,
     player_deck: Res<PlayerDeck>,
     hand: Single<Entity, With<IsHand>>,
 ) {
@@ -215,7 +215,7 @@ fn sync_hand(
                     HandIndex(i),
                     children![(
                         module(
-                            &hud_assets,
+                            &game_assets,
                             item,
                             player_deck.heat_capacity,
                             NodeShake::default()

@@ -1,10 +1,7 @@
 use crate::core::audio::AudioSettings;
 use crate::core::audio::music_audio;
-use crate::game::hud::HudAssets;
+use crate::game::GameAssets;
 use crate::game::level::Level;
-use crate::game::level::LevelAssets;
-use crate::game::projectile::ProjectileAssets;
-use crate::game::ship::ShipAssets;
 use crate::menu::Menu;
 use crate::prelude::*;
 use crate::screen::Screen;
@@ -18,41 +15,18 @@ pub(super) fn plugin(app: &mut App) {
         ),
     );
 
-    app.configure::<(GameplayAssets, GameplayAction)>();
+    app.configure::<GameplayAction>();
 }
 
 fn spawn_gameplay_screen(
     mut commands: Commands,
     audio_settings: Res<AudioSettings>,
-    assets: Res<GameplayAssets>,
+    game_assets: Res<GameAssets>,
 ) {
     commands.spawn((
-        music_audio(&audio_settings, assets.music.clone()),
+        music_audio(&audio_settings, game_assets.music.clone()),
         DespawnOnExitState::<Screen>::Recursive,
     ));
-}
-
-pub fn load_collections(state: LoadingState<BevyState<Screen>>) -> LoadingState<BevyState<Screen>> {
-    state
-        .load_collection::<GameplayAssets>()
-        .load_collection::<HudAssets>()
-        .load_collection::<LevelAssets>()
-        .load_collection::<ProjectileAssets>()
-        .load_collection::<ShipAssets>()
-}
-
-#[derive(AssetCollection, Resource, Reflect, Default)]
-#[reflect(Resource)]
-struct GameplayAssets {
-    #[asset(path = "audio/music/545458__bertsz__bit-forest-evil-theme-music.ogg")]
-    music: Handle<AudioSource>,
-}
-
-impl Configure for GameplayAssets {
-    fn configure(app: &mut App) {
-        app.register_type::<Self>();
-        app.init_collection::<Self>();
-    }
 }
 
 #[derive(Actionlike, Reflect, Copy, Clone, Eq, PartialEq, Hash, Debug)]

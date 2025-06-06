@@ -1,9 +1,9 @@
 use core::f32;
 
+use crate::game::GameAssets;
 use crate::game::GameLayer;
 use crate::game::combat::damage::Damage;
 use crate::game::combat::faction::Faction;
-use crate::game::projectile::ProjectileAssets;
 use crate::game::projectile::ProjectileConfig;
 use crate::game::ship::IsEnemyShip;
 use crate::game::ship::IsPlayerShip;
@@ -16,7 +16,7 @@ pub(super) fn plugin(app: &mut App) {
 pub fn missile(
     mut rng: impl Rng,
     projectile_config: &ProjectileConfig,
-    projectile_assets: &ProjectileAssets,
+    game_assets: &GameAssets,
     faction: Faction,
     flux: f32,
     mut transform: Transform,
@@ -44,7 +44,7 @@ pub fn missile(
     (
         Name::new("Missile"),
         IsMissile,
-        Sprite::from_image(projectile_assets.missile_image.clone()),
+        Sprite::from_image(game_assets.missile.clone()),
         Damage(projectile_config.missile_damage * flux),
         faction,
         RigidBody::Dynamic,

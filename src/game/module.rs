@@ -1,11 +1,11 @@
 use crate::core::audio::AudioSettings;
 use crate::core::audio::sfx_audio;
+use crate::game::GameAssets;
 use crate::game::combat::faction::Faction;
 use crate::game::combat::health::OnHeal;
 use crate::game::deck::EnemyDeck;
 use crate::game::deck::PlayerDeck;
 use crate::game::level::Level;
-use crate::game::projectile::ProjectileAssets;
 use crate::game::projectile::ProjectileConfig;
 use crate::game::projectile::fireball::fireball;
 use crate::game::projectile::laser::laser;
@@ -117,7 +117,7 @@ fn on_module_action(
     player_deck: Res<PlayerDeck>,
     enemy_deck: Res<EnemyDeck>,
     projectile_config: ConfigRef<ProjectileConfig>,
-    projectile_assets: Res<ProjectileAssets>,
+    game_assets: Res<GameAssets>,
     audio_settings: Res<AudioSettings>,
     ship_query: Query<(&Children, &Faction)>,
     children_query: Query<&Children>,
@@ -152,7 +152,7 @@ fn on_module_action(
                 missile(
                     rng,
                     projectile_config,
-                    &projectile_assets,
+                    &game_assets,
                     faction,
                     flux,
                     weapon_transform,
@@ -166,7 +166,7 @@ fn on_module_action(
                 laser(
                     rng,
                     projectile_config,
-                    &projectile_assets,
+                    &game_assets,
                     faction,
                     flux,
                     weapon_transform,
@@ -174,7 +174,7 @@ fn on_module_action(
                 DespawnOnExitState::<Level>::default(),
             ));
             commands.spawn((
-                sfx_audio(&audio_settings, projectile_assets.laser_spawn_sfx.clone()),
+                sfx_audio(&audio_settings, game_assets.laser_spawn_sfx.clone()),
                 DespawnOnExitState::<Level>::default(),
             ));
         },
@@ -184,7 +184,7 @@ fn on_module_action(
                 fireball(
                     rng,
                     projectile_config,
-                    &projectile_assets,
+                    &game_assets,
                     faction,
                     flux,
                     weapon_transform,

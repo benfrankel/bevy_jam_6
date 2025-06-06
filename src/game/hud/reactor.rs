@@ -1,6 +1,6 @@
 use crate::animation::shake::NodeShake;
+use crate::game::GameAssets;
 use crate::game::deck::PlayerDeck;
-use crate::game::hud::HudAssets;
 use crate::game::hud::HudConfig;
 use crate::game::hud::flux::flux_display;
 use crate::game::hud::module::module;
@@ -10,10 +10,10 @@ pub(super) fn plugin(app: &mut App) {
     app.configure::<IsModuleGrid>();
 }
 
-pub fn reactor(hud_assets: &HudAssets) -> impl Bundle {
+pub fn reactor(game_assets: &GameAssets) -> impl Bundle {
     (
         Name::new("Reactor"),
-        ImageNode::from(hud_assets.reactor.clone()),
+        ImageNode::from(game_assets.reactor.clone()),
         Node {
             aspect_ratio: Some(124.0 / 270.0),
             padding: UiRect::all(Vw(1.69)),
@@ -56,7 +56,7 @@ impl Configure for IsModuleGrid {
 
 fn sync_module_grid(
     mut commands: Commands,
-    hud_assets: Res<HudAssets>,
+    game_assets: Res<GameAssets>,
     hud_config: ConfigRef<HudConfig>,
     player_deck: Res<PlayerDeck>,
     grid_query: Query<Entity, With<IsModuleGrid>>,
@@ -76,7 +76,7 @@ fn sync_module_grid(
                         }
                     }
                     parent.spawn((
-                        module(&hud_assets, slot, player_deck.heat_capacity, shake),
+                        module(&game_assets, slot, player_deck.heat_capacity, shake),
                         Tooltip::fixed(Anchor::CenterRight, slot.description()),
                     ));
                 }

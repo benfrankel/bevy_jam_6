@@ -2,6 +2,7 @@ use crate::animation::offset::Offset;
 use crate::animation::oscillate::Oscillate;
 use crate::animation::shake::Shake;
 use crate::core::camera::CameraRoot;
+use crate::game::GameAssets;
 use crate::game::GameLayer;
 use crate::game::combat::damage::OnDamage;
 use crate::game::combat::death::OnDeath;
@@ -19,7 +20,6 @@ use crate::prelude::*;
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(
         ConfigHandle<ShipConfig>,
-        ShipAssets,
         IsPlayerShip,
         IsEnemyShip,
         IsWeapon,
@@ -36,9 +36,9 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
-pub fn player_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets, health: f32) -> impl Bundle {
+pub fn player_ship(ship_config: &ShipConfig, game_assets: &GameAssets, health: f32) -> impl Bundle {
     let weapons = ship_config.player_weapons.clone();
-    let image = ship_assets.player_image.clone();
+    let image = game_assets.player_ship.clone();
 
     (
         Name::new("PlayerShip"),
@@ -81,7 +81,7 @@ fn lose_level(_: Trigger<OnDeath>, mut menu: ResMut<NextStateStack<Menu>>) {
     menu.acquire();
 }
 
-pub fn enemy_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets, health: f32) -> impl Bundle {
+pub fn enemy_ship(ship_config: &ShipConfig, game_assets: &GameAssets, health: f32) -> impl Bundle {
     let weapons = ship_config.enemy_weapons.clone();
     let health_bar_transform =
         Transform::from_translation(ship_config.enemy_health_bar_offset.extend(0.1))
@@ -92,7 +92,7 @@ pub fn enemy_ship(ship_config: &ShipConfig, ship_assets: &ShipAssets, health: f3
         IsEnemyShip,
         Faction::Enemy,
         Health::new(health),
-        Sprite::from_image(ship_assets.enemy_image.clone()),
+        Sprite::from_image(game_assets.enemy_ship.clone()),
         RigidBody::Kinematic,
         Collider::rectangle(167.0, 15.0),
         CollisionLayers::new(GameLayer::Enemy, LayerMask::ALL),
@@ -173,22 +173,6 @@ pub struct ShipConfig {
 
 impl Config for ShipConfig {
     const FILE: &'static str = "ship.ron";
-}
-
-#[derive(AssetCollection, Resource, Reflect, Default, Debug)]
-#[reflect(Resource)]
-pub struct ShipAssets {
-    #[asset(path = "image/ship/player.png")]
-    player_image: Handle<Image>,
-    #[asset(path = "image/ship/enemy.png")]
-    enemy_image: Handle<Image>,
-}
-
-impl Configure for ShipAssets {
-    fn configure(app: &mut App) {
-        app.register_type::<Self>();
-        app.init_collection::<Self>();
-    }
 }
 
 #[derive(Component, Reflect, Debug)]

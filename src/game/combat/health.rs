@@ -1,10 +1,10 @@
+use crate::game::GameAssets;
 use crate::game::combat::death::OnDeath;
 use crate::prelude::*;
 
 pub fn plugin(app: &mut App) {
     app.configure::<(
         ConfigHandle<HealthConfig>,
-        HealthAssets,
         Health,
         IsHealthBar,
         OnHeal,
@@ -46,20 +46,6 @@ impl HealthConfig {
     }
 }
 
-#[derive(AssetCollection, Resource, Reflect, Default, Debug)]
-#[reflect(Resource)]
-pub struct HealthAssets {
-    #[asset(path = "image/vfx/heal_popup.png")]
-    heal_popup: Handle<Image>,
-}
-
-impl Configure for HealthAssets {
-    fn configure(app: &mut App) {
-        app.register_type::<Self>();
-        app.init_collection::<Self>();
-    }
-}
-
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
 pub struct Health {
@@ -71,18 +57,18 @@ impl Health {
     pub fn new(max: f32) -> Self {
         Self { max, current: max }
     }
-
-    pub fn heal(&mut self, amount: f32) {
-        self.current += amount;
-        // TODO: Play an animation
-        // TODO: Play an animation
-    }
 }
 
 impl Configure for Health {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
-        app.add_systems(Update, detect_death.in_set(UpdateSystems::Update));
+        app.add_systems(
+            Update,
+            (
+                detect_death.in_set(UpdateSystems::Update),
+                clamp_health.in_set(UpdateSystems::SyncLate),
+            ),
+        );
     }
 }
 
@@ -90,6 +76,12 @@ fn detect_death(mut commands: Commands, health_query: Query<(Entity, &Health), C
     for (entity, health) in &health_query {
         rq!(health.current <= f32::EPSILON);
         commands.entity(entity).trigger(OnDeath);
+    }
+}
+
+fn clamp_health(mut health_query: Query<&mut Health, Changed<Health>>) {
+    for mut health in &mut health_query {
+        health.current = health.current.clamp(0.0, health.max);
     }
 }
 
@@ -134,7 +126,7 @@ impl Configure for OnHeal {
 fn increase_health_on_heal(trigger: Trigger<OnHeal>, mut health_query: Query<&mut Health>) {
     let ship = r!(trigger.get_target());
     let mut health = r!(health_query.get_mut(ship));
-    health.heal(trigger.0);
+    health.current += trigger.0;
 }
 
 #[derive(Component, Reflect)]
@@ -157,8 +149,8 @@ impl Configure for IsHealPopup {
 fn spawn_heal_popup_on_heal(
     trigger: Trigger<OnHeal>,
     mut commands: Commands,
+    game_assets: Res<GameAssets>,
     health_config: ConfigRef<HealthConfig>,
-    health_assets: Res<HealthAssets>,
     transform_query: Query<&Transform>,
 ) {
     let target = r!(trigger.get_target());
@@ -172,7 +164,7 @@ fn spawn_heal_popup_on_heal(
     .extend(0.0);
 
     // Randomize orientation.
-    let mut sprite = Sprite::from_image(health_assets.heal_popup.clone());
+    let mut sprite = Sprite::from_image(game_assets.heal_popup.clone());
     sprite.flip_x = rng.r#gen();
     sprite.flip_y = rng.r#gen();
 

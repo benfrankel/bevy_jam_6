@@ -5,7 +5,7 @@ pub mod missile;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<(ConfigHandle<ProjectileConfig>, ProjectileAssets)>();
+    app.configure::<ConfigHandle<ProjectileConfig>>();
 
     app.add_plugins((fireball::plugin, laser::plugin, missile::plugin));
 }
@@ -93,27 +93,5 @@ impl Default for ProjectileConfig {
             fireball_initial_scale: 1.0,
             fireball_max_scale: 1.0,
         }
-    }
-}
-
-#[derive(AssetCollection, Resource, Reflect, Default, Debug)]
-#[reflect(Resource)]
-pub struct ProjectileAssets {
-    #[asset(path = "image/projectile/missile.png")]
-    missile_image: Handle<Image>,
-
-    #[asset(path = "image/projectile/laser.png")]
-    laser_image: Handle<Image>,
-    #[asset(path = "audio/sfx/Firing Laser SFX.ogg")]
-    pub laser_spawn_sfx: Handle<AudioSource>,
-
-    #[asset(path = "image/projectile/fireball.png")]
-    fireball_image: Handle<Image>,
-}
-
-impl Configure for ProjectileAssets {
-    fn configure(app: &mut App) {
-        app.register_type::<Self>();
-        app.init_collection::<Self>();
     }
 }
