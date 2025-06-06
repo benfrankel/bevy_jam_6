@@ -1,3 +1,5 @@
+use crate::core::audio::AudioSettings;
+use crate::core::audio::sfx_audio;
 use crate::game::combat::faction::Faction;
 use crate::game::combat::health::OnHeal;
 use crate::game::deck::EnemyDeck;
@@ -116,6 +118,7 @@ fn on_module_action(
     enemy_deck: Res<EnemyDeck>,
     projectile_config: ConfigRef<ProjectileConfig>,
     projectile_assets: Res<ProjectileAssets>,
+    audio_settings: Res<AudioSettings>,
     ship_query: Query<(&Children, &Faction)>,
     children_query: Query<&Children>,
     weapon_query: Query<&GlobalTransform, With<IsWeapon>>,
@@ -168,6 +171,10 @@ fn on_module_action(
                     flux,
                     weapon_transform,
                 ),
+                DespawnOnExitState::<Level>::default(),
+            ));
+            commands.spawn((
+                sfx_audio(&audio_settings, projectile_assets.laser_spawn_sfx.clone()),
                 DespawnOnExitState::<Level>::default(),
             ));
         },

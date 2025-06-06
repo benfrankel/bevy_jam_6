@@ -101,8 +101,12 @@ impl Default for ProjectileConfig {
 pub struct ProjectileAssets {
     #[asset(path = "image/projectile/missile.png")]
     missile_image: Handle<Image>,
+
     #[asset(path = "image/projectile/laser.png")]
     laser_image: Handle<Image>,
+    #[asset(path = "audio/sfx/Firing Laser SFX.ogg")]
+    pub laser_spawn_sfx: Handle<AudioSource>,
+
     #[asset(path = "image/projectile/fireball.png")]
     fireball_image: Handle<Image>,
 }
