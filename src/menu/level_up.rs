@@ -39,8 +39,9 @@ fn spawn_level_up_menu(
     let level_config = r!(level_config.get());
     let level_setup = r!(level_config.levels.get(level));
 
-    commands.entity(menu_root.ui).with_child(widget::popup(
-        children![
+    commands
+        .entity(menu_root.ui)
+        .with_child(widget::popup(children![
             widget::header("[b]They got away!"),
             (
                 Node {
@@ -69,8 +70,7 @@ fn spawn_level_up_menu(
                     enter_next_level,
                 )])]
             ),
-        ],
-    ));
+        ]));
 }
 
 fn enter_next_level(_: Trigger<Pointer<Click>>, mut level: NextMut<Level>) {

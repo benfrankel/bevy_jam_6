@@ -9,8 +9,9 @@ pub(super) fn plugin(app: &mut App) {
 }
 
 fn spawn_defeat_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
-    commands.entity(menu_root.ui).with_child(widget::popup(
-        children![
+    commands
+        .entity(menu_root.ui)
+        .with_child(widget::popup(children![
             widget::big_label("Defeat"),
             (
                 Node::COLUMN_CENTER.grow(),
@@ -19,8 +20,7 @@ fn spawn_defeat_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
                     widget::wide_button("Main menu", quit_to_title),
                 ])],
             )
-        ],
-    ));
+        ]));
 }
 
 fn restart_game(_: Trigger<Pointer<Click>>, mut commands: Commands) {
