@@ -1,6 +1,5 @@
 pub mod fade;
 pub mod gameplay;
-mod loading;
 mod splash;
 mod title;
 
@@ -67,7 +66,6 @@ pub enum Screen {
     #[default]
     Splash,
     Title,
-    Loading,
     Gameplay,
 }
 
@@ -84,12 +82,7 @@ impl Configure for Screen {
                 reset_screen_camera,
             )),
         );
-        app.add_plugins((
-            splash::plugin,
-            title::plugin,
-            loading::plugin,
-            gameplay::plugin,
-        ));
+        app.add_plugins((splash::plugin, title::plugin, gameplay::plugin));
     }
 }
 
@@ -109,7 +102,12 @@ impl Configure for ScreenTime {
         app.register_type::<Self>();
         app.init_resource::<Self>();
         app.add_systems(StateFlush, Screen::ANY.on_exit(reset_screen_time));
-        app.add_systems(Update, tick_screen_time.run_if(Screen::is_enabled));
+        app.add_systems(
+            Update,
+            tick_screen_time
+                .in_set(UpdateSystems::TickTimers)
+                .run_if(Screen::is_enabled),
+        );
     }
 }
 

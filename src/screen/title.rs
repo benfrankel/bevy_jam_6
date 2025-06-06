@@ -34,7 +34,7 @@ fn spawn_title_screen(
 #[derive(AssetCollection, Resource, Reflect, Default)]
 #[reflect(Resource)]
 pub struct TitleAssets {
-    #[asset(path = "audio/music/240376__edtijo__happy-8bit-pixel-adenture.ogg")]
+    #[asset(path = "audio/music/Bevy Jam 6 song 3_2.ogg")]
     music: Handle<AudioSource>,
     #[asset(path = "image/space/level0.png")]
     pub background: Handle<Image>,

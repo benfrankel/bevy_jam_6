@@ -2,6 +2,7 @@ mod credits;
 mod defeat;
 mod intro;
 mod level_up;
+mod loading;
 mod main;
 mod pause;
 mod settings;
@@ -10,7 +11,7 @@ mod victory;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<(MenuRoot, Menu, MenuAction)>();
+    app.configure::<(MenuRoot, Menu, MenuAction, MenuTime)>();
 }
 
 #[derive(Resource, Reflect)]
@@ -48,12 +49,13 @@ impl FromWorld for MenuRoot {
 pub enum Menu {
     Main,
     Intro,
-    Pause,
     Settings,
+    Credits,
+    Loading,
+    Pause,
     LevelUp,
     Defeat,
     Victory,
-    Credits,
 }
 
 impl Configure for Menu {
@@ -70,12 +72,13 @@ impl Configure for Menu {
         app.add_plugins((
             main::plugin,
             intro::plugin,
-            pause::plugin,
             settings::plugin,
+            credits::plugin,
+            loading::plugin,
+            pause::plugin,
             level_up::plugin,
             defeat::plugin,
             victory::plugin,
-            credits::plugin,
         ));
     }
 }
@@ -101,4 +104,31 @@ impl Configure for MenuAction {
                 .run_if(Menu::is_enabled.and(action_just_pressed(Self::Back))),
         );
     }
+}
+
+/// The total time elapsed in the current menu.
+#[derive(Resource, Reflect, Default)]
+#[reflect(Resource)]
+pub struct MenuTime(pub Duration);
+
+impl Configure for MenuTime {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+        app.init_resource::<Self>();
+        app.add_systems(StateFlush, Menu::ANY.on_exit(reset_menu_time));
+        app.add_systems(
+            Update,
+            tick_menu_time
+                .in_set(UpdateSystems::TickTimers)
+                .run_if(Menu::is_enabled),
+        );
+    }
+}
+
+fn reset_menu_time(mut menu_time: ResMut<MenuTime>) {
+    *menu_time = default();
+}
+
+fn tick_menu_time(time: Res<Time>, mut menu_time: ResMut<MenuTime>) {
+    menu_time.0 += time.delta();
 }
