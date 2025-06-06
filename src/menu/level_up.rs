@@ -40,8 +40,6 @@ fn spawn_level_up_menu(
     let level_setup = r!(level_config.levels.get(level));
 
     commands.entity(menu_root.ui).with_child(widget::popup(
-        Vw(50.0),
-        Vh(90.0),
         children![
             widget::header("[b]They got away!"),
             (

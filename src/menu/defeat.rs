@@ -10,8 +10,6 @@ pub(super) fn plugin(app: &mut App) {
 
 fn spawn_defeat_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
     commands.entity(menu_root.ui).with_child(widget::popup(
-        Vw(50.0),
-        Vh(90.0),
         children![
             widget::big_label("Defeat"),
             (

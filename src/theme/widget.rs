@@ -42,26 +42,33 @@ pub fn rainbow_overlay() -> impl Bundle {
     )
 }
 
-pub fn popup(width: Val, height: Val, children: impl Bundle) -> impl Bundle {
-    center(children![(
+pub fn popup(children: impl Bundle) -> impl Bundle {
+    (
+        Name::new("PopupContainer"),
         Node {
-            width,
-            height,
-            padding: UiRect::all(Vw(4.0)),
-            border: UiRect::all(Px(1.0)),
-            ..Node::COLUMN
+            padding: UiRect::all(Vw(5.0)),
+            ..Node::COLUMN_CENTER.full_size()
         },
-        ThemeColor::Popup.set::<BackgroundColor>(),
-        BorderRadius::all(Vw(4.0)),
-        ThemeColor::BorderColor.set::<BorderColor>(),
-        BoxShadow::from(ShadowStyle {
-            x_offset: Val::ZERO,
-            y_offset: Val::ZERO,
-            ..default()
-        }),
-        FocusPolicy::Block,
-        children,
-    )])
+        children![(
+            Name::new("Popup"),
+            Node {
+                display: Display::Block,
+                padding: UiRect::all(Vw(3.5)),
+                border: UiRect::all(Px(1.0)),
+                ..Node::DEFAULT.full_size()
+            },
+            ThemeColor::Popup.set::<BackgroundColor>(),
+            BorderRadius::all(Vw(3.0)),
+            ThemeColor::BorderColor.set::<BorderColor>(),
+            BoxShadow::from(ShadowStyle {
+                x_offset: Val::ZERO,
+                y_offset: Val::ZERO,
+                ..default()
+            }),
+            FocusPolicy::Block,
+            children,
+        )],
+    )
 }
 
 pub fn body(children: impl Bundle) -> impl Bundle {
@@ -221,7 +228,7 @@ where
             height,
             ..Node::ROW_CENTER
         },
-        BorderRadius::all(Px(8.0)),
+        BorderRadius::all(Vw(1.0)),
         ThemeColor::default().set::<BackgroundColor>(),
         InteractionTheme {
             none: ThemeColor::Primary.set::<BackgroundColor>(),
@@ -289,7 +296,7 @@ pub fn loading_bar<S: State + Clone + PartialEq + Eq + Hash + Debug>() -> impl B
         Node {
             width: Percent(60.0),
             height: Vw(4.0),
-            margin: UiRect::all(Vw(1.0)),
+            margin: UiRect::all(Vw(1.0)).with_top(Vw(1.1)),
             padding: UiRect::all(Vw(0.5)),
             border: UiRect::all(Vw(0.5)),
             ..default()

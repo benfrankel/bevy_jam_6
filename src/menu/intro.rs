@@ -11,12 +11,17 @@ pub(super) fn plugin(app: &mut App) {
 fn spawn_intro_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
     commands
         .entity(menu_root.ui)
-        .with_child(widget::body(children![
-            widget::header("[b]How to play"),
-            widget::paragraph("Be skillful,\nwin the game!\nPress P to pause."),
+        .with_child(widget::popup(children![
+            widget::header("[b]Mission received:"),
+            widget::paragraph(
+                "\
+                Protect our home star\n\
+                against the tyrant threat from afar.\n\
+                Command the Weber?"
+            ),
             widget::row_of_buttons(children![
-                widget::button("Back", go_back),
-                widget::button("Start", start_game)
+                widget::button("Decline", go_back),
+                widget::button("Pursue", start_game)
             ]),
         ]));
 }
