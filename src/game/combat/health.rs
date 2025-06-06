@@ -1,17 +1,14 @@
-use avian2d::math::Vector;
-
 use crate::game::combat::death::OnDeath;
-use crate::game::ship::IsPlayerShip;
 use crate::prelude::*;
 
 pub fn plugin(app: &mut App) {
     app.configure::<(
         ConfigHandle<HealthConfig>,
+        HealthAssets,
         Health,
         IsHealthBar,
         OnHeal,
-        HealthAssets,
-        IsHealObject,
+        IsHealPopup,
     )>();
 }
 
@@ -45,6 +42,20 @@ impl HealthConfig {
     }
 }
 
+#[derive(AssetCollection, Resource, Reflect, Default, Debug)]
+#[reflect(Resource)]
+pub struct HealthAssets {
+    #[asset(path = "image/health/heal.png")]
+    heal_image: Handle<Image>,
+}
+
+impl Configure for HealthAssets {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+        app.init_collection::<Self>();
+    }
+}
+
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
 pub struct Health {
@@ -71,17 +82,6 @@ impl Configure for Health {
     }
 }
 
-#[derive(Event, Reflect, Debug)]
-pub struct OnHeal(pub f32);
-
-impl Configure for OnHeal {
-    fn configure(app: &mut App) {
-        app.register_type::<Self>();
-        app.add_observer(increase_health_on_action);
-        app.add_observer(display_healed_feedback);
-    }
-}
-
 fn detect_death(mut commands: Commands, health_query: Query<(Entity, &Health), Changed<Health>>) {
     for (entity, health) in &health_query {
         rq!(health.current <= f32::EPSILON);
@@ -102,31 +102,6 @@ impl Configure for IsHealthBar {
     }
 }
 
-#[derive(AssetCollection, Resource, Reflect, Default, Debug)]
-#[reflect(Resource)]
-pub struct HealthAssets {
-    #[asset(path = "image/health/heal.png")]
-    heal_image: Handle<Image>,
-}
-
-impl Configure for HealthAssets {
-    fn configure(app: &mut App) {
-        app.register_type::<Self>();
-        app.init_collection::<Self>();
-    }
-}
-
-#[derive(Component, Reflect)]
-#[reflect(Component)]
-struct IsHealObject;
-
-impl Configure for IsHealObject {
-    fn configure(app: &mut App) {
-        app.register_type::<Self>();
-        app.add_systems(Update, apply_fade_out_heal);
-    }
-}
-
 fn sync_health_bar(
     health_config: ConfigRef<HealthConfig>,
     health_query: Query<&Health>,
@@ -142,40 +117,65 @@ fn sync_health_bar(
     }
 }
 
-fn increase_health_on_action(trigger: Trigger<OnHeal>, mut health_query: Query<&mut Health>) {
+#[derive(Event, Reflect, Debug)]
+pub struct OnHeal(pub f32);
+
+impl Configure for OnHeal {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+        app.add_observer(increase_health_on_heal);
+    }
+}
+
+fn increase_health_on_heal(trigger: Trigger<OnHeal>, mut health_query: Query<&mut Health>) {
     let ship = r!(trigger.get_target());
     let mut health = r!(health_query.get_mut(ship));
     health.heal(trigger.0);
 }
 
-fn display_healed_feedback(
-    _: Trigger<OnHeal>,
+#[derive(Component, Reflect)]
+#[reflect(Component)]
+struct IsHealPopup;
+
+impl Configure for IsHealPopup {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+        app.add_observer(spawn_heal_popup_on_heal);
+        app.add_systems(
+            Update,
+            apply_fade_out_to_heal_popup
+                .in_set(UpdateSystems::Update)
+                .in_set(PausableSystems),
+        );
+    }
+}
+
+fn spawn_heal_popup_on_heal(
+    trigger: Trigger<OnHeal>,
     mut commands: Commands,
     health_assets: Res<HealthAssets>,
-    player_ship: Single<&Transform, With<IsPlayerShip>>,
+    transform_query: Query<&Transform>,
 ) {
+    let target = r!(trigger.get_target());
+    let transform = r!(transform_query.get(target));
+
     commands.spawn((
-        IsHealObject,
+        IsHealPopup,
         Sprite::from_image(health_assets.heal_image.clone()),
-        Transform::from_xyz(
-            player_ship.translation.x,
-            player_ship.translation.y + 30.,
-            -1.,
-        ),
+        transform.with_translation(vec3(0.0, 30.0, -1.0)),
         RigidBody::Dynamic,
-        LinearVelocity(Vector::new(0., 10.)),
+        LinearVelocity(vec2(0.0, 10.0)),
     ));
 }
 
-fn apply_fade_out_heal(
+fn apply_fade_out_to_heal_popup(
     mut commands: Commands,
-    query: Query<(Entity, &mut Sprite), With<IsHealObject>>,
+    heal_popup_query: Query<(Entity, &mut Sprite), With<IsHealPopup>>,
 ) {
-    for (entity, mut sprite) in query {
-        if sprite.color.alpha() < 0.01 {
-            commands.entity(entity).despawn();
+    for (entity, mut sprite) in heal_popup_query {
+        sprite.color = Color::WHITE.with_alpha(sprite.color.alpha() * 0.92);
+        if sprite.color.alpha() < f32::EPSILON {
+            commands.entity(entity).try_despawn();
         }
-
-        sprite.color = Color::srgba(1., 1., 1., sprite.color.alpha() * 0.92);
     }
 }
