@@ -1,4 +1,8 @@
 use bevy::render::camera::ScalingMode;
+use bevy::render::camera::Viewport;
+use bevy::window::PrimaryWindow;
+use bevy::window::WindowResized;
+use bevy::window::WindowScaleFactorChanged;
 
 use crate::prelude::*;
 
@@ -8,6 +12,7 @@ pub(super) fn plugin(app: &mut App) {
         CameraRoot,
         SmoothFollow,
         AbsoluteScale,
+        Letterbox,
     )>();
 }
 
@@ -54,6 +59,7 @@ impl FromWorld for CameraRoot {
                 .spawn((
                     Name::new("PrimaryCamera"),
                     Camera2d,
+                    Letterbox(16.0 / 9.0),
                     Projection::Orthographic(OrthographicProjection {
                         near: -1000.0,
                         ..OrthographicProjection::default_2d()
@@ -136,5 +142,45 @@ fn apply_absolute_scale(
 
     for (mut transform, scale) in &mut scale_query {
         transform.scale = camera_scale_inverse * scale.0;
+    }
+}
+
+/// Letterbox a camera's viewport to a particular aspect ratio.
+#[derive(Component, Clone)]
+pub struct Letterbox(pub f32);
+
+impl Configure for Letterbox {
+    fn configure(app: &mut App) {
+        app.add_systems(
+            PostUpdate,
+            apply_letterbox
+                .run_if(on_event::<WindowResized>.or(on_event::<WindowScaleFactorChanged>)),
+        );
+    }
+}
+
+fn apply_letterbox(
+    mut letterbox_query: Query<(&mut Camera, &Letterbox)>,
+    primary_window: Single<&Window, With<PrimaryWindow>>,
+) {
+    for (mut camera, letterbox) in &mut letterbox_query {
+        let window_width = primary_window.physical_width() as f32;
+        let window_height = primary_window.physical_height() as f32;
+        let mut size = vec2(window_width, window_height);
+        let mut pos = Vec2::ZERO;
+
+        if window_width / window_height > letterbox.0 {
+            size.x = size.y * letterbox.0;
+            pos.x = window_width / 2.0 - size.x / 2.0;
+        } else {
+            size.y = size.x / letterbox.0;
+            pos.y = window_height / 2.0 - size.y / 2.0;
+        }
+
+        camera.viewport = Some(Viewport {
+            physical_position: pos.as_uvec2(),
+            physical_size: size.as_uvec2(),
+            ..default()
+        });
     }
 }
