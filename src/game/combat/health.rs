@@ -178,7 +178,7 @@ fn spawn_heal_popup_on_heal(
 
     commands.spawn((
         IsHealPopup,
-        Sprite::from_image(health_assets.heal_popup.clone()),
+        sprite,
         transform,
         RigidBody::Kinematic,
         LinearVelocity(health_config.heal_popup_velocity),
