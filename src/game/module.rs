@@ -186,7 +186,6 @@ fn on_module_action(
             ));
         },
 
-        // TODO: Spawn VFX.
         ModuleAction::Repair => {
             commands.entity(ship).trigger(OnHeal(flux));
         },

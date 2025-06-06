@@ -157,7 +157,11 @@ fn display_healed_feedback(
     commands.spawn((
         IsHealObject,
         Sprite::from_image(health_assets.heal_image.clone()),
-        Transform::from_xyz(player_ship.translation.x, player_ship.translation.y + 30., -1.),
+        Transform::from_xyz(
+            player_ship.translation.x,
+            player_ship.translation.y + 30.,
+            -1.,
+        ),
         RigidBody::Dynamic,
         LinearVelocity(Vector::new(0., 10.)),
     ));

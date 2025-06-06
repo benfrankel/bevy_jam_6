@@ -42,6 +42,9 @@ pub struct ProjectileConfig {
     fireball_thruster_force: f32,
     fireball_homing_approach: f32,
     fireball_homing_target_spread: Vec2,
+    fireball_growth_rate: f32,
+    fireball_initial_scale: f32,
+    fireball_max_scale: f32,
 }
 
 impl Config for ProjectileConfig {
@@ -80,6 +83,9 @@ impl Default for ProjectileConfig {
             fireball_thruster_force: 0.0,
             fireball_homing_approach: 1.0,
             fireball_homing_target_spread: Vec2::ZERO,
+            fireball_growth_rate: 0.0,
+            fireball_initial_scale: 1.0,
+            fireball_max_scale: 1.0,
         }
     }
 }

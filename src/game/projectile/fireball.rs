@@ -37,6 +37,10 @@ pub fn fireball(
         + projectile_config.fireball_initial_speed_spread * rng.gen_range(-1.0..=1.0);
     let velocity = speed.max(1.0) * Vec2::from_angle(angle);
 
+    // Calculate initial scale.
+    transform.scale =
+        (transform.scale.xy() * projectile_config.fireball_initial_scale).extend(transform.scale.z);
+
     (
         Name::new("Fireball"),
         IsFireball,
@@ -47,7 +51,7 @@ pub fn fireball(
         LinearVelocity(velocity),
         MaxLinearSpeed(projectile_config.fireball_max_speed),
         ExternalForce::ZERO.with_persistence(false),
-        Collider::capsule_endpoints(3.0, vec2(-3.5, 0.0), vec2(3.5, 0.0)),
+        Collider::circle(5.0),
         CollisionLayers::new(GameLayer::Default, faction.opponent().layer()),
         CollisionEventsEnabled,
         transform,
@@ -65,12 +69,27 @@ impl Configure for IsFireball {
         app.add_systems(
             Update,
             (
+                apply_fireball_growth.in_set(UpdateSystems::Update),
                 apply_fireball_thrusters.in_set(UpdateSystems::Update),
                 apply_fireball_homing.in_set(UpdateSystems::Update),
                 rotate_with_velocity.in_set(UpdateSystems::Update),
             )
                 .in_set(PausableSystems),
         );
+    }
+}
+
+fn apply_fireball_growth(
+    time: Res<Time>,
+    projectile_config: ConfigRef<ProjectileConfig>,
+    mut fireball_query: Query<&mut Transform, With<IsFireball>>,
+) {
+    let projectile_config = r!(projectile_config.get());
+    for mut transform in &mut fireball_query {
+        let growth = projectile_config.fireball_growth_rate * time.delta_secs();
+        transform.scale = (transform.scale.xy() + growth)
+            .min(Vec2::splat(projectile_config.fireball_max_scale))
+            .extend(transform.scale.z);
     }
 }
 
