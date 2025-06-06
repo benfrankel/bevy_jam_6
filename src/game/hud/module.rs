@@ -48,13 +48,10 @@ pub fn module(
     }
     .clone();
 
-    let heat = if matches!(
-        module.status,
-        ModuleStatus::SlotInactive | ModuleStatus::SlotOverheated
-    ) {
-        (module.heat / heat_capacity.max(1.0)).clamp(0.0, 1.0)
-    } else {
-        0.0
+    let heat = match module.status {
+        ModuleStatus::SlotOverheated => 1.0,
+        ModuleStatus::SlotInactive => (module.heat / heat_capacity.max(1.0)).clamp(0.0, 1.0),
+        _ => 0.0,
     };
     let glow = if matches!(module.status, ModuleStatus::SlotOverheated) {
         &hud_assets.module_slot_full_glow

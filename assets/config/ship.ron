@@ -1,5 +1,5 @@
 (
-    player_weapons: [Vec2(-9.5, 7), Vec2(9.5, 7)],
+    player_weapons: [Vec2(-9.5, 15), Vec2(9.5, 15)],
     player_health_bar_offset: Vec2(0, -22),
     player_health_bar_size: Vec2(100, 5),
     player_accel_max: 400,
@@ -9,7 +9,7 @@
     player_tilt_sensitivity: 10,
     player_tilt_max: 18,
 
-    enemy_weapons: [Vec2(-43, -8), Vec2(-27, -8), Vec2(38, -8)],
+    enemy_weapons: [Vec2(-43, -21), Vec2(-27, -22), Vec2(38, -18)],
     enemy_health_bar_offset: Vec2(0, 30),
     enemy_health_bar_size: Vec2(200, 5),
     enemy_oscillate_amplitude: Vec2(6, 0),

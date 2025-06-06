@@ -37,6 +37,10 @@ pub fn missile(
         + projectile_config.missile_initial_speed_spread * rng.gen_range(-1.0..=1.0);
     let velocity = speed.max(1.0) * Vec2::from_angle(angle);
 
+    // Calculate initial scale.
+    transform.scale =
+        (transform.scale.xy() * projectile_config.missile_initial_scale).extend(transform.scale.z);
+
     (
         Name::new("Missile"),
         IsMissile,
@@ -65,12 +69,27 @@ impl Configure for IsMissile {
         app.add_systems(
             Update,
             (
+                apply_missile_growth.in_set(UpdateSystems::Update),
                 apply_missile_thrusters.in_set(UpdateSystems::Update),
                 apply_missile_homing.in_set(UpdateSystems::Update),
                 rotate_with_velocity.in_set(UpdateSystems::Update),
             )
                 .in_set(PausableSystems),
         );
+    }
+}
+
+fn apply_missile_growth(
+    time: Res<Time>,
+    projectile_config: ConfigRef<ProjectileConfig>,
+    mut missile_query: Query<&mut Transform, With<IsMissile>>,
+) {
+    let projectile_config = r!(projectile_config.get());
+    for mut transform in &mut missile_query {
+        let growth = projectile_config.missile_growth_rate * time.delta_secs();
+        transform.scale = (transform.scale.xy() + growth)
+            .min(Vec2::splat(projectile_config.missile_max_scale))
+            .extend(transform.scale.z);
     }
 }
 

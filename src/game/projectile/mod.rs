@@ -22,6 +22,9 @@ pub struct ProjectileConfig {
     missile_thruster_force: f32,
     missile_homing_approach: f32,
     missile_homing_target_spread: Vec2,
+    missile_growth_rate: f32,
+    missile_initial_scale: f32,
+    missile_max_scale: f32,
 
     laser_damage: f32,
     laser_initial_position_spread: Vec2,
@@ -63,6 +66,9 @@ impl Default for ProjectileConfig {
             missile_thruster_force: 0.0,
             missile_homing_approach: 1.0,
             missile_homing_target_spread: Vec2::ZERO,
+            missile_growth_rate: 0.0,
+            missile_initial_scale: 1.0,
+            missile_max_scale: 1.0,
 
             laser_damage: 0.0,
             laser_initial_position_spread: Vec2::ZERO,
