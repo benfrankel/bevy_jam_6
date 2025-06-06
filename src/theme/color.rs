@@ -33,9 +33,9 @@ impl Config for ThemeConfig {
     }
 }
 
-// Note: The length of this array MUST equal the number of `ThemeColor` variants.
+/// Note: The length of this array MUST equal the number of [`ThemeColor`] variants.
 #[derive(Reflect, Serialize, Deserialize)]
-pub struct ThemeColorList([Color; 16]);
+pub struct ThemeColorList([Color; 18]);
 
 impl Index<ThemeColor> for ThemeColorList {
     type Output = Color;
@@ -71,7 +71,9 @@ pub enum ThemeColor {
     BorderColor,
 
     // Custom colors.
+    Monitor,
     MonitorText,
+    MonitorDimText,
     IconText,
 }
 

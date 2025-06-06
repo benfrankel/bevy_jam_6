@@ -32,9 +32,9 @@ fn phase_display(hud_assets: &HudAssets, phase: &Phase) -> impl Bundle {
         Name::new("PhaseDisplay"),
         ImageNode::from(image),
         Node {
-            left: Vw(27.2917),
-            bottom: Vw(1.6666),
-            width: Vw(8.75),
+            left: Vw(27.0833),
+            bottom: Vw(1.4583),
+            width: Vw(9.1666),
             aspect_ratio: Some(1.0),
             ..Node::DEFAULT.abs()
         },

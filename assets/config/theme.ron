@@ -32,8 +32,12 @@
         // BorderColor
         Srgba(Srgba(red: 0.300, green: 0.300, blue: 0.300, alpha: 1.000)),
 
+        // Monitor
+        Srgba(Srgba(red: 0.086, green: 0.071, blue: 0.141, alpha: 1.000)),
         // MonitorText
         Srgba(Srgba(red: 0.584, green: 0.847, blue: 0.859, alpha: 1.000)),
+        // MonitorDimText
+        Srgba(Srgba(red: 0.290, green: 0.404, blue: 0.427, alpha: 1.000)),
         // IconText
         Srgba(Srgba(red: 0.451, green: 0.361, blue: 0.349, alpha: 1.000)),
     )),
