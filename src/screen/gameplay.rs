@@ -3,7 +3,7 @@ use crate::core::audio::music_audio;
 use crate::game::hud::HudAssets;
 use crate::game::level::Level;
 use crate::game::level::LevelAssets;
-use crate::game::missile::MissileAssets;
+use crate::game::projectile::ProjectileAssets;
 use crate::game::ship::ShipAssets;
 use crate::menu::Menu;
 use crate::prelude::*;
@@ -37,7 +37,7 @@ pub fn load_collections(state: LoadingState<BevyState<Screen>>) -> LoadingState<
         .load_collection::<GameplayAssets>()
         .load_collection::<HudAssets>()
         .load_collection::<LevelAssets>()
-        .load_collection::<MissileAssets>()
+        .load_collection::<ProjectileAssets>()
         .load_collection::<ShipAssets>()
 }
 

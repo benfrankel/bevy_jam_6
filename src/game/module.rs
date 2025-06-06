@@ -3,9 +3,9 @@ use crate::game::combat::health::OnHeal;
 use crate::game::deck::EnemyDeck;
 use crate::game::deck::PlayerDeck;
 use crate::game::level::Level;
-use crate::game::missile::MissileAssets;
-use crate::game::missile::MissileConfig;
-use crate::game::missile::missile;
+use crate::game::projectile::ProjectileAssets;
+use crate::game::projectile::ProjectileConfig;
+use crate::game::projectile::missile::missile;
 use crate::game::ship::IsWeapon;
 use crate::prelude::*;
 
@@ -112,12 +112,14 @@ fn on_module_action(
     mut commands: Commands,
     player_deck: Res<PlayerDeck>,
     enemy_deck: Res<EnemyDeck>,
-    missile_config: ConfigRef<MissileConfig>,
-    missile_assets: Res<MissileAssets>,
+    projectile_config: ConfigRef<ProjectileConfig>,
+    projectile_assets: Res<ProjectileAssets>,
     ship_query: Query<(&Children, &Faction)>,
     children_query: Query<&Children>,
     weapon_query: Query<&GlobalTransform, With<IsWeapon>>,
 ) {
+    let projectile_config = r!(projectile_config.get());
+
     // Choose a weapon on the ship.
     let rng = &mut thread_rng();
     let ship = r!(trigger.get_target());
@@ -138,14 +140,14 @@ fn on_module_action(
         Faction::Enemy => enemy_deck.flux,
     };
 
+    // Perform action.
     match trigger.0 {
         ModuleAction::Missile => {
-            let missile_config = r!(missile_config.get());
             commands.spawn((
                 missile(
                     rng,
-                    missile_config,
-                    &missile_assets,
+                    projectile_config,
+                    &projectile_assets,
                     faction,
                     flux,
                     weapon_transform,
@@ -160,6 +162,7 @@ fn on_module_action(
         // TODO: Implement this.
         ModuleAction::Fire => {},
 
+        // TODO: Spawn VFX.
         ModuleAction::Heal => {
             commands.entity(ship).trigger(OnHeal(flux));
         },
