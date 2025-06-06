@@ -3,6 +3,7 @@ use crate::core::audio::music_audio;
 use crate::menu::Menu;
 use crate::prelude::*;
 use crate::screen::Screen;
+use crate::screen::background;
 use crate::screen::gameplay::load_collections;
 
 pub(super) fn plugin(app: &mut App) {
@@ -30,24 +31,13 @@ fn spawn_title_screen(
     ));
 }
 
-fn background(title_assets: &TitleAssets) -> impl Bundle {
-    (
-        Name::new("Background"),
-        ImageNode::from(title_assets.background.clone()),
-        Node::DEFAULT.full_size().abs(),
-        GlobalZIndex(-2),
-        DespawnOnExitState::<Screen>::Recursive,
-        children![widget::rainbow_overlay(), widget::dimming_overlay()],
-    )
-}
-
 #[derive(AssetCollection, Resource, Reflect, Default)]
 #[reflect(Resource)]
 pub struct TitleAssets {
     #[asset(path = "audio/music/240376__edtijo__happy-8bit-pixel-adenture.ogg")]
     music: Handle<AudioSource>,
     #[asset(path = "image/space/level0.png")]
-    background: Handle<Image>,
+    pub background: Handle<Image>,
 }
 
 impl Configure for TitleAssets {

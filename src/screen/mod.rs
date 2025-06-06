@@ -11,12 +11,24 @@ use crate::core::camera::CameraRoot;
 use crate::game::level::Level;
 use crate::menu::Menu;
 use crate::prelude::*;
+use crate::screen::title::TitleAssets;
 use crate::theme::widget::IsLoadingBarFill;
 
 pub fn plugin(app: &mut App) {
     app.configure::<(ScreenRoot, Screen, ScreenTime)>();
 
     app.add_plugins(fade::plugin);
+}
+
+pub fn background(title_assets: &TitleAssets) -> impl Bundle {
+    (
+        Name::new("Background"),
+        ImageNode::from(title_assets.background.clone()),
+        Node::DEFAULT.full_size().abs(),
+        GlobalZIndex(-2),
+        DespawnOnExitState::<Screen>::Recursive,
+        children![widget::rainbow_overlay(), widget::dimming_overlay()],
+    )
 }
 
 #[derive(Resource, Reflect)]

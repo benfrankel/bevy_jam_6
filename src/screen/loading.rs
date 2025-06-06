@@ -1,8 +1,10 @@
 use crate::prelude::*;
 use crate::screen::Screen;
 use crate::screen::ScreenRoot;
+use crate::screen::background;
 use crate::screen::fade::fade_out;
 use crate::screen::gameplay::load_collections;
+use crate::screen::title::TitleAssets;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_loading_state(load_collections(LoadingState::new(Screen::Loading.bevy())));
@@ -10,7 +12,12 @@ pub(super) fn plugin(app: &mut App) {
     app.add_systems(Update, Screen::Loading.on_update(update_loading));
 }
 
-fn spawn_loading_screen(mut commands: Commands, screen_root: Res<ScreenRoot>) {
+fn spawn_loading_screen(
+    mut commands: Commands,
+    screen_root: Res<ScreenRoot>,
+    title_assets: Res<TitleAssets>,
+) {
+    commands.spawn(background(&title_assets));
     commands
         .entity(screen_root.ui)
         .with_child(widget::center(children![
