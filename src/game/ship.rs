@@ -1,5 +1,7 @@
 use crate::animation::offset::Offset;
 use crate::animation::oscillate::Oscillate;
+use crate::animation::shake::HasScreenShake;
+use crate::animation::shake::NodeShake;
 use crate::animation::shake::Shake;
 use crate::core::camera::CameraRoot;
 use crate::game::GameAssets;
@@ -72,6 +74,7 @@ pub fn player_ship(ship_config: &ShipConfig, game_assets: &GameAssets, health: f
         ],
         Patch(|entity| {
             entity.observe(lose_level);
+            entity.observe(shake_screen_on_damage);
         }),
     )
 }
@@ -251,5 +254,22 @@ fn tilt_player_ship_with_velocity(
     for &child in children {
         let mut transform = cq!(transform_query.get_mut(child));
         transform.rotation = rotation;
+    }
+}
+
+fn shake_screen_on_damage(
+    _: Trigger<OnDamage>,
+    hud_config: ConfigRef<HudConfig>,
+    shake_query: Query<&mut Shake, With<HasScreenShake>>,
+    node_shake_query: Query<&mut NodeShake, With<HasScreenShake>>,
+) {
+    let hud_config = r!(hud_config.get());
+    for mut shake in shake_query {
+        shake.magnitude = hud_config.screen_shake_magnitude_camera;
+        shake.decay = hud_config.screen_shake_decay_camera;
+    }
+    for mut node_shake in node_shake_query {
+        node_shake.magnitude = hud_config.screen_shake_magnitude_ui;
+        node_shake.decay = hud_config.screen_shake_decay_ui;
     }
 }

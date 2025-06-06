@@ -3,6 +3,8 @@ pub mod helm;
 mod module;
 mod reactor;
 
+use crate::animation::shake::HasScreenShake;
+use crate::animation::shake::NodeShake;
 use crate::game::GameAssets;
 use crate::game::hud::helm::helm;
 use crate::game::hud::reactor::reactor;
@@ -18,6 +20,8 @@ pub fn hud(game_assets: &GameAssets) -> impl Bundle {
     (
         Name::new("Hud"),
         Node::ROW.full_size().abs(),
+        HasScreenShake,
+        NodeShake::default(),
         children![
             reactor(game_assets),
             (
@@ -38,6 +42,10 @@ pub(crate) struct HudConfig {
     pub enemy_ship_shake_decay: f32,
     pub module_shake_magnitude: Vec2,
     pub module_shake_decay: f32,
+    pub screen_shake_magnitude_camera: Vec2,
+    pub screen_shake_decay_camera: f32,
+    pub screen_shake_magnitude_ui: Vec2,
+    pub screen_shake_decay_ui: f32,
 }
 
 impl Config for HudConfig {

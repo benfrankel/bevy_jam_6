@@ -3,12 +3,12 @@ use crate::animation::offset::Offset;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<(Shake, NodeShake)>();
+    app.configure::<(Shake, NodeShake, HasScreenShake)>();
 }
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
-#[require(NodeOffset)]
+#[require(Offset)]
 pub struct Shake {
     pub magnitude: Vec2,
     /// The base of an exponent.
@@ -53,6 +53,16 @@ impl Default for NodeShake {
             magnitude: Vec2::ZERO,
             decay: 1.0,
         }
+    }
+}
+
+#[derive(Component, Reflect)]
+#[reflect(Component)]
+pub struct HasScreenShake;
+
+impl Configure for HasScreenShake {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
     }
 }
 
