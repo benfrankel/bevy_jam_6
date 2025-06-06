@@ -34,6 +34,7 @@ pub struct PlayerDeck {
     pub heat_capacity: f32,
     pub reactor: Vec<Module>,
     pub last_effect: ModuleAction,
+    pub last_touched_idx: Option<usize>,
 }
 
 impl Configure for PlayerDeck {
@@ -112,6 +113,7 @@ impl PlayerDeck {
         }
         selected.status = ModuleStatus::SlotInactive;
         *slot = selected;
+        self.last_touched_idx = Some(slot_idx);
 
         true
     }
@@ -152,11 +154,13 @@ impl PlayerDeck {
             self.last_effect = slot.effect;
             self.flux += 1.0;
             slot.heat += self.flux;
+            self.last_touched_idx = Some(idx);
 
             return Some(slot.effect);
         }
 
         // If there was no match, reset the reactor.
+        self.last_touched_idx = None;
         self.last_effect = ModuleAction::Nothing;
         self.flux = 0.0;
         for slot in &mut self.reactor {

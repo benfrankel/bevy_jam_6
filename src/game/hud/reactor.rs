@@ -1,5 +1,6 @@
+use crate::animation::shake::NodeShake;
 use crate::game::deck::PlayerDeck;
-use crate::game::hud::HudAssets;
+use crate::game::hud::{HudAssets, HudConfig};
 use crate::game::hud::flux::flux_display;
 use crate::game::hud::module::module;
 use crate::prelude::*;
@@ -55,17 +56,31 @@ impl Configure for IsModuleGrid {
 fn sync_module_grid(
     mut commands: Commands,
     hud_assets: Res<HudAssets>,
+    hud_config: ConfigRef<HudConfig>,
     player_deck: Res<PlayerDeck>,
     grid_query: Query<Entity, With<IsModuleGrid>>,
 ) {
+    let hud_config = r!(hud_config.get());
     for entity in &grid_query {
         commands
             .entity(entity)
             .despawn_related::<Children>()
             .with_children(|parent| {
-                for &slot in &player_deck.reactor {
+                for (i, &slot) in player_deck.reactor.iter().enumerate() {
+                    let shake = if let Some(last_touched) = player_deck.last_touched_idx {
+                        if last_touched == i {
+                            NodeShake {
+                                magnitude: hud_config.module_shake_magnitude,
+                                decay: hud_config.module_shake_decay,
+                            }
+                        } else {
+                            NodeShake::default()
+                        }
+                    } else {
+                        NodeShake::default()
+                    };
                     parent.spawn((
-                        module(&hud_assets, slot, player_deck.heat_capacity),
+                        module(&hud_assets, slot, player_deck.heat_capacity, shake),
                         Tooltip::fixed(Anchor::CenterRight, slot.description()),
                     ));
                 }

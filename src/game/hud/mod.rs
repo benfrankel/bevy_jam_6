@@ -42,6 +42,8 @@ pub(crate) struct HudConfig {
     flux_shake_decay: f32,
     pub enemy_ship_shake_magnitude: Vec2,
     pub enemy_ship_shake_decay: f32,
+    pub module_shake_magnitude: Vec2,
+    pub module_shake_decay: f32,
 }
 
 impl Config for HudConfig {

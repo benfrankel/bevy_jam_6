@@ -1,6 +1,7 @@
 use bevy::ecs::system::IntoObserverSystem;
 
 use crate::animation::offset::NodeOffset;
+use crate::animation::shake::NodeShake;
 use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudAssets;
 use crate::game::hud::module::module;
@@ -206,7 +207,7 @@ fn sync_hand(
                     Tooltip::fixed(Anchor::TopCenter, item.description()),
                     HandIndex(i),
                     children![(
-                        module(&hud_assets, item, player_deck.heat_capacity),
+                        module(&hud_assets, item, player_deck.heat_capacity, NodeShake::default()),
                         Patch(move |entity| {
                             if i == selected_idx {
                                 r!(entity.get_mut::<Node>()).top = Vw(-2.0);
