@@ -45,8 +45,8 @@ impl HealthConfig {
 #[derive(AssetCollection, Resource, Reflect, Default, Debug)]
 #[reflect(Resource)]
 pub struct HealthAssets {
-    #[asset(path = "image/health/heal.png")]
-    heal_image: Handle<Image>,
+    #[asset(path = "image/vfx/heal_popup.png")]
+    heal_popup: Handle<Image>,
 }
 
 impl Configure for HealthAssets {
@@ -157,12 +157,13 @@ fn spawn_heal_popup_on_heal(
     transform_query: Query<&Transform>,
 ) {
     let target = r!(trigger.get_target());
-    let transform = r!(transform_query.get(target));
+    let mut transform = *r!(transform_query.get(target));
+    transform.translation += vec3(0.0, 30.0, -1.0);
 
     commands.spawn((
         IsHealPopup,
-        Sprite::from_image(health_assets.heal_image.clone()),
-        transform.with_translation(vec3(0.0, 30.0, -1.0)),
+        Sprite::from_image(health_assets.heal_popup.clone()),
+        transform,
         RigidBody::Dynamic,
         LinearVelocity(vec2(0.0, 10.0)),
     ));
