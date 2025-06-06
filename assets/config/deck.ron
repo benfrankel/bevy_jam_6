@@ -3,14 +3,14 @@
         max_health: 50,
 
         storage: [
-            Module(condition: Heal, effect: Heal),
+            Module(condition: Repair, effect: Repair),
         ],
         hand: [
             Module(condition: Nothing, effect: Missile),
-            Module(condition: Nothing, effect: Heal),
+            Module(condition: Nothing, effect: Repair),
             Module(condition: Missile, effect: Missile),
-            Module(condition: Missile, effect: Heal),
-            Module(condition: Heal, effect: Missile),
+            Module(condition: Missile, effect: Repair),
+            Module(condition: Repair, effect: Missile),
         ],
         selected_idx: 2,
 

@@ -5,6 +5,8 @@ use crate::game::deck::PlayerDeck;
 use crate::game::level::Level;
 use crate::game::projectile::ProjectileAssets;
 use crate::game::projectile::ProjectileConfig;
+use crate::game::projectile::fireball::fireball;
+use crate::game::projectile::laser::laser;
 use crate::game::projectile::missile::missile;
 use crate::game::ship::IsWeapon;
 use crate::prelude::*;
@@ -56,8 +58,8 @@ impl Module {
                     ModuleAction::Nothing => "Unconditionally ",
                     ModuleAction::Missile => "After firing a missile, ",
                     ModuleAction::Laser => "After firing a laser, ",
-                    ModuleAction::Fire => "After breathing fire, ",
-                    ModuleAction::Heal => "After repairing the hull, ",
+                    ModuleAction::Fireball => "After breathing fire, ",
+                    ModuleAction::Repair => "After repairing the hull, ",
                 };
                 let effect = match (&self.condition, &self.effect) {
                     (_, ModuleAction::Nothing) => "do nothing",
@@ -65,10 +67,10 @@ impl Module {
                     (_, ModuleAction::Missile) => "fire a missile",
                     (ModuleAction::Laser, ModuleAction::Laser) => "fire another laser",
                     (_, ModuleAction::Laser) => "fire a laser",
-                    (ModuleAction::Fire, ModuleAction::Fire) => "breathe more fire",
-                    (_, ModuleAction::Fire) => "breathe fire",
-                    (ModuleAction::Heal, ModuleAction::Heal) => "repair the hull again",
-                    (_, ModuleAction::Heal) => "repair the hull",
+                    (ModuleAction::Fireball, ModuleAction::Fireball) => "breathe more fire",
+                    (_, ModuleAction::Fireball) => "breathe fire",
+                    (ModuleAction::Repair, ModuleAction::Repair) => "repair the hull again",
+                    (_, ModuleAction::Repair) => "repair the hull",
                 };
                 format!("{header}{heat}\n\n{condition}{effect}.")
             },
@@ -82,8 +84,8 @@ pub enum ModuleAction {
     Nothing,
     Missile,
     Laser,
-    Fire,
-    Heal,
+    Fireball,
+    Repair,
 }
 
 #[derive(Reflect, Copy, Clone, Default, Debug, Serialize, Deserialize)]
@@ -156,14 +158,36 @@ fn on_module_action(
             ));
         },
 
-        // TODO: Implement this.
-        ModuleAction::Laser => {},
+        ModuleAction::Laser => {
+            commands.spawn((
+                laser(
+                    rng,
+                    projectile_config,
+                    &projectile_assets,
+                    faction,
+                    flux,
+                    weapon_transform,
+                ),
+                DespawnOnExitState::<Level>::default(),
+            ));
+        },
 
-        // TODO: Implement this.
-        ModuleAction::Fire => {},
+        ModuleAction::Fireball => {
+            commands.spawn((
+                fireball(
+                    rng,
+                    projectile_config,
+                    &projectile_assets,
+                    faction,
+                    flux,
+                    weapon_transform,
+                ),
+                DespawnOnExitState::<Level>::default(),
+            ));
+        },
 
         // TODO: Spawn VFX.
-        ModuleAction::Heal => {
+        ModuleAction::Repair => {
             commands.entity(ship).trigger(OnHeal(flux));
         },
 

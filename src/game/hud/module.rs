@@ -32,8 +32,8 @@ pub fn module(
         },
         (_, ModuleAction::Missile) => &hud_assets.missile_condition_icon,
         (_, ModuleAction::Laser) => &hud_assets.laser_condition_icon,
-        (_, ModuleAction::Fire) => &hud_assets.fire_condition_icon,
-        (_, ModuleAction::Heal) => &hud_assets.heal_condition_icon,
+        (_, ModuleAction::Fireball) => &hud_assets.fire_condition_icon,
+        (_, ModuleAction::Repair) => &hud_assets.heal_condition_icon,
     }
     .clone();
 
@@ -43,8 +43,8 @@ pub fn module(
         },
         (_, ModuleAction::Missile) => &hud_assets.missile_effect_icon,
         (_, ModuleAction::Laser) => &hud_assets.laser_effect_icon,
-        (_, ModuleAction::Fire) => &hud_assets.fire_effect_icon,
-        (_, ModuleAction::Heal) => &hud_assets.heal_effect_icon,
+        (_, ModuleAction::Fireball) => &hud_assets.fire_effect_icon,
+        (_, ModuleAction::Repair) => &hud_assets.heal_effect_icon,
     }
     .clone();
 

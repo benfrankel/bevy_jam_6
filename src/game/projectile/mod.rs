@@ -1,3 +1,4 @@
+pub mod fireball;
 pub mod laser;
 pub mod missile;
 
@@ -6,7 +7,7 @@ use crate::prelude::*;
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(ConfigHandle<ProjectileConfig>, ProjectileAssets)>();
 
-    app.add_plugins((laser::plugin, missile::plugin));
+    app.add_plugins((fireball::plugin, laser::plugin, missile::plugin));
 }
 
 #[derive(Asset, Reflect, Serialize, Deserialize)]
@@ -21,6 +22,26 @@ pub struct ProjectileConfig {
     missile_thruster_force: f32,
     missile_homing_approach: f32,
     missile_homing_target_spread: Vec2,
+
+    laser_damage: f32,
+    laser_initial_position_spread: Vec2,
+    laser_initial_angle_spread: f32,
+    laser_initial_speed: f32,
+    laser_initial_speed_spread: f32,
+    laser_max_speed: f32,
+    laser_thruster_force: f32,
+    laser_homing_approach: f32,
+    laser_homing_target_spread: Vec2,
+
+    fireball_damage: f32,
+    fireball_initial_position_spread: Vec2,
+    fireball_initial_angle_spread: f32,
+    fireball_initial_speed: f32,
+    fireball_initial_speed_spread: f32,
+    fireball_max_speed: f32,
+    fireball_thruster_force: f32,
+    fireball_homing_approach: f32,
+    fireball_homing_target_spread: Vec2,
 }
 
 impl Config for ProjectileConfig {
@@ -39,6 +60,26 @@ impl Default for ProjectileConfig {
             missile_thruster_force: 0.0,
             missile_homing_approach: 1.0,
             missile_homing_target_spread: Vec2::ZERO,
+
+            laser_damage: 0.0,
+            laser_initial_position_spread: Vec2::ZERO,
+            laser_initial_speed: 0.0,
+            laser_initial_speed_spread: 0.0,
+            laser_initial_angle_spread: 0.0,
+            laser_max_speed: f32::INFINITY,
+            laser_thruster_force: 0.0,
+            laser_homing_approach: 1.0,
+            laser_homing_target_spread: Vec2::ZERO,
+
+            fireball_damage: 0.0,
+            fireball_initial_position_spread: Vec2::ZERO,
+            fireball_initial_speed: 0.0,
+            fireball_initial_speed_spread: 0.0,
+            fireball_initial_angle_spread: 0.0,
+            fireball_max_speed: f32::INFINITY,
+            fireball_thruster_force: 0.0,
+            fireball_homing_approach: 1.0,
+            fireball_homing_target_spread: Vec2::ZERO,
         }
     }
 }
@@ -50,6 +91,8 @@ pub struct ProjectileAssets {
     missile_image: Handle<Image>,
     #[asset(path = "image/projectile/laser.png")]
     laser_image: Handle<Image>,
+    #[asset(path = "image/projectile/fireball.png")]
+    fireball_image: Handle<Image>,
 }
 
 impl Configure for ProjectileAssets {
