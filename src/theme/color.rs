@@ -6,7 +6,7 @@ use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
     // Default to Bevy logo grey instead of Bevy website code block grey.
-    app.insert_resource(ClearColor(Color::srgb(0.157, 0.157, 0.157)));
+    app.insert_resource(ClearColor(Color::srgb(0., 0., 0.)));
 
     app.configure::<(
         ConfigHandle<ThemeConfig>,
@@ -29,13 +29,13 @@ impl Config for ThemeConfig {
     const FILE: &'static str = "theme.ron";
 
     fn on_load(&self, world: &mut World) {
-        r!(world.get_resource_mut::<ClearColor>()).0 = self.colors[ThemeColor::Body];
+        r!(world.get_resource_mut::<ClearColor>()).0 = self.colors[ThemeColor::Black];
     }
 }
 
 // Note: The length of this array MUST equal the number of `ThemeColor` variants.
 #[derive(Reflect, Serialize, Deserialize)]
-pub struct ThemeColorList([Color; 15]);
+pub struct ThemeColorList([Color; 16]);
 
 impl Index<ThemeColor> for ThemeColorList {
     type Output = Color;
@@ -51,6 +51,7 @@ pub enum ThemeColor {
     // Absolute colors.
     #[default]
     White,
+    Black,
     Invisible,
 
     // Semantic colors.

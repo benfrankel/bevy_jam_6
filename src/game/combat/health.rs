@@ -1,8 +1,18 @@
+use avian2d::math::Vector;
+
 use crate::game::combat::death::OnDeath;
+use crate::game::ship::IsPlayerShip;
 use crate::prelude::*;
 
 pub fn plugin(app: &mut App) {
-    app.configure::<(ConfigHandle<HealthConfig>, Health, IsHealthBar, OnHeal)>();
+    app.configure::<(
+        ConfigHandle<HealthConfig>,
+        Health,
+        IsHealthBar,
+        OnHeal,
+        HealthAssets,
+        IsHealObject,
+    )>();
 }
 
 pub fn health_bar() -> impl Bundle {
@@ -68,6 +78,7 @@ impl Configure for OnHeal {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.add_observer(increase_health_on_action);
+        app.add_observer(display_healed_feedback);
     }
 }
 
@@ -91,6 +102,31 @@ impl Configure for IsHealthBar {
     }
 }
 
+#[derive(AssetCollection, Resource, Reflect, Default, Debug)]
+#[reflect(Resource)]
+pub struct HealthAssets {
+    #[asset(path = "image/health/heal.png")]
+    heal_image: Handle<Image>,
+}
+
+impl Configure for HealthAssets {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+        app.init_collection::<Self>();
+    }
+}
+
+#[derive(Component, Reflect)]
+#[reflect(Component)]
+struct IsHealObject;
+
+impl Configure for IsHealObject {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+        app.add_systems(Update, apply_fade_out_heal);
+    }
+}
+
 fn sync_health_bar(
     health_config: ConfigRef<HealthConfig>,
     health_query: Query<&Health>,
@@ -110,4 +146,32 @@ fn increase_health_on_action(trigger: Trigger<OnHeal>, mut health_query: Query<&
     let ship = r!(trigger.get_target());
     let mut health = r!(health_query.get_mut(ship));
     health.heal(trigger.0);
+}
+
+fn display_healed_feedback(
+    _: Trigger<OnHeal>,
+    mut commands: Commands,
+    health_assets: Res<HealthAssets>,
+    player_ship: Single<&Transform, With<IsPlayerShip>>,
+) {
+    commands.spawn((
+        IsHealObject,
+        Sprite::from_image(health_assets.heal_image.clone()),
+        Transform::from_xyz(player_ship.translation.x, player_ship.translation.y + 30., -1.),
+        RigidBody::Dynamic,
+        LinearVelocity(Vector::new(0., 10.)),
+    ));
+}
+
+fn apply_fade_out_heal(
+    mut commands: Commands,
+    query: Query<(Entity, &mut Sprite), With<IsHealObject>>,
+) {
+    for (entity, mut sprite) in query {
+        if sprite.color.alpha() < 0.01 {
+            commands.entity(entity).despawn();
+        }
+
+        sprite.color = Color::srgba(1., 1., 1., sprite.color.alpha() * 0.93);
+    }
 }

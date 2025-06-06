@@ -57,7 +57,7 @@ pub fn fade_in() -> impl Bundle {
     (
         widget::nonblocking_overlay(1000),
         FadeIn::new(FADE_IN_SECS),
-        ThemeColor::Body.set::<BackgroundColor>(),
+        ThemeColor::Black.set::<BackgroundColor>(),
     )
 }
 
@@ -110,6 +110,6 @@ pub fn fade_out(to_screen: Screen) -> impl Bundle {
     (
         widget::blocking_overlay(1000),
         FadeOut::new(FADE_OUT_SECS, to_screen),
-        ThemeColor::Body.set::<BackgroundColor>(),
+        ThemeColor::Black.set::<BackgroundColor>(),
     )
 }

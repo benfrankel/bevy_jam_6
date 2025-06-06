@@ -68,18 +68,13 @@ fn sync_module_grid(
             .despawn_related::<Children>()
             .with_children(|parent| {
                 for (i, &slot) in player_deck.reactor.iter().enumerate() {
-                    let shake = if let Some(last_touched) = player_deck.last_touched_idx {
+                    let mut shake = NodeShake::default();
+                    if let Some(last_touched) = player_deck.last_touched_idx {
                         if last_touched == i {
-                            NodeShake {
-                                magnitude: hud_config.module_shake_magnitude,
-                                decay: hud_config.module_shake_decay,
-                            }
-                        } else {
-                            NodeShake::default()
+                            shake.magnitude = hud_config.module_shake_magnitude;
+                            shake.decay = hud_config.module_shake_decay;
                         }
-                    } else {
-                        NodeShake::default()
-                    };
+                    }
                     parent.spawn((
                         module(&hud_assets, slot, player_deck.heat_capacity, shake),
                         Tooltip::fixed(Anchor::CenterRight, slot.description()),
