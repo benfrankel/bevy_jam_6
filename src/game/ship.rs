@@ -1,4 +1,3 @@
-use crate::animation::offset::Offset;
 use crate::animation::oscillate::Oscillate;
 use crate::animation::shake::NodeShake;
 use crate::animation::shake::Shake;
@@ -51,6 +50,7 @@ pub fn player_ship(ship_config: &ShipConfig, game_assets: &GameAssets, health: f
         Visibility::default(),
         RigidBody::Kinematic,
         MaxLinearSpeed(ship_config.player_speed_max),
+        Shake::default(),
         children![
             (
                 health_bar(),
@@ -76,15 +76,32 @@ pub fn player_ship(ship_config: &ShipConfig, game_assets: &GameAssets, health: f
             ),
         ],
         Patch(|entity| {
-            entity.observe(lose_level);
+            entity.observe(lose_level_on_death);
+            entity.observe(shake_player_ship_on_damage);
             entity.observe(shake_screen_on_damage);
         }),
     )
 }
 
-fn lose_level(_: Trigger<OnDeath>, mut menu: ResMut<NextStateStack<Menu>>) {
+fn lose_level_on_death(_: Trigger<OnDeath>, mut menu: ResMut<NextStateStack<Menu>>) {
     menu.push(Menu::Defeat);
     menu.acquire();
+}
+
+fn shake_player_ship_on_damage(
+    trigger: Trigger<OnDamage>,
+    mut shake: Single<&mut Shake, With<IsPlayerShip>>,
+    hud_config: ConfigRef<HudConfig>,
+) {
+    let hud_config = r!(hud_config.get());
+
+    let factor = hud_config
+        .player_ship_shake_damage_factor
+        .powf(trigger.0.max(hud_config.player_ship_shake_damage_min) - 1.0);
+    shake.amplitude = hud_config.player_ship_shake_amplitude;
+    shake.trauma += hud_config.player_ship_shake_trauma * factor;
+    shake.decay = hud_config.player_ship_shake_decay;
+    shake.exponent = hud_config.player_ship_shake_exponent;
 }
 
 pub fn enemy_ship(ship_config: &ShipConfig, game_assets: &GameAssets, health: f32) -> impl Bundle {
@@ -102,7 +119,6 @@ pub fn enemy_ship(ship_config: &ShipConfig, game_assets: &GameAssets, health: f3
         RigidBody::Kinematic,
         Collider::rectangle(167.0, 15.0),
         CollisionLayers::new(GameLayer::Enemy, LayerMask::ALL),
-        Offset::default(),
         Shake::default(),
         Oscillate::new(
             ship_config.enemy_oscillate_amplitude,
@@ -121,13 +137,17 @@ pub fn enemy_ship(ship_config: &ShipConfig, game_assets: &GameAssets, health: f3
             }
         })),
         Patch(|entity| {
-            entity.observe(apply_shake);
-            entity.observe(win_level);
+            entity.observe(win_level_on_death);
+            entity.observe(shake_enemy_ship_on_damage);
         }),
     )
 }
 
-fn win_level(_: Trigger<OnDeath>, mut menu: ResMut<NextStateStack<Menu>>, level: NextRef<Level>) {
+fn win_level_on_death(
+    _: Trigger<OnDeath>,
+    mut menu: ResMut<NextStateStack<Menu>>,
+    level: NextRef<Level>,
+) {
     if r!(level.get()).0 == 9 {
         menu.push(Menu::Victory);
     } else {
@@ -136,7 +156,7 @@ fn win_level(_: Trigger<OnDeath>, mut menu: ResMut<NextStateStack<Menu>>, level:
     menu.acquire();
 }
 
-fn apply_shake(
+fn shake_enemy_ship_on_damage(
     trigger: Trigger<OnDamage>,
     mut shake: Single<&mut Shake, With<IsEnemyShip>>,
     hud_config: ConfigRef<HudConfig>,

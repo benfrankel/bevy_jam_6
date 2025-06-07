@@ -61,6 +61,13 @@ pub(crate) struct HudConfig {
     pub camera_screen_shake_decay: f32,
     pub camera_screen_shake_exponent: f32,
 
+    pub player_ship_shake_damage_factor: f32,
+    pub player_ship_shake_damage_min: f32,
+    pub player_ship_shake_amplitude: Vec2,
+    pub player_ship_shake_trauma: f32,
+    pub player_ship_shake_decay: f32,
+    pub player_ship_shake_exponent: f32,
+
     pub enemy_ship_shake_damage_factor: f32,
     pub enemy_ship_shake_damage_min: f32,
     pub enemy_ship_shake_amplitude: Vec2,

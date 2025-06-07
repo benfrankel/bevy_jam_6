@@ -146,7 +146,7 @@ fn background(game_assets: &GameAssets, level: usize) -> impl Bundle {
         DespawnOnExitState::<Level>::default(),
         children![(
             Name::new("DimmingOverlay"),
-            Sprite::from_color(Color::BLACK.with_alpha(0.7), vec2(480.0, 270.0)),
+            Sprite::from_color(Color::BLACK.with_alpha(0.7), vec2(520.0, 310.0)),
             Transform::from_xyz(0.0, 0.0, 1.0),
         )],
     )
