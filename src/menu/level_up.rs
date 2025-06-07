@@ -94,7 +94,7 @@ fn enter_next_level(
     let entity = r!(trigger.get_target());
     let interaction_disabled = r!(buttons_query.get(entity));
 
-    if interaction_disabled.0 == true {
+    if interaction_disabled.0 {
         return;
     }
 
@@ -114,12 +114,12 @@ fn max_health_reward(health: f32) -> impl Bundle {
               next_level_button: Single<Entity, With<IsNextLevelButton>>| {
             let mut interaction_disabled = r!(buttons_query.get_mut(r!(trigger.get_target())));
 
-            if interaction_disabled.0 == true {
+            if interaction_disabled.0 {
                 return;
             }
 
             // Return if 3 rewards already selected.
-            if selected_rewards.selected.iter().count() == 3 {
+            if selected_rewards.selected.len() == 3 {
                 return;
             }
 
@@ -130,7 +130,7 @@ fn max_health_reward(health: f32) -> impl Bundle {
                 .selected
                 .push(LevelReward::MaxHealth(health));
 
-            if selected_rewards.selected.iter().count() == 3 {
+            if selected_rewards.selected.len() == 3 {
                 commands
                     .entity(*next_level_button)
                     .trigger(EnableContinueButton);
@@ -150,12 +150,12 @@ fn heat_capacity_reward(heat: f32) -> impl Bundle {
               next_level_button: Single<Entity, With<IsNextLevelButton>>| {
             let mut interaction_disabled = r!(buttons_query.get_mut(r!(trigger.get_target())));
 
-            if interaction_disabled.0 == true {
+            if interaction_disabled.0 {
                 return;
             }
 
             // Return if 3 rewards already selected.
-            if selected_rewards.selected.iter().count() == 3 {
+            if selected_rewards.selected.len() == 3 {
                 return;
             }
 
@@ -166,7 +166,7 @@ fn heat_capacity_reward(heat: f32) -> impl Bundle {
                 .selected
                 .push(LevelReward::HeatCapacity(heat));
 
-            if selected_rewards.selected.iter().count() == 3 {
+            if selected_rewards.selected.len() == 3 {
                 commands
                     .entity(*next_level_button)
                     .trigger(EnableContinueButton);
@@ -186,12 +186,12 @@ fn reactor_slots_reward(slots: usize) -> impl Bundle {
               next_level_button: Single<Entity, With<IsNextLevelButton>>| {
             let mut interaction_disabled = r!(buttons_query.get_mut(r!(trigger.get_target())));
 
-            if interaction_disabled.0 == true {
+            if interaction_disabled.0 {
                 return;
             }
 
             // Return if 3 rewards already selected.
-            if selected_rewards.selected.iter().count() == 3 {
+            if selected_rewards.selected.len() == 3 {
                 return;
             }
 
@@ -202,7 +202,7 @@ fn reactor_slots_reward(slots: usize) -> impl Bundle {
                 .selected
                 .push(LevelReward::ReactorSlots(slots));
 
-            if selected_rewards.selected.iter().count() == 3 {
+            if selected_rewards.selected.len() == 3 {
                 commands
                     .entity(*next_level_button)
                     .trigger(EnableContinueButton);

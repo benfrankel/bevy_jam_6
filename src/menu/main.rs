@@ -37,9 +37,8 @@ fn side_panel() -> impl Bundle {
             widget::button("Credits", open_credits),
             (
                 widget::button("Quit", quit_to_desktop),
+                #[cfg(feature = "web")]
                 Patch(|entity| {
-                    #[cfg(feature = "web")]
-                    InteractionDisabled(true);
                     r!(entity.get_mut::<InteractionDisabled>()).0 = true;
                 })
             ),
