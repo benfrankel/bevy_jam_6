@@ -19,11 +19,9 @@ fn side_panel() -> impl Bundle {
         Name::new("SidePanel"),
         Node {
             padding: UiRect::all(Vw(2.0)),
-            border: UiRect::right(Px(1.0)),
             ..Node::COLUMN_CENTER
         },
         ThemeColor::Popup.set::<BackgroundColor>(),
-        ThemeColor::BorderColor.set::<BorderColor>(),
         BoxShadow::from(ShadowStyle {
             color: Color::BLACK.with_alpha(0.882),
             x_offset: Val::ZERO,
