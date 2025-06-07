@@ -1,4 +1,5 @@
 use bevy::text::FontSmoothing;
+
 use crate::game::combat::death::OnDeath;
 use crate::prelude::*;
 
