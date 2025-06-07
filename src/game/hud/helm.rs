@@ -73,7 +73,7 @@ fn right_helm(game_assets: &GameAssets) -> impl Bundle {
             row_gap: Vw(0.41666),
             ..Node::COLUMN_CENTER.full_height()
         },
-        children![storage(game_assets), mini_buttons(game_assets)],
+        children![mini_buttons(game_assets), storage(game_assets)],
     )
 }
 
