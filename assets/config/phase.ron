@@ -7,15 +7,15 @@
     reactor_cooldown: 0.8,
     reactor_cooldown_decay: 0.8,
     reactor_first_cooldown: 0.7,
-    reactor_last_cooldown: 1.3,
+    reactor_last_cooldown: 1.2,
     reactor_sfx_tones: 12,
 
-    player_cooldown: 0.4,
+    player_cooldown: 0.512,
     player_cooldown_decay: 0.8,
     player_first_cooldown: 0,
     player_last_cooldown: 0.8,
 
-    enemy_cooldown: 0.4,
+    enemy_cooldown: 0.512,
     enemy_cooldown_decay: 0.8,
     enemy_first_cooldown: 0.8,
     enemy_last_cooldown: 1.5,

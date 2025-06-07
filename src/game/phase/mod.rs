@@ -63,7 +63,7 @@ impl Configure for Phase {
             StateFlush,
             (
                 Level::ANY.on_edge(Phase::disable, (Phase::enter_default, Phase::trigger)),
-                (Phase::ANY, Phase::ANY)
+                state!(Phase::Helm | Phase::Player | Phase::Enemy | Phase::Setup => _)
                     .on_trans(play_phase_change_sfx)
                     .run_if(not(Level::is_triggered)),
             ),
