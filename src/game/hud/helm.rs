@@ -58,7 +58,7 @@ fn phase_display() -> impl Bundle {
 }
 
 fn hand() -> impl Bundle {
-    (Name::new("Hand"), Node::ROW_CENTER.grow(), IsHand)
+    (Name::new("Hand"), IsHand, Node::ROW_CENTER.grow())
 }
 
 fn right_helm(game_assets: &GameAssets) -> impl Bundle {
@@ -77,6 +77,7 @@ fn right_helm(game_assets: &GameAssets) -> impl Bundle {
 fn storage(game_assets: &GameAssets) -> impl Bundle {
     (
         Name::new("Storage"),
+        IsStorage,
         ImageNode::from(game_assets.module_face_down.clone()),
         Node {
             width: Vw(6.6666),
@@ -85,8 +86,6 @@ fn storage(game_assets: &GameAssets) -> impl Bundle {
             ..Node::ROW_CENTER
         },
         Tooltip::fixed(Anchor::TopCenter, ""),
-        IsStorage,
-        NodeOffset::default(),
         NodeShake::default(),
         children![(
             widget::small_colored_label("", ThemeColor::IconText),
@@ -404,7 +403,7 @@ fn apply_shake_storage_on_draw(
     let hud_config = r!(hud_config.get());
     if player_deck.just_drawn.is_some() {
         player_deck.just_drawn = None;
-        shake.magnitude = hud_config.module_shake_magnitude;
+        shake.trauma = hud_config.module_shake_trauma;
         shake.decay = hud_config.module_shake_decay;
     };
 }

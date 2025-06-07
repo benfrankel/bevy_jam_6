@@ -1,3 +1,5 @@
+use crate::animation::shake::Shake;
+use crate::core::camera::CameraRoot;
 use crate::game::GameAssets;
 use crate::game::deck::DeckConfig;
 use crate::game::deck::EnemyDeck;
@@ -35,6 +37,14 @@ pub struct LevelSetup {
     // pub fixed_rewards: Vec<LevelReward>,
 }
 
+#[derive(Reflect, Copy, Clone, Debug, Serialize, Deserialize)]
+pub enum LevelReward {
+    MaxHealth(f32),
+    HeatCapacity(f32),
+    ReactorSlots(usize),
+    Module(Module),
+}
+
 #[derive(State, Reflect, Copy, Clone, Default, Eq, PartialEq, Debug)]
 #[state(log_flush, react, before(Menu))]
 #[reflect(Resource)]
@@ -47,7 +57,7 @@ impl Configure for Level {
         app.add_systems(
             StateFlush,
             Level::ANY.on_edge(
-                reset_decks,
+                (reset_decks, reset_camera),
                 (
                     (set_up_decks, spawn_level).chain(),
                     (Menu::release, Menu::clear).chain(),
@@ -57,12 +67,9 @@ impl Configure for Level {
     }
 }
 
-#[derive(Reflect, Copy, Clone, Debug, Serialize, Deserialize)]
-pub enum LevelReward {
-    MaxHealth(f32),
-    HeatCapacity(f32),
-    ReactorSlots(usize),
-    Module(Module),
+fn reset_camera(camera_root: Res<CameraRoot>, mut camera_query: Query<&mut Shake>) {
+    let mut shake = r!(camera_query.get_mut(camera_root.primary));
+    *shake = default();
 }
 
 fn reset_decks(mut player_deck: ResMut<PlayerDeck>, mut enemy_deck: ResMut<EnemyDeck>) {

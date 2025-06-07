@@ -71,8 +71,13 @@ fn sync_module_grid(
                     let mut shake = NodeShake::default();
                     if let Some(last_touched) = player_deck.last_touched_idx {
                         if last_touched == i {
-                            shake.magnitude = hud_config.module_shake_magnitude;
+                            let factor = hud_config
+                                .module_shake_flux_factor
+                                .powf(player_deck.flux.max(hud_config.module_shake_flux_min) - 1.0);
+                            shake.amplitude = hud_config.module_shake_amplitude;
+                            shake.trauma = hud_config.module_shake_trauma * factor;
                             shake.decay = hud_config.module_shake_decay;
+                            shake.exponent = hud_config.module_shake_exponent;
                         }
                     }
                     parent.spawn((

@@ -1,8 +1,8 @@
 use crate::animation::offset::Offset;
 use crate::animation::oscillate::Oscillate;
-use crate::animation::shake::HasScreenShake;
 use crate::animation::shake::NodeShake;
 use crate::animation::shake::Shake;
+use crate::animation::shake::ShakeWithScreen;
 use crate::core::camera::CameraRoot;
 use crate::game::GameAssets;
 use crate::game::GameLayer;
@@ -141,10 +141,15 @@ fn apply_shake(
     mut shake: Single<&mut Shake, With<IsEnemyShip>>,
     hud_config: ConfigRef<HudConfig>,
 ) {
-    let damage = trigger.0;
     let hud_config = r!(hud_config.get());
-    shake.magnitude += hud_config.enemy_ship_shake_magnitude * damage;
+
+    let factor = hud_config
+        .enemy_ship_shake_damage_factor
+        .powf(trigger.0.max(hud_config.enemy_ship_shake_damage_min) - 1.0);
+    shake.amplitude = hud_config.enemy_ship_shake_amplitude;
+    shake.trauma += hud_config.enemy_ship_shake_trauma * factor;
     shake.decay = hud_config.enemy_ship_shake_decay;
+    shake.exponent = hud_config.enemy_ship_shake_exponent;
 }
 
 fn weapon() -> impl Bundle {
@@ -271,18 +276,26 @@ fn tilt_player_ship_with_velocity(
 }
 
 fn shake_screen_on_damage(
-    _: Trigger<OnDamage>,
+    trigger: Trigger<OnDamage>,
     hud_config: ConfigRef<HudConfig>,
-    shake_query: Query<&mut Shake, With<HasScreenShake>>,
-    node_shake_query: Query<&mut NodeShake, With<HasScreenShake>>,
+    mut shake_query: Query<&mut Shake, With<ShakeWithScreen>>,
+    mut node_shake_query: Query<&mut NodeShake, With<ShakeWithScreen>>,
 ) {
     let hud_config = r!(hud_config.get());
-    for mut shake in shake_query {
-        shake.magnitude = hud_config.screen_shake_magnitude_camera;
-        shake.decay = hud_config.screen_shake_decay_camera;
+    let factor = hud_config
+        .screen_shake_damage_factor
+        .powf(trigger.0.max(hud_config.screen_shake_damage_min) - 1.0);
+
+    for mut shake in &mut shake_query {
+        shake.amplitude = hud_config.camera_screen_shake_amplitude;
+        shake.trauma += hud_config.camera_screen_shake_trauma * factor;
+        shake.decay = hud_config.camera_screen_shake_decay;
+        shake.exponent = hud_config.camera_screen_shake_exponent;
     }
-    for mut node_shake in node_shake_query {
-        node_shake.magnitude = hud_config.screen_shake_magnitude_ui;
-        node_shake.decay = hud_config.screen_shake_decay_ui;
+    for mut node_shake in &mut node_shake_query {
+        node_shake.amplitude = hud_config.ui_screen_shake_amplitude;
+        node_shake.trauma += hud_config.ui_screen_shake_trauma * factor;
+        node_shake.decay = hud_config.ui_screen_shake_decay;
+        node_shake.exponent = hud_config.ui_screen_shake_exponent;
     }
 }

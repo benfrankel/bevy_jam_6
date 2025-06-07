@@ -6,16 +6,18 @@
             Module(condition: Repair, effect: Repair),
         ],
         hand: [
-            //Module(condition: Nothing, effect: Laser),
-            //Module(condition: Laser, effect: Laser),
-            //Module(condition: Laser, effect: Laser),
-            //Module(condition: Laser, effect: Laser),
-            //Module(condition: Laser, effect: Laser),
+            Module(condition: Nothing, effect: Missile),
+            Module(condition: Nothing, effect: Missile),
+            Module(condition: Nothing, effect: Laser),
+            Module(condition: Nothing, effect: Fireball),
+            Module(condition: Nothing, effect: Repair),
+            /*
             Module(condition: Nothing, effect: Missile),
             Module(condition: Nothing, effect: Repair),
             Module(condition: Missile, effect: Missile),
             Module(condition: Missile, effect: Repair),
             Module(condition: Repair, effect: Missile),
+            */
         ],
         selected_idx: 2,
 

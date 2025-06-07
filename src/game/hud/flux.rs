@@ -83,8 +83,13 @@ fn sync_flux_label(
 
         let new_text = RichText::from_sections(parse_rich(format!("flux {}x", player_deck.flux)));
         if !text.sections.is_empty() && text.sections[0].value != new_text.sections[0].value {
-            shake.magnitude += hud_config.flux_shake_magnitude * player_deck.flux.max(3.0);
+            let factor = hud_config
+                .flux_shake_flux_factor
+                .powf(player_deck.flux.max(hud_config.flux_shake_flux_min) - 1.0);
+            shake.amplitude = hud_config.flux_shake_amplitude;
+            shake.trauma += hud_config.flux_shake_trauma * factor;
             shake.decay = hud_config.flux_shake_decay;
+            shake.exponent = hud_config.flux_shake_exponent;
         }
         *text = new_text;
     }
