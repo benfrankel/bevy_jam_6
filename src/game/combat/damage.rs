@@ -1,3 +1,6 @@
+use crate::core::audio::AudioSettings;
+use crate::core::audio::sfx_audio;
+use crate::game::GameAssets;
 use crate::game::combat::health::Health;
 use crate::game::level::Level;
 use crate::game::ship::IsEnemyShip;
@@ -45,6 +48,7 @@ impl Configure for OnDamage {
         app.register_type::<Self>();
         app.add_observer(deal_damage_on_collision);
         app.add_observer(reduce_health_on_damage);
+        app.add_observer(play_ship_hurt_sfx_on_damage);
     }
 }
 
@@ -67,6 +71,18 @@ fn deal_damage_on_collision(
 fn reduce_health_on_damage(trigger: Trigger<OnDamage>, mut health_query: Query<&mut Health>) {
     let target = r!(trigger.get_target());
     r!(health_query.get_mut(target)).current -= trigger.0;
+}
+
+fn play_ship_hurt_sfx_on_damage(
+    _: Trigger<OnDamage>,
+    mut commands: Commands,
+    audio_settings: Res<AudioSettings>,
+    game_assets: Res<GameAssets>,
+) {
+    commands.spawn((
+        sfx_audio(&audio_settings, game_assets.ship_hurt_sfx.clone(), 0.7),
+        DespawnOnExitState::<Level>::default(),
+    ));
 }
 
 #[derive(Component, Reflect)]
