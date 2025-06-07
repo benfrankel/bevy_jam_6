@@ -23,6 +23,8 @@ impl Configure for Damage {
 #[derive(Asset, Reflect, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields, default)]
 struct DamageConfig {
+    damage_popup_font_size: f32,
+    damage_popup_font_color: Color,
     damage_popup_offset: Vec2,
     damage_popup_offset_spread: Vec2,
     damage_popup_velocity: Vec2,
@@ -92,11 +94,11 @@ fn display_damage_indicator(
     enemy_ship: Single<(Entity, &Sprite, &Transform), With<IsEnemyShip>>,
 ) {
     let rng = &mut thread_rng();
-    let entity = r!(trigger.get_target());
+    let target = r!(trigger.get_target());
     let damage_config = r!(damage_config.get());
-    let (sprite, mut transform) = if entity == *player_ship {
+    let (sprite, mut transform) = if target == *player_ship {
         (player_ship_body.0, player_ship_body.1.compute_transform())
-    } else if entity == enemy_ship.0 {
+    } else if target == enemy_ship.0 {
         (enemy_ship.1, *enemy_ship.2)
     } else {
         warn!("No match found for entity.");
@@ -112,11 +114,11 @@ fn display_damage_indicator(
         Text2d::new(format!("-{}", trigger.0)),
         TextFont {
             font: default(),
-            font_size: 12. + (trigger.0 * 1.5),
+            font_size: damage_config.damage_popup_font_size + trigger.0,
             line_height: default(),
             font_smoothing: FontSmoothing::None,
         },
-        TextColor::from(Color::srgba(0.9, 0.1, 0.1, 1.)),
+        TextColor::from(damage_config.damage_popup_font_color),
         transform,
         RigidBody::Kinematic,
         LinearVelocity(damage_config.damage_popup_velocity),

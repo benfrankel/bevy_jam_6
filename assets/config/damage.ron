@@ -1,4 +1,6 @@
 (
+    damage_popup_font_size: 12.0,
+    damage_popup_font_color: Srgba(Srgba(red: 0.9, green: 0.1, blue: 0.1, alpha: 1.0)),
     damage_popup_offset: Vec2(0, 8),
     damage_popup_offset_spread: Vec2(40, 10),
     damage_popup_velocity: Vec2(0, 10),

@@ -1,4 +1,4 @@
-use crate::game::GameAssets;
+use bevy::text::FontSmoothing;
 use crate::game::combat::death::OnDeath;
 use crate::prelude::*;
 
@@ -20,6 +20,8 @@ pub fn health_bar() -> impl Bundle {
 #[serde(deny_unknown_fields, default)]
 struct HealthConfig {
     health_bar_color_ramp: Vec<Color>,
+    heal_popup_font_size: f32,
+    heal_popup_font_color: Color,
     heal_popup_offset: Vec2,
     heal_popup_offset_spread: Vec2,
     heal_popup_velocity: Vec2,
@@ -149,7 +151,6 @@ impl Configure for IsHealPopup {
 fn spawn_heal_popup_on_heal(
     trigger: Trigger<OnHeal>,
     mut commands: Commands,
-    game_assets: Res<GameAssets>,
     health_config: ConfigRef<HealthConfig>,
     transform_query: Query<&Transform>,
 ) {
@@ -163,14 +164,16 @@ fn spawn_heal_popup_on_heal(
         + health_config.heal_popup_offset_spread * rng.gen_range(-1.0..=1.0))
     .extend(0.0);
 
-    // Randomize orientation.
-    let mut sprite = Sprite::from_image(game_assets.heal_popup.clone());
-    sprite.flip_x = rng.r#gen();
-    sprite.flip_y = rng.r#gen();
-
     commands.spawn((
         IsHealPopup,
-        sprite,
+        Text2d::new(format!("+{}", trigger.0)),
+        TextFont {
+            font: default(),
+            font_size: health_config.heal_popup_font_size + trigger.0,
+            line_height: default(),
+            font_smoothing: FontSmoothing::None,
+        },
+        TextColor::from(health_config.heal_popup_font_color),
         transform,
         RigidBody::Kinematic,
         LinearVelocity(health_config.heal_popup_velocity),
@@ -181,14 +184,14 @@ fn apply_fade_out_to_heal_popup(
     mut commands: Commands,
     time: Res<Time>,
     health_config: ConfigRef<HealthConfig>,
-    heal_popup_query: Query<(Entity, &mut Sprite), With<IsHealPopup>>,
+    heal_popup_query: Query<(Entity, &mut TextColor), With<IsHealPopup>>,
 ) {
     let health_config = r!(health_config.get());
-    for (entity, mut sprite) in heal_popup_query {
-        let alpha = sprite.color.alpha() - health_config.heal_popup_fade_rate * time.delta_secs();
-        sprite.color = Color::WHITE.with_alpha(alpha);
+    for (entity, mut text) in heal_popup_query {
+        let alpha = text.0.alpha() - health_config.heal_popup_fade_rate * time.delta_secs();
+        text.0 = text.0.with_alpha(alpha);
 
-        if sprite.color.alpha() < f32::EPSILON {
+        if text.0.alpha() < f32::EPSILON {
             commands.entity(entity).try_despawn();
         }
     }
