@@ -7,10 +7,13 @@
         Oklcha(Oklcha(lightness: 0.700, chroma: 0.150, hue: 150, alpha: 0.600)),
     ],
 
-    heal_popup_font_size: 12.0,
+    heal_popup_font_size: 8,
     heal_popup_font_color: Srgba(Srgba(red: 0.1, green: 0.8, blue: 0.1, alpha: 1.0)),
     heal_popup_offset: Vec2(0, 8),
     heal_popup_offset_spread: Vec2(40, 10),
     heal_popup_velocity: Vec2(0, 10),
     heal_popup_fade_rate: 0.7,
+    heal_popup_scale: 0.8,
+    heal_popup_scale_factor: 1.05,
+    heal_popup_scale_max: 4,
 )

@@ -1,6 +1,7 @@
 use bevy::text::FontSmoothing;
 
 use crate::game::combat::health::Health;
+use crate::game::level::Level;
 use crate::game::ship::IsEnemyShip;
 use crate::game::ship::IsPlayerShip;
 use crate::game::ship::IsPlayerShipBody;
@@ -29,6 +30,9 @@ struct DamageConfig {
     damage_popup_offset_spread: Vec2,
     damage_popup_velocity: Vec2,
     damage_popup_fade_rate: f32,
+    damage_popup_scale: f32,
+    damage_popup_scale_factor: f32,
+    damage_popup_scale_max: f32,
 }
 
 impl Config for DamageConfig {
@@ -43,23 +47,6 @@ impl Configure for OnDamage {
         app.register_type::<Self>();
         app.add_observer(deal_damage_on_collision);
         app.add_observer(reduce_health_on_damage);
-    }
-}
-
-#[derive(Component, Reflect)]
-#[reflect(Component)]
-struct IsDamagePopup;
-
-impl Configure for IsDamagePopup {
-    fn configure(app: &mut App) {
-        app.register_type::<Self>();
-        app.add_observer(display_damage_indicator);
-        app.add_systems(
-            Update,
-            apply_fade_out_to_damage_popup
-                .in_set(UpdateSystems::Update)
-                .in_set(PausableSystems),
-        );
     }
 }
 
@@ -84,7 +71,24 @@ fn reduce_health_on_damage(trigger: Trigger<OnDamage>, mut health_query: Query<&
     r!(health_query.get_mut(target)).current -= trigger.0;
 }
 
-fn display_damage_indicator(
+#[derive(Component, Reflect)]
+#[reflect(Component)]
+struct IsDamagePopup;
+
+impl Configure for IsDamagePopup {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+        app.add_observer(spawn_damage_popup_on_damage);
+        app.add_systems(
+            Update,
+            apply_fade_out_to_damage_popup
+                .in_set(UpdateSystems::Update)
+                .in_set(PausableSystems),
+        );
+    }
+}
+
+fn spawn_damage_popup_on_damage(
     trigger: Trigger<OnDamage>,
     mut commands: Commands,
     assets: Res<Assets<Image>>,
@@ -93,9 +97,9 @@ fn display_damage_indicator(
     player_ship_body: Single<(&Sprite, &GlobalTransform), With<IsPlayerShipBody>>,
     enemy_ship: Single<(Entity, &Sprite, &Transform), With<IsEnemyShip>>,
 ) {
-    let rng = &mut thread_rng();
     let target = r!(trigger.get_target());
     let damage_config = r!(damage_config.get());
+
     let (sprite, mut transform) = if target == *player_ship {
         (player_ship_body.0, player_ship_body.1.compute_transform())
     } else if target == enemy_ship.0 {
@@ -105,23 +109,36 @@ fn display_damage_indicator(
         return;
     };
     let sprite_size = r!(assets.get(&sprite.image)).size_f32();
+
+    // Randomize position.
+    let rng = &mut thread_rng();
     let point = Rectangle::from_size(sprite_size).sample_interior(rng);
     transform.translation.x += point.x;
     transform.translation.y += point.y;
+
+    // Scale with number.
+    let scale = (damage_config.damage_popup_scale
+        * damage_config
+            .damage_popup_scale_factor
+            .max(1.0)
+            .powf(trigger.0))
+    .min(damage_config.damage_popup_scale_max);
+    transform.scale = (transform.scale.xy() * Vec2::splat(scale)).extend(transform.scale.z);
 
     commands.spawn((
         IsDamagePopup,
         Text2d::new(format!("-{}", trigger.0)),
         TextFont {
-            font: default(),
-            font_size: damage_config.damage_popup_font_size + trigger.0,
-            line_height: default(),
+            font: FONT_HANDLE,
+            font_size: damage_config.damage_popup_font_size,
             font_smoothing: FontSmoothing::None,
+            ..default()
         },
         TextColor::from(damage_config.damage_popup_font_color),
         transform,
         RigidBody::Kinematic,
         LinearVelocity(damage_config.damage_popup_velocity),
+        DespawnOnExitState::<Level>::default(),
     ));
 }
 

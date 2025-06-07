@@ -268,7 +268,7 @@ impl EnemyDeck {
     pub fn step(&mut self, round: usize) -> Option<ModuleAction> {
         if self.is_done(round) {
             self.action_idx = 0;
-            self.flux = 1.0;
+            self.flux = 0.0;
             None
         } else {
             self.action_idx += 1;

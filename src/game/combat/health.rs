@@ -1,6 +1,7 @@
 use bevy::text::FontSmoothing;
 
 use crate::game::combat::death::OnDeath;
+use crate::game::level::Level;
 use crate::prelude::*;
 
 pub fn plugin(app: &mut App) {
@@ -27,6 +28,9 @@ struct HealthConfig {
     heal_popup_offset_spread: Vec2,
     heal_popup_velocity: Vec2,
     heal_popup_fade_rate: f32,
+    heal_popup_scale: f32,
+    heal_popup_scale_factor: f32,
+    heal_popup_scale_max: f32,
 }
 
 impl Config for HealthConfig {
@@ -165,19 +169,29 @@ fn spawn_heal_popup_on_heal(
         + health_config.heal_popup_offset_spread * rng.gen_range(-1.0..=1.0))
     .extend(0.0);
 
+    // Scale with number.
+    let scale = (health_config.heal_popup_scale
+        * health_config
+            .heal_popup_scale_factor
+            .max(1.0)
+            .powf(trigger.0))
+    .min(health_config.heal_popup_scale_max);
+    transform.scale = (transform.scale.xy() * Vec2::splat(scale)).extend(transform.scale.z);
+
     commands.spawn((
         IsHealPopup,
         Text2d::new(format!("+{}", trigger.0)),
         TextFont {
-            font: default(),
-            font_size: health_config.heal_popup_font_size + trigger.0,
-            line_height: default(),
+            font: FONT_HANDLE,
+            font_size: health_config.heal_popup_font_size,
             font_smoothing: FontSmoothing::None,
+            ..default()
         },
         TextColor::from(health_config.heal_popup_font_color),
         transform,
         RigidBody::Kinematic,
         LinearVelocity(health_config.heal_popup_velocity),
+        DespawnOnExitState::<Level>::default(),
     ));
 }
 
