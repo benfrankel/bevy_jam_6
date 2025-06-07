@@ -1,5 +1,3 @@
-use bevy::text::FontSmoothing;
-
 use crate::game::combat::health::Health;
 use crate::game::level::Level;
 use crate::game::ship::IsEnemyShip;
@@ -113,8 +111,7 @@ fn spawn_damage_popup_on_damage(
     // Randomize position.
     let rng = &mut thread_rng();
     let point = Rectangle::from_size(sprite_size).sample_interior(rng);
-    transform.translation.x += point.x;
-    transform.translation.y += point.y;
+    transform.translation += point.extend(5.0);
 
     // Scale with number.
     let scale = (damage_config.damage_popup_scale
@@ -126,12 +123,12 @@ fn spawn_damage_popup_on_damage(
     transform.scale = (transform.scale.xy() * Vec2::splat(scale)).extend(transform.scale.z);
 
     commands.spawn((
+        Name::new("DamagePopup"),
         IsDamagePopup,
-        Text2d::new(format!("-{}", trigger.0)),
+        Text2d::new("-".to_string()),
         TextFont {
             font: FONT_HANDLE,
             font_size: damage_config.damage_popup_font_size,
-            font_smoothing: FontSmoothing::None,
             ..default()
         },
         TextColor::from(damage_config.damage_popup_font_color),
@@ -139,6 +136,16 @@ fn spawn_damage_popup_on_damage(
         RigidBody::Kinematic,
         LinearVelocity(damage_config.damage_popup_velocity),
         DespawnOnExitState::<Level>::default(),
+        children![(
+            Name::new("Number"),
+            TextSpan(trigger.0.to_string()),
+            TextFont {
+                font: BOLD_FONT_HANDLE,
+                font_size: damage_config.damage_popup_font_size,
+                ..default()
+            },
+            TextColor::from(damage_config.damage_popup_font_color),
+        )],
     ));
 }
 
@@ -146,15 +153,25 @@ fn apply_fade_out_to_damage_popup(
     mut commands: Commands,
     time: Res<Time>,
     damage_config: ConfigRef<DamageConfig>,
-    damage_popup_query: Query<(Entity, &mut TextColor), With<IsDamagePopup>>,
+    damage_popup_query: Query<(Entity, &Children), With<IsDamagePopup>>,
+    mut text_color_query: Query<&mut TextColor>,
 ) {
     let damage_config = r!(damage_config.get());
-    for (entity, mut text_color) in damage_popup_query {
-        let alpha = text_color.0.alpha() - damage_config.damage_popup_fade_rate * time.delta_secs();
-        text_color.0 = text_color.0.with_alpha(alpha);
+    for (entity, children) in damage_popup_query {
+        if let Ok(mut text_color) = text_color_query.get_mut(entity) {
+            let alpha =
+                text_color.0.alpha() - damage_config.damage_popup_fade_rate * time.delta_secs();
+            text_color.0 = text_color.0.with_alpha(alpha);
+            if text_color.0.alpha() < f32::EPSILON {
+                commands.entity(entity).try_despawn();
+            }
+        }
 
-        if text_color.0.alpha() < f32::EPSILON {
-            commands.entity(entity).try_despawn();
+        for &child in children {
+            let mut text_color = cq!(text_color_query.get_mut(child));
+            let alpha =
+                text_color.0.alpha() - damage_config.damage_popup_fade_rate * time.delta_secs();
+            text_color.0 = text_color.0.with_alpha(alpha);
         }
     }
 }

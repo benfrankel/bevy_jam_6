@@ -1,5 +1,3 @@
-use bevy::text::FontSmoothing;
-
 use crate::game::combat::death::OnDeath;
 use crate::game::level::Level;
 use crate::prelude::*;
@@ -167,7 +165,7 @@ fn spawn_heal_popup_on_heal(
     let mut transform = *r!(transform_query.get(target));
     transform.translation += (health_config.heal_popup_offset
         + health_config.heal_popup_offset_spread * rng.gen_range(-1.0..=1.0))
-    .extend(0.0);
+    .extend(5.0);
 
     // Scale with number.
     let scale = (health_config.heal_popup_scale
@@ -180,11 +178,10 @@ fn spawn_heal_popup_on_heal(
 
     commands.spawn((
         IsHealPopup,
-        Text2d::new(format!("+{}", trigger.0)),
+        Text2d::new("+".to_string()),
         TextFont {
             font: FONT_HANDLE,
             font_size: health_config.heal_popup_font_size,
-            font_smoothing: FontSmoothing::None,
             ..default()
         },
         TextColor::from(health_config.heal_popup_font_color),
@@ -192,6 +189,16 @@ fn spawn_heal_popup_on_heal(
         RigidBody::Kinematic,
         LinearVelocity(health_config.heal_popup_velocity),
         DespawnOnExitState::<Level>::default(),
+        children![(
+            Name::new("Number"),
+            TextSpan(trigger.0.to_string()),
+            TextFont {
+                font: BOLD_FONT_HANDLE,
+                font_size: health_config.heal_popup_font_size,
+                ..default()
+            },
+            TextColor::from(health_config.heal_popup_font_color),
+        )],
     ));
 }
 
@@ -199,15 +206,25 @@ fn apply_fade_out_to_heal_popup(
     mut commands: Commands,
     time: Res<Time>,
     health_config: ConfigRef<HealthConfig>,
-    heal_popup_query: Query<(Entity, &mut TextColor), With<IsHealPopup>>,
+    heal_popup_query: Query<(Entity, &Children), With<IsHealPopup>>,
+    mut text_color_query: Query<&mut TextColor>,
 ) {
     let health_config = r!(health_config.get());
-    for (entity, mut text) in heal_popup_query {
-        let alpha = text.0.alpha() - health_config.heal_popup_fade_rate * time.delta_secs();
-        text.0 = text.0.with_alpha(alpha);
+    for (entity, children) in heal_popup_query {
+        if let Ok(mut text_color) = text_color_query.get_mut(entity) {
+            let alpha =
+                text_color.0.alpha() - health_config.heal_popup_fade_rate * time.delta_secs();
+            text_color.0 = text_color.0.with_alpha(alpha);
+            if text_color.0.alpha() < f32::EPSILON {
+                commands.entity(entity).try_despawn();
+            }
+        }
 
-        if text.0.alpha() < f32::EPSILON {
-            commands.entity(entity).try_despawn();
+        for &child in children {
+            let mut text_color = cq!(text_color_query.get_mut(child));
+            let alpha =
+                text_color.0.alpha() - health_config.heal_popup_fade_rate * time.delta_secs();
+            text_color.0 = text_color.0.with_alpha(alpha);
         }
     }
 }
