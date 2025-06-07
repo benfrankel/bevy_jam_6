@@ -284,9 +284,9 @@ where
         },
         marker,
         children![
-            (small_button("<", left_action), InteractionDisabled(false)),
+            small_button("<", left_action),
             stretch(children![label("")]),
-            (small_button(">", right_action), InteractionDisabled(false)),
+            small_button(">", right_action),
         ],
     )
 }
