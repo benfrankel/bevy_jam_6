@@ -255,6 +255,7 @@ where
             label_base(font_size, ThemeColor::PrimaryText, text),
             Pickable::IGNORE,
         )],
+        InteractionDisabled(false),
         Patch(|entity| {
             entity.observe(action);
         }),

@@ -3,74 +3,171 @@
         // Level 0:
         LevelSetup(
             enemy_deck: EnemyDeck(actions: [Missile, Missile, Missile]),
-            enemy_health: 20,
-            reward_max_health: 50,
-            reward_heat_capacity: 4,
-            reward_reactor_slots: 1,
+            enemy_health: 1,
+            fixed_rewards: [
+                MaxHealth(50),
+                HeatCapacity(4),
+                ReactorSlots(1),
+                Module(Module(
+                    condition: Nothing,
+                    effect: Laser,
+                    status: FaceUp,
+                    heat: 0.0,
+                )),
+            ]
         ),
 
         // Level 1:
         LevelSetup(
             enemy_deck: EnemyDeck(actions: [Missile, Missile, Missile, Missile, Missile, Missile]),
             enemy_health: 50,
-            reward_max_health: 50,
-            reward_heat_capacity: 4,
-            reward_reactor_slots: 1,
+            fixed_rewards: [
+                MaxHealth(50),
+                HeatCapacity(4),
+                ReactorSlots(1),
+                Module(Module(
+                    condition: Nothing,
+                    effect: Laser,
+                    status: FaceUp,
+                    heat: 0.0,
+                )),
+            ],
         ),
 
         // Level 2:
         LevelSetup(
             enemy_deck: EnemyDeck(actions: [Missile, Missile, Missile, Missile, Missile, Missile]),
             enemy_health: 100,
-            reward_max_health: 50,
-            reward_heat_capacity: 4,
-            reward_reactor_slots: 1,
+            fixed_rewards: [
+                MaxHealth(50),
+                HeatCapacity(4),
+                ReactorSlots(1),
+                Module(Module(
+                    condition: Nothing,
+                    effect: Laser,
+                    status: FaceUp,
+                    heat: 0.0,
+                )),
+            ],
         ),
 
         // Level 3:
         LevelSetup(
             enemy_deck: EnemyDeck(actions: [Missile, Missile, Missile, Missile, Missile, Missile]),
             enemy_health: 200,
-            reward_reactor_slots: 3,
+            fixed_rewards: [
+                MaxHealth(50),
+                HeatCapacity(4),
+                ReactorSlots(1),
+                Module(Module(
+                    condition: Nothing,
+                    effect: Laser,
+                    status: FaceUp,
+                    heat: 0.0,
+                )),
+            ],
         ),
 
         // Level 4:
         LevelSetup(
             enemy_deck: EnemyDeck(actions: [Missile, Missile, Missile, Missile, Missile, Missile]),
             enemy_health: 300,
+            fixed_rewards: [
+                MaxHealth(50),
+                HeatCapacity(4),
+                ReactorSlots(1),
+                Module(Module(
+                    condition: Nothing,
+                    effect: Laser,
+                    status: FaceUp,
+                    heat: 0.0,
+                )),
+            ],
         ),
 
         // Level 5:
         LevelSetup(
             enemy_deck: EnemyDeck(actions: [Missile, Missile, Missile, Missile, Missile, Missile]),
             enemy_health: 400,
-            reward_reactor_slots: 3,
+            fixed_rewards: [
+                MaxHealth(50),
+                HeatCapacity(4),
+                ReactorSlots(1),
+                Module(Module(
+                    condition: Nothing,
+                    effect: Laser,
+                    status: FaceUp,
+                    heat: 0.0,
+                )),
+            ],
         ),
 
         // Level 6:
         LevelSetup(
             enemy_deck: EnemyDeck(actions: [Missile, Missile, Missile, Missile, Missile, Missile]),
             enemy_health: 500,
+            fixed_rewards: [
+                MaxHealth(50),
+                HeatCapacity(4),
+                ReactorSlots(1),
+                Module(Module(
+                    condition: Nothing,
+                    effect: Laser,
+                    status: FaceUp,
+                    heat: 0.0,
+                )),
+            ],
         ),
 
         // Level 7:
         LevelSetup(
             enemy_deck: EnemyDeck(actions: [Missile, Missile, Missile, Missile, Missile, Missile]),
             enemy_health: 600,
-            reward_reactor_slots: 3,
+            fixed_rewards: [
+                MaxHealth(50),
+                HeatCapacity(4),
+                ReactorSlots(1),
+                Module(Module(
+                    condition: Nothing,
+                    effect: Laser,
+                    status: FaceUp,
+                    heat: 0.0,
+                )),
+            ],
         ),
 
         // Level 8:
         LevelSetup(
             enemy_deck: EnemyDeck(actions: [Missile, Missile, Missile, Missile, Missile, Missile]),
             enemy_health: 700,
-            reward_reactor_slots: 3,
+            fixed_rewards: [
+                MaxHealth(50),
+                HeatCapacity(4),
+                ReactorSlots(1),
+                Module(Module(
+                    condition: Nothing,
+                    effect: Laser,
+                    status: FaceUp,
+                    heat: 0.0,
+                )),
+            ],
         ),
 
         // Level 9:
         LevelSetup(
             enemy_deck: EnemyDeck(actions: [Missile, Missile, Missile, Missile, Missile, Missile]),
             enemy_health: 800,
+            fixed_rewards: [
+                MaxHealth(50),
+                HeatCapacity(4),
+                ReactorSlots(1),
+                Module(Module(
+                    condition: Nothing,
+                    effect: Laser,
+                    status: FaceUp,
+                    heat: 0.0,
+                )),
+            ],
         ),
     ],
 )

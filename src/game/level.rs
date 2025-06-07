@@ -31,10 +31,7 @@ impl Config for LevelConfig {
 pub struct LevelSetup {
     pub enemy_deck: EnemyDeck,
     pub enemy_health: f32,
-    pub reward_max_health: f32,
-    pub reward_heat_capacity: f32,
-    pub reward_reactor_slots: usize,
-    // pub fixed_rewards: Vec<LevelReward>,
+    pub fixed_rewards: Vec<LevelReward>,
 }
 
 #[derive(Reflect, Copy, Clone, Debug, Serialize, Deserialize)]
