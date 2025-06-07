@@ -72,7 +72,7 @@ pub fn fade_in(title_assets: &TitleAssets) -> impl Bundle {
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
-struct FadeOut {
+pub struct FadeOut {
     duration: f32,
     remaining: f32,
     to_screen: Screen,

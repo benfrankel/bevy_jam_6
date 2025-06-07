@@ -57,11 +57,11 @@ impl Module {
             ModuleStatus::SlotEmpty => format!("{header}\n\nEmpty slot"),
             _ => {
                 let condition = match self.condition {
-                    ModuleAction::Nothing => "Unconditionally ",
-                    ModuleAction::Missile => "After firing a missile, ",
-                    ModuleAction::Laser => "After firing a laser, ",
-                    ModuleAction::Fireball => "After unleashing a great fireball, ",
-                    ModuleAction::Repair => "After repairing the hull, ",
+                    ModuleAction::Nothing => "",
+                    ModuleAction::Missile => "after firing a missile, ",
+                    ModuleAction::Laser => "after firing a laser, ",
+                    ModuleAction::Fireball => "after unleashing a great fireball, ",
+                    ModuleAction::Repair => "after repairing the hull, ",
                 };
                 let effect = match (&self.condition, &self.effect) {
                     (_, ModuleAction::Nothing) => "do nothing",
@@ -69,12 +69,23 @@ impl Module {
                     (_, ModuleAction::Missile) => "fire a missile",
                     (ModuleAction::Laser, ModuleAction::Laser) => "fire another laser",
                     (_, ModuleAction::Laser) => "fire a laser",
-                    (ModuleAction::Fireball, ModuleAction::Fireball) => "unleash a great fireball",
-                    (_, ModuleAction::Fireball) => "breathe fire",
+                    (ModuleAction::Fireball, ModuleAction::Fireball) => {
+                        "unleash another great fireball"
+                    },
+                    (_, ModuleAction::Fireball) => "unleash a great fireball",
                     (ModuleAction::Repair, ModuleAction::Repair) => "repair the hull again",
                     (_, ModuleAction::Repair) => "repair the hull",
                 };
-                format!("{header}{heat}\n\n{condition}{effect}.")
+                let body = format!("{condition}{effect}.");
+                let mut chars = body.chars();
+                let body = match chars.next() {
+                    Some(c) => c.to_uppercase().to_string() + chars.as_str(),
+                    None => String::new(),
+                };
+
+                let stats = "Damage: 8";
+
+                format!("{header}{heat}\n\n{body}\n\n{stats}")
             },
         }))
     }

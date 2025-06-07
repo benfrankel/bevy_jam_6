@@ -3,9 +3,6 @@ pub mod gameplay;
 mod splash;
 pub mod title;
 
-use bevy::ecs::schedule::ScheduleConfigs;
-use bevy::ecs::system::ScheduleSystem;
-
 use crate::core::camera::CameraRoot;
 use crate::game::level::Level;
 use crate::menu::Menu;
@@ -105,11 +102,4 @@ fn reset_screen_time(mut screen_time: ResMut<ScreenTime>) {
 
 fn tick_screen_time(time: Res<Time>, mut screen_time: ResMut<ScreenTime>) {
     screen_time.0 += time.delta();
-}
-
-fn wait_in_screen(duration: f32) -> ScheduleConfigs<ScheduleSystem> {
-    (move |screen_time: Res<ScreenTime>| -> Progress {
-        (screen_time.0.as_secs_f32() >= duration).into()
-    })
-    .track_progress::<BevyState<Screen>>()
 }
