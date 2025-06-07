@@ -14,7 +14,7 @@
     module_shake_exponent: 1,
 
     screen_shake_damage_factor: 1.17,
-    screen_shake_damage_min: 3,
+    screen_shake_damage_min: 4,
     ui_screen_shake_amplitude: Vec2(12, 12),
     ui_screen_shake_trauma: 0.15,
     ui_screen_shake_decay: 1.7,
@@ -30,10 +30,10 @@
     //player_ship_shake_decay: 1,
     //player_ship_shake_exponent: 2,
 
-    enemy_ship_shake_damage_factor: 1.1,
-    enemy_ship_shake_damage_min: 5,
+    enemy_ship_shake_damage_factor: 1.06,
+    enemy_ship_shake_damage_min: 12,
     enemy_ship_shake_amplitude: Vec2(180, 80),
     enemy_ship_shake_trauma: 0.04,
-    enemy_ship_shake_decay: 0.8,
+    enemy_ship_shake_decay: 0.6,
     enemy_ship_shake_exponent: 1.2,
 )
