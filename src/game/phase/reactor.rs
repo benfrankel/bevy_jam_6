@@ -13,11 +13,11 @@ use crate::prelude::*;
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(
         StateFlush,
-        Phase::PowerUp.on_enter(reset_step_timer_for_power_up),
+        Phase::Reactor.on_enter(reset_step_timer_for_power_up),
     );
     app.add_systems(
         Update,
-        Phase::PowerUp.on_update(
+        Phase::Reactor.on_update(
             step_power_up_phase
                 .in_set(UpdateSystems::Update)
                 .run_if(on_step_timer),
@@ -30,7 +30,7 @@ fn reset_step_timer_for_power_up(
     mut step_timer: ResMut<StepTimer>,
 ) {
     let phase_config = r!(phase_config.get());
-    step_timer.0 = Timer::from_seconds(phase_config.power_up_first_cooldown, TimerMode::Once);
+    step_timer.0 = Timer::from_seconds(phase_config.reactor_first_cooldown, TimerMode::Once);
 }
 
 fn step_power_up_phase(
@@ -46,7 +46,7 @@ fn step_power_up_phase(
     let phase_config = r!(phase_config.get());
 
     // Step powering up the reactor.
-    if !player_deck.step_power_up() {
+    if !player_deck.step_reactor() {
         phase.enter(Phase::Player);
         return;
     }
@@ -54,16 +54,16 @@ fn step_power_up_phase(
         sfx_audio(
             &audio_settings,
             game_assets.module_activate_sfx.clone(),
-            2f32.powf((player_deck.flux - 1.0) / phase_config.power_up_sfx_tones),
+            2f32.powf((player_deck.flux - 1.0) / phase_config.reactor_sfx_tones),
         ),
         DespawnOnExitState::<Level>::default(),
     ));
 
     // Set the next cooldown.
-    let cooldown = Duration::from_secs_f32(if player_deck.is_power_up_done() {
-        phase_config.power_up_last_cooldown
+    let cooldown = Duration::from_secs_f32(if player_deck.is_reactor_done() {
+        phase_config.reactor_last_cooldown
     } else {
-        phase_config.power_up_cooldown * phase_config.power_up_cooldown_decay.powf(step.0 as _)
+        phase_config.reactor_cooldown * phase_config.reactor_cooldown_decay.powf(step.0 as _)
     });
     step_timer.0.set_duration(cooldown);
 }

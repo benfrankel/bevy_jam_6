@@ -16,7 +16,7 @@ pub(super) fn plugin(app: &mut App) {
 }
 
 fn skip_helm_phase(mut phase: NextMut<Phase>) {
-    phase.enter(Phase::PowerUp);
+    phase.enter(Phase::Reactor);
 }
 
 fn helm_is_empty(player_deck: Res<PlayerDeck>) -> bool {
@@ -118,7 +118,7 @@ fn helm_play_module(
     mut phase: NextMut<Phase>,
 ) {
     if player_deck.play_selected() {
-        phase.enter(Phase::PowerUp);
+        phase.enter(Phase::Reactor);
         commands.spawn((
             sfx_audio(&audio_settings, game_assets.module_insert_sfx.clone(), 1.0),
             DespawnOnExitState::<Level>::default(),
@@ -127,5 +127,5 @@ fn helm_play_module(
 }
 
 fn helm_end_turn(mut phase: NextMut<Phase>) {
-    phase.enter(Phase::PowerUp);
+    phase.enter(Phase::Reactor);
 }

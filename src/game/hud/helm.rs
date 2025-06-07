@@ -215,7 +215,7 @@ fn sync_phase_display(
         image_node.image = match phase {
             Phase::Setup => &game_assets.phase_setup,
             Phase::Helm => &game_assets.phase_player,
-            Phase::PowerUp | Phase::Player | Phase::PowerDown => &game_assets.phase_reactor,
+            Phase::Reactor | Phase::Player => &game_assets.phase_reactor,
             Phase::Enemy => &game_assets.phase_enemy,
         }
         .clone();
@@ -223,7 +223,7 @@ fn sync_phase_display(
             TooltipContent::Primary(RichText::from_sections(parse_rich(match phase {
                 Phase::Setup => "[b]Setup phase[r]\n\nPreparing the ship.",
                 Phase::Helm => "[b]Player phase[r]\n\nAwaiting your command.",
-                Phase::PowerUp | Phase::Player | Phase::PowerDown => {
+                Phase::Reactor | Phase::Player => {
                     "[b]Reactor phase[r]\n\nDirecting power to the reactor."
                 },
                 Phase::Enemy => "[b]Enemy phase[r]\n\nSustaining the enemy's barrage.",

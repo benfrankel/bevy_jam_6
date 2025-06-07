@@ -28,7 +28,7 @@ fn reset_step_timer_for_player(
     mut step_timer: ResMut<StepTimer>,
     player_deck: Res<PlayerDeck>,
 ) {
-    if player_deck.is_reactor_chain_done() {
+    if player_deck.is_player_done() {
         step_timer.0 = Timer::from_seconds(0.0, TimerMode::Once);
     } else {
         let phase_config = r!(phase_config.get());
@@ -48,8 +48,8 @@ fn step_player_phase(
     let phase_config = r!(phase_config.get());
 
     // Step through the player reactor chain.
-    let Some(action) = player_deck.step_reactor_chain() else {
-        phase.enter(Phase::PowerDown);
+    let Some(action) = player_deck.step_player() else {
+        phase.enter(Phase::Enemy);
         return;
     };
     commands
@@ -57,7 +57,7 @@ fn step_player_phase(
         .trigger(OnModuleAction(action));
 
     // Set the next cooldown.
-    let cooldown = Duration::from_secs_f32(if player_deck.is_reactor_chain_done() {
+    let cooldown = Duration::from_secs_f32(if player_deck.is_player_done() {
         phase_config.player_last_cooldown
     } else {
         phase_config.player_cooldown * phase_config.player_cooldown_decay.powi(step.0 as _)
