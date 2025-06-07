@@ -13,7 +13,7 @@ fn spawn_victory_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
     commands
         .entity(menu_root.ui)
         .with_child(widget::popup(children![
-            widget::big_label("Victory"),
+            widget::header("[b]Victory"),
             (
                 Node::COLUMN_CENTER.grow(),
                 children![widget::column_of_buttons(children![

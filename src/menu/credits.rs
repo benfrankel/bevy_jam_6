@@ -25,7 +25,7 @@ fn grid() -> impl Bundle {
         Name::new("Grid"),
         Node {
             display: Display::Grid,
-            margin: UiRect::vertical(Vw(4.0)),
+            margin: UiRect::top(Vw(4.0)).with_bottom(Vw(5.2)),
             row_gap: Vw(1.4),
             column_gap: Vw(6.0),
             grid_template_columns: vec![

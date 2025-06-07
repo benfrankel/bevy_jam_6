@@ -38,7 +38,7 @@ pub fn rainbow_overlay() -> impl Bundle {
         Node::DEFAULT.full_size().abs(),
         Pickable::IGNORE,
         ThemeColor::RainbowOverlay.set::<BackgroundColor>(),
-        Rainbow { rate: 0.1 },
+        Rainbow { rate: 0.2 },
     )
 }
 
@@ -123,7 +123,7 @@ pub fn header(text: impl AsRef<str>) -> impl Bundle {
     (
         label_base(Vw(5.0), ThemeColor::BodyText, text),
         Node {
-            margin: UiRect::bottom(Vw(5.0)),
+            margin: UiRect::bottom(Vw(4.2)),
             ..default()
         },
     )
@@ -153,7 +153,7 @@ pub fn paragraph(text: &'static str) -> impl Bundle {
     (
         Name::new("Paragraph"),
         Node {
-            margin: UiRect::vertical(Vw(5.0)),
+            margin: UiRect::top(Vw(4.0)).with_bottom(Vw(5.2)),
             row_gap: Vw(1.4),
             ..Node::COLUMN_MID
         },
