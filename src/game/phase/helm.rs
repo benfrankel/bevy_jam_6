@@ -1,4 +1,8 @@
+use crate::core::audio::AudioSettings;
+use crate::core::audio::sfx_audio;
+use crate::game::GameAssets;
 use crate::game::deck::PlayerDeck;
+use crate::game::level::Level;
 use crate::game::phase::Phase;
 use crate::prelude::*;
 
@@ -106,9 +110,19 @@ fn helm_select_right(mut player_deck: ResMut<PlayerDeck>) {
     player_deck.bypass_change_detection().advance_selected(1);
 }
 
-fn helm_play_module(mut player_deck: ResMut<PlayerDeck>, mut phase: NextMut<Phase>) {
+fn helm_play_module(
+    mut commands: Commands,
+    game_assets: Res<GameAssets>,
+    audio_settings: Res<AudioSettings>,
+    mut player_deck: ResMut<PlayerDeck>,
+    mut phase: NextMut<Phase>,
+) {
     if player_deck.play_selected() {
         phase.enter(Phase::PowerUp);
+        commands.spawn((
+            sfx_audio(&audio_settings, game_assets.module_insert_sfx.clone(), 1.0),
+            DespawnOnExitState::<Level>::default(),
+        ));
     }
 }
 

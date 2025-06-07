@@ -8,6 +8,7 @@
     power_up_cooldown_decay: 0.8,
     power_up_first_cooldown: 0.8,
     power_up_last_cooldown: 0.5,
+    power_up_sfx_tones: 12,
 
     player_cooldown: 0.64,
     player_cooldown_decay: 0.8,

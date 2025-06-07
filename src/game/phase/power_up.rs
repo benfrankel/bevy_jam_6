@@ -2,6 +2,7 @@ use crate::core::audio::AudioSettings;
 use crate::core::audio::sfx_audio;
 use crate::game::GameAssets;
 use crate::game::deck::PlayerDeck;
+use crate::game::level::Level;
 use crate::game::phase::Phase;
 use crate::game::phase::PhaseConfig;
 use crate::game::phase::Step;
@@ -49,9 +50,13 @@ fn step_power_up_phase(
         phase.enter(Phase::Player);
         return;
     }
-    commands.spawn(sfx_audio(
-        &audio_settings,
-        game_assets.module_activate_sfx.clone(),
+    commands.spawn((
+        sfx_audio(
+            &audio_settings,
+            game_assets.module_activate_sfx.clone(),
+            2f32.powf((player_deck.flux - 1.0) / phase_config.power_up_sfx_tones),
+        ),
+        DespawnOnExitState::<Level>::default(),
     ));
 
     // Set the next cooldown.

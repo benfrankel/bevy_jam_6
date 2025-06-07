@@ -174,7 +174,7 @@ fn on_module_action(
                 DespawnOnExitState::<Level>::default(),
             ));
             commands.spawn((
-                sfx_audio(&audio_settings, game_assets.laser_spawn_sfx.clone()),
+                sfx_audio(&audio_settings, game_assets.laser_spawn_sfx.clone(), 1.0),
                 DespawnOnExitState::<Level>::default(),
             ));
         },

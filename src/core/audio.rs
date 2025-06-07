@@ -129,11 +129,17 @@ impl Configure for IsSfxAudio {
     }
 }
 
-pub fn sfx_audio(audio_settings: &AudioSettings, handle: Handle<AudioSource>) -> impl Bundle {
+pub fn sfx_audio(
+    audio_settings: &AudioSettings,
+    handle: Handle<AudioSource>,
+    speed: f32,
+) -> impl Bundle {
     (
         Name::new("SfxAudio"),
         AudioPlayer(handle),
-        PlaybackSettings::DESPAWN.with_volume(audio_settings.sfx_volume()),
+        PlaybackSettings::DESPAWN
+            .with_volume(audio_settings.sfx_volume())
+            .with_speed(speed),
         IsSfxAudio,
     )
 }

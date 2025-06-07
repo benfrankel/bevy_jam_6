@@ -24,6 +24,7 @@ struct PhaseConfig {
     power_up_cooldown_decay: f32,
     power_up_first_cooldown: f32,
     power_up_last_cooldown: f32,
+    power_up_sfx_tones: f32,
 
     player_cooldown: f32,
     player_cooldown_decay: f32,
