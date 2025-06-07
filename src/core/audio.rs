@@ -102,7 +102,7 @@ fn apply_audio_settings(
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-struct IsMusicAudio;
+pub struct IsMusicAudio;
 
 impl Configure for IsMusicAudio {
     fn configure(app: &mut App) {
@@ -121,7 +121,7 @@ pub fn music_audio(audio_settings: &AudioSettings, handle: Handle<AudioSource>) 
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-struct IsSfxAudio;
+pub struct IsSfxAudio;
 
 impl Configure for IsSfxAudio {
     fn configure(app: &mut App) {
@@ -146,7 +146,7 @@ pub fn sfx_audio(
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-struct IsUiAudio;
+pub struct IsUiAudio;
 
 impl Configure for IsUiAudio {
     fn configure(app: &mut App) {

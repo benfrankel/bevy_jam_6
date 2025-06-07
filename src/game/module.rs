@@ -60,7 +60,7 @@ impl Module {
                     ModuleAction::Nothing => "Unconditionally ",
                     ModuleAction::Missile => "After firing a missile, ",
                     ModuleAction::Laser => "After firing a laser, ",
-                    ModuleAction::Fireball => "After breathing fire, ",
+                    ModuleAction::Fireball => "After unleashing a great fireball, ",
                     ModuleAction::Repair => "After repairing the hull, ",
                 };
                 let effect = match (&self.condition, &self.effect) {
@@ -69,7 +69,7 @@ impl Module {
                     (_, ModuleAction::Missile) => "fire a missile",
                     (ModuleAction::Laser, ModuleAction::Laser) => "fire another laser",
                     (_, ModuleAction::Laser) => "fire a laser",
-                    (ModuleAction::Fireball, ModuleAction::Fireball) => "breathe more fire",
+                    (ModuleAction::Fireball, ModuleAction::Fireball) => "unleash a great fireball",
                     (_, ModuleAction::Fireball) => "breathe fire",
                     (ModuleAction::Repair, ModuleAction::Repair) => "repair the hull again",
                     (_, ModuleAction::Repair) => "repair the hull",

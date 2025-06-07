@@ -3,6 +3,7 @@ use crate::menu::MenuRoot;
 use crate::prelude::*;
 use crate::screen::Screen;
 use crate::screen::fade::fade_out;
+use crate::screen::title::TitleAssets;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(StateFlush, Menu::Victory.on_enter(spawn_victory_menu));
@@ -23,10 +24,18 @@ fn spawn_victory_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
         ]));
 }
 
-fn restart_game(_: Trigger<Pointer<Click>>, mut commands: Commands) {
-    commands.spawn(fade_out(Screen::Gameplay));
+fn restart_game(
+    _: Trigger<Pointer<Click>>,
+    mut commands: Commands,
+    title_assets: Res<TitleAssets>,
+) {
+    commands.spawn(fade_out(&title_assets, Screen::Gameplay));
 }
 
-fn quit_to_title(_: Trigger<Pointer<Click>>, mut commands: Commands) {
-    commands.spawn(fade_out(Screen::Title));
+fn quit_to_title(
+    _: Trigger<Pointer<Click>>,
+    mut commands: Commands,
+    title_assets: Res<TitleAssets>,
+) {
+    commands.spawn(fade_out(&title_assets, Screen::Title));
 }

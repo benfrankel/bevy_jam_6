@@ -1,6 +1,3 @@
-use crate::core::audio::AudioSettings;
-use crate::core::audio::music_audio;
-use crate::game::GameAssets;
 use crate::game::level::Level;
 use crate::menu::Menu;
 use crate::prelude::*;
@@ -10,10 +7,7 @@ pub(super) fn plugin(app: &mut App) {
     app.add_systems(
         StateFlush,
         (
-            Screen::Gameplay.on_edge(
-                Level::disable,
-                (spawn_gameplay_screen, (Level(0).enter(), Level::trigger)),
-            ),
+            Screen::Gameplay.on_edge(Level::disable, (Level(0).enter(), Level::trigger).chain()),
             Menu::ANY
                 .on_enable(spawn_menu_overlay)
                 .run_if(Screen::Gameplay.will_update()),
@@ -21,17 +15,6 @@ pub(super) fn plugin(app: &mut App) {
     );
 
     app.configure::<GameplayAction>();
-}
-
-fn spawn_gameplay_screen(
-    mut commands: Commands,
-    audio_settings: Res<AudioSettings>,
-    game_assets: Res<GameAssets>,
-) {
-    commands.spawn((
-        music_audio(&audio_settings, game_assets.music.clone()),
-        DespawnOnExitState::<Screen>::Recursive,
-    ));
 }
 
 fn spawn_menu_overlay(mut commands: Commands) {

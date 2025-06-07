@@ -6,7 +6,7 @@ use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
     // Default to Bevy logo grey instead of Bevy website code block grey.
-    app.insert_resource(ClearColor(Color::srgb(0., 0., 0.)));
+    app.insert_resource(ClearColor(Color::srgb(0.157, 0.157, 0.157)));
 
     app.configure::<(
         ConfigHandle<ThemeConfig>,
@@ -29,7 +29,7 @@ impl Config for ThemeConfig {
     const FILE: &'static str = "theme.ron";
 
     fn on_load(&self, world: &mut World) {
-        r!(world.get_resource_mut::<ClearColor>()).0 = self.colors[ThemeColor::Black];
+        r!(world.get_resource_mut::<ClearColor>()).0 = self.colors[ThemeColor::Body];
     }
 }
 

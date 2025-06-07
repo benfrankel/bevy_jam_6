@@ -3,6 +3,7 @@ use crate::menu::MenuRoot;
 use crate::prelude::*;
 use crate::screen::Screen;
 use crate::screen::fade::fade_out;
+use crate::screen::title::TitleAssets;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(StateFlush, Menu::Intro.on_enter(spawn_intro_menu));
@@ -33,12 +34,13 @@ fn go_back(_: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Menu>>) {
 fn start_game(
     _: Trigger<Pointer<Click>>,
     mut commands: Commands,
+    title_assets: Res<TitleAssets>,
     progress: Res<ProgressTracker<BevyState<Screen>>>,
     mut menu: ResMut<NextStateStack<Menu>>,
 ) {
     let Progress { done, total } = progress.get_global_combined_progress();
     if done >= total {
-        commands.spawn(fade_out(Screen::Gameplay));
+        commands.spawn(fade_out(&title_assets, Screen::Gameplay));
     } else {
         menu.push(Menu::Loading);
     }

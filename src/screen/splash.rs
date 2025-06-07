@@ -28,9 +28,11 @@ const SPLASH_SCREEN_MIN_SECS: f32 = 0.8;
 
 fn spawn_splash_screen(
     mut commands: Commands,
+    title_assets: Res<TitleAssets>,
     screen_root: Res<ScreenRoot>,
     asset_server: Res<AssetServer>,
 ) {
+    commands.spawn(background(&title_assets));
     commands
         .entity(screen_root.ui)
         .with_child(widget::center(children![(
@@ -48,8 +50,20 @@ fn spawn_splash_screen(
         )]));
 }
 
+fn background(title_assets: &TitleAssets) -> impl Bundle {
+    (
+        Name::new("Background"),
+        ImageNode::from(title_assets.background.clone()),
+        Node::DEFAULT.full_size().abs(),
+        GlobalZIndex(-2),
+        DespawnOnExitState::<Screen>::Recursive,
+        children![widget::dimming_overlay()],
+    )
+}
+
 fn update_splash(
     mut commands: Commands,
+    title_assets: Res<TitleAssets>,
     progress: Res<ProgressTracker<BevyState<Screen>>>,
     frame: Res<FrameCount>,
     mut last_done: Local<u32>,
@@ -62,7 +76,7 @@ fn update_splash(
 
     // Continue to the next screen when ready.
     if done == total {
-        commands.spawn(fade_out(Screen::Title));
+        commands.spawn(fade_out(&title_assets, Screen::Title));
     }
 
     info!("[Frame {}] Booting: {done} / {total}", frame.0);

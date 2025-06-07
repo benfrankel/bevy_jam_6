@@ -19,15 +19,17 @@ fn side_panel() -> impl Bundle {
         Name::new("SidePanel"),
         Node {
             padding: UiRect::all(Vw(2.0)),
+            border: UiRect::right(Px(1.0)),
             ..Node::COLUMN_CENTER
         },
         ThemeColor::Popup.set::<BackgroundColor>(),
+        ThemeColor::BorderColor.set::<BorderColor>(),
         BoxShadow::from(ShadowStyle {
-            color: Color::BLACK.with_alpha(0.882),
+            color: Color::BLACK.with_alpha(0.7),
             x_offset: Val::ZERO,
             y_offset: Val::ZERO,
-            spread_radius: Vw(9.0),
-            blur_radius: Vw(2.0),
+            spread_radius: Vw(8.0),
+            blur_radius: Vw(2.5),
         }),
         children![widget::column_of_buttons(children![
             widget::button("Play", open_intro),

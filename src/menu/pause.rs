@@ -2,6 +2,7 @@ use crate::game::level::Level;
 use crate::menu::Menu;
 use crate::menu::MenuRoot;
 use crate::prelude::*;
+use crate::screen::title::TitleAssets;
 use crate::screen::Screen;
 use crate::screen::fade::fade_out;
 
@@ -35,6 +36,10 @@ fn open_settings(_: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Men
     menu.push(Menu::Settings);
 }
 
-fn quit_to_title(_: Trigger<Pointer<Click>>, mut commands: Commands) {
-    commands.spawn(fade_out(Screen::Title));
+fn quit_to_title(
+    _: Trigger<Pointer<Click>>,
+    mut commands: Commands,
+    title_assets: Res<TitleAssets>,
+) {
+    commands.spawn(fade_out(&title_assets, Screen::Title));
 }

@@ -139,10 +139,6 @@ pub struct GameAssets {
     #[asset(path = "image/vfx/heal_popup.png")]
     pub heal_popup: Handle<Image>,
 
-    // Music.
-    #[asset(path = "audio/music/545458__bertsz__bit-forest-evil-theme-music.ogg")]
-    pub music: Handle<AudioSource>,
-
     // SFX.
     #[asset(path = "audio/sfx/Missile SFX 1.ogg")]
     pub missile_spawn_sfx: Handle<AudioSource>,

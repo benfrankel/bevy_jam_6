@@ -1,6 +1,7 @@
 use crate::menu::Menu;
 use crate::menu::MenuRoot;
 use crate::prelude::*;
+use crate::screen::title::TitleAssets;
 use crate::screen::Screen;
 use crate::screen::fade::fade_out;
 
@@ -20,6 +21,7 @@ fn spawn_loading_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
 
 fn update_loading(
     mut commands: Commands,
+    title_assets: Res<TitleAssets>,
     progress: Res<ProgressTracker<BevyState<Screen>>>,
     frame: Res<FrameCount>,
     mut last_done: Local<u32>,
@@ -32,7 +34,7 @@ fn update_loading(
 
     // Continue to the next screen when ready.
     if done == total {
-        commands.spawn(fade_out(Screen::Gameplay));
+        commands.spawn(fade_out(&title_assets, Screen::Gameplay));
     }
 
     info!("[Frame {}] Loading: {done} / {total}", frame.0);
