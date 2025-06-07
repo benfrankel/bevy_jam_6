@@ -2,10 +2,13 @@ use bevy::ecs::system::IntoObserverSystem;
 
 use crate::animation::offset::NodeOffset;
 use crate::animation::shake::NodeShake;
+use crate::core::audio::AudioSettings;
+use crate::core::audio::sfx_audio;
 use crate::game::GameAssets;
 use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudConfig;
 use crate::game::hud::module::module;
+use crate::game::level::Level;
 use crate::game::phase::Phase;
 use crate::game::phase::helm::HelmActions;
 use crate::prelude::*;
@@ -318,12 +321,20 @@ fn apply_offset_to_selected_module(
 
 fn select_module_on_hover(
     trigger: Trigger<Pointer<Over>>,
+    mut commands: Commands,
+    audio_settings: Res<AudioSettings>,
+    game_assets: Res<GameAssets>,
     mut module_query: Query<(&mut Node, &HandIndex)>,
     mut player_deck: ResMut<PlayerDeck>,
 ) {
     let target = rq!(trigger.get_target());
     let (_, index) = rq!(module_query.get_mut(target));
+
     player_deck.bypass_change_detection().selected_idx = index.0;
+    commands.spawn((
+        sfx_audio(&audio_settings, game_assets.module_hover_sfx.clone(), 1.0),
+        DespawnOnExitState::<Level>::default(),
+    ));
 }
 
 fn play_module_on_click(

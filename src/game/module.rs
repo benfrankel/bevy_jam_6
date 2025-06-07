@@ -203,7 +203,7 @@ fn on_module_action(
                 sfx_audio(
                     &audio_settings,
                     game_assets.repair_sfx.clone(),
-                    2f32.powf(rng.gen_range(0.0..1.0)),
+                    2f32.powf(1.0 / 12.0 * thread_rng().gen_range(0..12) as f32),
                 ),
                 DespawnOnExitState::<Level>::default(),
             ));

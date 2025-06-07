@@ -102,12 +102,30 @@ fn enable_helm_actions(mut helm_actions: ResMut<ActionState<HelmActions>>) {
     helm_actions.enable();
 }
 
-fn helm_select_left(mut player_deck: ResMut<PlayerDeck>) {
+fn helm_select_left(
+    mut commands: Commands,
+    audio_settings: Res<AudioSettings>,
+    game_assets: Res<GameAssets>,
+    mut player_deck: ResMut<PlayerDeck>,
+) {
     player_deck.bypass_change_detection().advance_selected(-1);
+    commands.spawn((
+        sfx_audio(&audio_settings, game_assets.module_hover_sfx.clone(), 1.0),
+        DespawnOnExitState::<Level>::default(),
+    ));
 }
 
-fn helm_select_right(mut player_deck: ResMut<PlayerDeck>) {
+fn helm_select_right(
+    mut commands: Commands,
+    audio_settings: Res<AudioSettings>,
+    game_assets: Res<GameAssets>,
+    mut player_deck: ResMut<PlayerDeck>,
+) {
     player_deck.bypass_change_detection().advance_selected(1);
+    commands.spawn((
+        sfx_audio(&audio_settings, game_assets.module_hover_sfx.clone(), 1.0),
+        DespawnOnExitState::<Level>::default(),
+    ));
 }
 
 fn helm_play_module(
