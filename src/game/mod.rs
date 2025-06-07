@@ -150,6 +150,8 @@ pub struct GameAssets {
     pub repair_sfx: Handle<AudioSource>,
     #[asset(path = "audio/sfx/Metal Hit SFX 1.ogg")]
     pub ship_hurt_sfx: Handle<AudioSource>,
+    #[asset(path = "audio/sfx/Ship Destroyed SFX.ogg")]
+    pub ship_death_sfx: Handle<AudioSource>,
     #[asset(path = "audio/sfx/Reactor Module SFX_3 Base.ogg")]
     pub module_activate_sfx: Handle<AudioSource>,
     #[asset(path = "audio/sfx/Click SFX 1.ogg")]
