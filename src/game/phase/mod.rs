@@ -4,6 +4,9 @@ mod player;
 mod reactor;
 mod setup;
 
+use crate::core::audio::AudioSettings;
+use crate::core::audio::sfx_audio;
+use crate::game::GameAssets;
 use crate::game::level::Level;
 use crate::prelude::*;
 
@@ -45,11 +48,11 @@ impl Config for PhaseConfig {
 #[reflect(Resource)]
 pub enum Phase {
     #[default]
-    Setup,
     Helm,
     Reactor,
     Player,
     Enemy,
+    Setup,
 }
 
 impl Configure for Phase {
@@ -58,17 +61,33 @@ impl Configure for Phase {
         app.add_state::<Self>();
         app.add_systems(
             StateFlush,
-            Level::ANY.on_edge(Phase::disable, (Phase::enter_default, Phase::trigger)),
+            (
+                Level::ANY.on_edge(Phase::disable, (Phase::enter_default, Phase::trigger)),
+                (Phase::ANY, Phase::ANY)
+                    .on_trans(play_phase_change_sfx)
+                    .run_if(not(Level::is_triggered)),
+            ),
         );
 
         app.add_plugins((
-            setup::plugin,
             helm::plugin,
             reactor::plugin,
             player::plugin,
             enemy::plugin,
+            setup::plugin,
         ));
     }
+}
+
+fn play_phase_change_sfx(
+    mut commands: Commands,
+    audio_settings: Res<AudioSettings>,
+    game_assets: Res<GameAssets>,
+) {
+    commands.spawn((
+        sfx_audio(&audio_settings, game_assets.phase_change_sfx.clone(), 1.0),
+        DespawnOnExitState::<Level>::default(),
+    ));
 }
 
 #[derive(Resource, Reflect, Default, Debug)]

@@ -9,7 +9,7 @@ pub(super) fn plugin(app: &mut App) {
 
 pub const FADE_IN_SECS: f32 = 0.8;
 const FADE_OUT_SECS: f32 = 0.8;
-const FADE_OUT_PAUSE_SECS: f32 = 0.6;
+const FADE_OUT_PAUSE_SECS: f32 = 0.5;
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
