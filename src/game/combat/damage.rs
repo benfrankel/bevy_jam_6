@@ -1,4 +1,3 @@
-use crate::game::GameAssets;
 use crate::game::combat::health::Health;
 use crate::game::ship::IsEnemyShip;
 use crate::game::ship::IsPlayerShip;
@@ -87,7 +86,7 @@ fn display_damage_indicator(
     damage_config: ConfigRef<DamageConfig>,
     player_ship: Single<(Entity, &Transform), With<IsPlayerShip>>,
     enemy_ship: Single<(Entity, &Transform), With<IsEnemyShip>>,
-    sprite_query: Query<&Sprite>
+    sprite_query: Query<&Sprite>,
 ) {
     let rng = &mut thread_rng();
     let entity = r!(trigger.get_target());

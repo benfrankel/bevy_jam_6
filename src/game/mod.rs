@@ -150,8 +150,6 @@ pub struct GameAssets {
     pub module_activate_sfx: Handle<AudioSource>,
     #[asset(path = "audio/sfx/Click SFX 1.ogg")]
     pub module_insert_sfx: Handle<AudioSource>,
-    #[asset(path = "audio/sfx/Space Hit SFX 1.ogg")]
-    pub module_hover_sfx: Handle<AudioSource>,
 }
 
 impl Configure for GameAssets {
