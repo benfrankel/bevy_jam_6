@@ -148,6 +148,8 @@ pub struct GameAssets {
     pub laser_spawn_sfx: Handle<AudioSource>,
     #[asset(path = "audio/sfx/Fireball Hit SFX.ogg")]
     pub fireball_spawn_sfx: Handle<AudioSource>,
+    #[asset(path = "audio/sfx/Spaceship SFX 1.ogg")]
+    pub repair_sfx: Handle<AudioSource>,
     #[asset(path = "audio/sfx/Reactor Module SFX_2 Base.ogg")]
     pub module_activate_sfx: Handle<AudioSource>,
     #[asset(path = "audio/sfx/Click SFX 1.ogg")]

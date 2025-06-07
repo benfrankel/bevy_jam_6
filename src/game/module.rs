@@ -199,6 +199,14 @@ fn on_module_action(
 
         ModuleAction::Repair => {
             commands.entity(ship).trigger(OnHeal(flux));
+            commands.spawn((
+                sfx_audio(
+                    &audio_settings,
+                    game_assets.repair_sfx.clone(),
+                    2f32.powf(rng.gen_range(0.0..1.0)),
+                ),
+                DespawnOnExitState::<Level>::default(),
+            ));
         },
 
         _ => {},
