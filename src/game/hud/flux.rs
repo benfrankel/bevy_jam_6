@@ -13,7 +13,7 @@ pub fn flux_display() -> impl Bundle {
         Name::new("FluxDisplay"),
         Node {
             width: Vw(22.5),
-            height: Vw(4.5833),
+            height: Vw(5.0),
             border: UiRect::all(Vw(0.2083)),
             ..Node::ROW_CENTER
         },

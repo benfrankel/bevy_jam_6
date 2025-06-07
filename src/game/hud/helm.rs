@@ -81,6 +81,7 @@ fn storage(game_assets: &GameAssets) -> impl Bundle {
         Node {
             width: Vw(6.6666),
             aspect_ratio: Some(1.0),
+            padding: UiRect::bottom(Vw(0.2083)),
             ..Node::ROW_CENTER
         },
         Tooltip::fixed(Anchor::TopCenter, ""),
@@ -259,7 +260,7 @@ fn sync_hand(
                 parent.spawn((
                     Name::new("ModuleInteractionRegion"),
                     Node {
-                        padding: UiRect::all(Vw(0.61)),
+                        padding: UiRect::all(Vw(0.4167)),
                         ..Node::COLUMN_CENTER.full_height()
                     },
                     Tooltip::fixed(Anchor::TopCenter, item.description()),
