@@ -80,7 +80,7 @@ fn play_ship_hurt_sfx_on_damage(
     game_assets: Res<GameAssets>,
 ) {
     commands.spawn((
-        sfx_audio(&audio_settings, game_assets.ship_hurt_sfx.clone(), 0.7),
+        sfx_audio(&audio_settings, game_assets.ship_hurt_sfx.clone(), 1.0),
         DespawnOnExitState::<Level>::default(),
     ));
 }

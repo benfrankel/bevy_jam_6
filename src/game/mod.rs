@@ -156,7 +156,7 @@ pub struct GameAssets {
     pub module_insert_sfx: Handle<AudioSource>,
     #[asset(path = "audio/sfx/Movement SFX 3.ogg")]
     pub module_hover_sfx: Handle<AudioSource>,
-    #[asset(path = "audio/sfx/Metal Hit SFX 2.ogg")]
+    #[asset(path = "audio/sfx/Metal Hit SFX 1.ogg")]
     pub ship_hurt_sfx: Handle<AudioSource>,
 }
 

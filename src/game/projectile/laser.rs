@@ -44,6 +44,7 @@ pub fn laser(
         Damage(projectile_config.laser_damage * flux),
         faction,
         RigidBody::Dynamic,
+        Mass(1.0),
         LinearVelocity(velocity),
         MaxLinearSpeed(projectile_config.laser_max_speed),
         ExternalForce::ZERO.with_persistence(false),

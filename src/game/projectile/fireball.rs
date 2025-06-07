@@ -22,8 +22,9 @@ pub fn fireball(
     mut transform: Transform,
 ) -> impl Bundle {
     // Calculate initial position.
-    transform.translation += (projectile_config.fireball_initial_position_spread
-        * vec2(rng.gen_range(-1.0..=1.0), rng.gen_range(-1.0..=1.0)))
+    transform.translation += (projectile_config.fireball_initial_position
+        + projectile_config.fireball_initial_position_spread
+            * vec2(rng.gen_range(-1.0..=1.0), rng.gen_range(-1.0..=1.0)))
     .extend(0.0);
 
     // Calculate initial rotation.
@@ -48,6 +49,7 @@ pub fn fireball(
         Damage(projectile_config.fireball_damage * flux),
         faction,
         RigidBody::Dynamic,
+        Mass(1.0),
         LinearVelocity(velocity),
         MaxLinearSpeed(projectile_config.fireball_max_speed),
         ExternalForce::ZERO.with_persistence(false),

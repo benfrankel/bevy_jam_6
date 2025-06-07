@@ -37,6 +37,7 @@ pub struct ProjectileConfig {
     laser_homing_target_spread: Vec2,
 
     fireball_damage: f32,
+    fireball_initial_position: Vec2,
     fireball_initial_position_spread: Vec2,
     fireball_initial_angle_spread: f32,
     fireball_initial_speed: f32,
@@ -81,6 +82,7 @@ impl Default for ProjectileConfig {
             laser_homing_target_spread: Vec2::ZERO,
 
             fireball_damage: 0.0,
+            fireball_initial_position: Vec2::ZERO,
             fireball_initial_position_spread: Vec2::ZERO,
             fireball_initial_speed: 0.0,
             fireball_initial_speed_spread: 0.0,

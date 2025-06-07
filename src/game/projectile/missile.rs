@@ -48,6 +48,7 @@ pub fn missile(
         Damage(projectile_config.missile_damage * flux),
         faction,
         RigidBody::Dynamic,
+        Mass(1.0),
         LinearVelocity(velocity),
         MaxLinearSpeed(projectile_config.missile_max_speed),
         ExternalForce::ZERO.with_persistence(false),

@@ -1,5 +1,5 @@
 (
-    player_weapons: [Vec2(-9.5, 12), Vec2(9.5, 12)],
+    player_weapons: [Vec2(-9.5, 15), Vec2(9.5, 15)],
     player_health_bar_offset: Vec2(0, -22),
     player_health_bar_size: Vec2(100, 5),
     player_accel_max: 400,
