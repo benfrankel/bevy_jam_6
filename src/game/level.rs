@@ -3,6 +3,7 @@ use crate::game::deck::DeckConfig;
 use crate::game::deck::EnemyDeck;
 use crate::game::deck::PlayerDeck;
 use crate::game::hud::hud;
+use crate::game::module::Module;
 use crate::game::ship::ShipConfig;
 use crate::game::ship::enemy_ship;
 use crate::game::ship::player_ship;
@@ -31,6 +32,7 @@ pub struct LevelSetup {
     pub reward_max_health: f32,
     pub reward_heat_capacity: f32,
     pub reward_reactor_slots: usize,
+    // pub fixed_rewards: Vec<LevelReward>,
 }
 
 #[derive(State, Reflect, Copy, Clone, Default, Eq, PartialEq, Debug)]
@@ -53,6 +55,14 @@ impl Configure for Level {
             ),
         );
     }
+}
+
+#[derive(Reflect, Copy, Clone, Debug, Serialize, Deserialize)]
+pub enum LevelReward {
+    MaxHealth(f32),
+    HeatCapacity(f32),
+    ReactorSlots(usize),
+    Module(Module),
 }
 
 fn reset_decks(mut player_deck: ResMut<PlayerDeck>, mut enemy_deck: ResMut<EnemyDeck>) {
