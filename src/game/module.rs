@@ -46,10 +46,10 @@ impl Module {
     pub fn short_description(&self) -> RichText {
         let condition = match self.condition {
             ModuleAction::Nothing => "",
-            ModuleAction::Missile => "[b]Missile[r] > ",
-            ModuleAction::Laser => "[b]Laser[r] > ",
-            ModuleAction::Fireball => "[b]Fireball[r] > ",
-            ModuleAction::Repair => "[b]Repair[r] > ",
+            ModuleAction::Missile => "[b]Missile[r] / ",
+            ModuleAction::Laser => "[b]Laser[r] / ",
+            ModuleAction::Fireball => "[b]Fireball[r] / ",
+            ModuleAction::Repair => "[b]Repair[r] / ",
         };
         let effect = match self.effect {
             ModuleAction::Nothing => "[b]Nothing[r]",
@@ -101,10 +101,10 @@ impl Module {
 
                 let stats = match self.effect {
                     ModuleAction::Nothing => "",
-                    ModuleAction::Missile => "\n\nDamage: 1",
-                    ModuleAction::Laser => "\n\nDamage: 2",
-                    ModuleAction::Fireball => "\n\nDamage: 8",
-                    ModuleAction::Repair => "\n\nHeal: 1",
+                    ModuleAction::Missile => "\n\n[b]Damage:[r] 1 times flux",
+                    ModuleAction::Laser => "\n\n[b]Damage:[r] 2 times flux",
+                    ModuleAction::Fireball => "\n\n[b]Damage:[r] 8 times flux",
+                    ModuleAction::Repair => "\n\n[b]Heal:[r] 1 times flux",
                 };
 
                 format!("{header}{heat}\n\n{body}{stats}")
