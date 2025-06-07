@@ -32,8 +32,8 @@ pub fn module(
         },
         (_, ModuleAction::Missile) => &game_assets.missile_condition_icon,
         (_, ModuleAction::Laser) => &game_assets.laser_condition_icon,
-        (_, ModuleAction::Fireball) => &game_assets.fire_condition_icon,
-        (_, ModuleAction::Repair) => &game_assets.heal_condition_icon,
+        (_, ModuleAction::Fireball) => &game_assets.fireball_condition_icon,
+        (_, ModuleAction::Repair) => &game_assets.repair_condition_icon,
     }
     .clone();
 
@@ -43,8 +43,8 @@ pub fn module(
         },
         (_, ModuleAction::Missile) => &game_assets.missile_effect_icon,
         (_, ModuleAction::Laser) => &game_assets.laser_effect_icon,
-        (_, ModuleAction::Fireball) => &game_assets.fire_effect_icon,
-        (_, ModuleAction::Repair) => &game_assets.heal_effect_icon,
+        (_, ModuleAction::Fireball) => &game_assets.fireball_effect_icon,
+        (_, ModuleAction::Repair) => &game_assets.repair_effect_icon,
     }
     .clone();
 

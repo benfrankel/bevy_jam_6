@@ -94,14 +94,14 @@ pub struct GameAssets {
     pub laser_condition_icon: Handle<Image>,
     #[asset(path = "image/module/icon/laser_effect.png")]
     pub laser_effect_icon: Handle<Image>,
-    #[asset(path = "image/module/icon/fire_condition.png")]
-    pub fire_condition_icon: Handle<Image>,
-    #[asset(path = "image/module/icon/fire_effect.png")]
-    pub fire_effect_icon: Handle<Image>,
-    #[asset(path = "image/module/icon/heal_condition.png")]
-    pub heal_condition_icon: Handle<Image>,
-    #[asset(path = "image/module/icon/heal_effect.png")]
-    pub heal_effect_icon: Handle<Image>,
+    #[asset(path = "image/module/icon/fireball_condition.png")]
+    pub fireball_condition_icon: Handle<Image>,
+    #[asset(path = "image/module/icon/fireball_effect.png")]
+    pub fireball_effect_icon: Handle<Image>,
+    #[asset(path = "image/module/icon/repair_condition.png")]
+    pub repair_condition_icon: Handle<Image>,
+    #[asset(path = "image/module/icon/repair_effect.png")]
+    pub repair_effect_icon: Handle<Image>,
 
     // Phase display.
     #[asset(path = "image/ui/phase_setup.png")]
