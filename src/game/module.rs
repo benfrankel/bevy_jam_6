@@ -43,6 +43,24 @@ impl Module {
         }
     }
 
+    pub fn short_description(&self) -> RichText {
+        let condition = match self.condition {
+            ModuleAction::Nothing => "",
+            ModuleAction::Missile => "[b]Missile[r] > ",
+            ModuleAction::Laser => "[b]Laser[r] > ",
+            ModuleAction::Fireball => "[b]Fireball[r] > ",
+            ModuleAction::Repair => "[b]Repair[r] > ",
+        };
+        let effect = match self.effect {
+            ModuleAction::Nothing => "[b]Nothing[r]",
+            ModuleAction::Missile => "[b]Missile[r]",
+            ModuleAction::Laser => "[b]Laser[r]",
+            ModuleAction::Fireball => "[b]Fireball[r]",
+            ModuleAction::Repair => "[b]Repair[r]",
+        };
+        RichText::from_sections(parse_rich(format!("{condition}{effect}")))
+    }
+
     pub fn description(&self) -> RichText {
         let header = "[b]Reactor module[r]";
         let heat = if matches!(self.status, ModuleStatus::SlotOverheated) {
@@ -58,21 +76,19 @@ impl Module {
             _ => {
                 let condition = match self.condition {
                     ModuleAction::Nothing => "",
-                    ModuleAction::Missile => "after firing a missile, ",
+                    ModuleAction::Missile => "after launching a missile, ",
                     ModuleAction::Laser => "after firing a laser, ",
-                    ModuleAction::Fireball => "after unleashing a great fireball, ",
+                    ModuleAction::Fireball => "after unleashing a fireball, ",
                     ModuleAction::Repair => "after repairing the hull, ",
                 };
                 let effect = match (&self.condition, &self.effect) {
                     (_, ModuleAction::Nothing) => "do nothing",
-                    (ModuleAction::Missile, ModuleAction::Missile) => "fire another missile",
-                    (_, ModuleAction::Missile) => "fire a missile",
+                    (ModuleAction::Missile, ModuleAction::Missile) => "launch another missile",
+                    (_, ModuleAction::Missile) => "launch a missile",
                     (ModuleAction::Laser, ModuleAction::Laser) => "fire another laser",
                     (_, ModuleAction::Laser) => "fire a laser",
-                    (ModuleAction::Fireball, ModuleAction::Fireball) => {
-                        "unleash another great fireball"
-                    },
-                    (_, ModuleAction::Fireball) => "unleash a great fireball",
+                    (ModuleAction::Fireball, ModuleAction::Fireball) => "unleash another fireball",
+                    (_, ModuleAction::Fireball) => "unleash a fireball",
                     (ModuleAction::Repair, ModuleAction::Repair) => "repair the hull again",
                     (_, ModuleAction::Repair) => "repair the hull",
                 };
@@ -83,9 +99,15 @@ impl Module {
                     None => String::new(),
                 };
 
-                let stats = "Damage: 8";
+                let stats = match self.effect {
+                    ModuleAction::Nothing => "",
+                    ModuleAction::Missile => "\n\nDamage: 1",
+                    ModuleAction::Laser => "\n\nDamage: 2",
+                    ModuleAction::Fireball => "\n\nDamage: 8",
+                    ModuleAction::Repair => "\n\nHeal: 1",
+                };
 
-                format!("{header}{heat}\n\n{body}\n\n{stats}")
+                format!("{header}{heat}\n\n{body}{stats}")
             },
         }))
     }

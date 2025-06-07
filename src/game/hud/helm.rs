@@ -267,8 +267,7 @@ fn sync_hand(
                         padding: UiRect::all(Vw(0.4167)),
                         ..Node::COLUMN_CENTER.full_height()
                     },
-                    // TODO: Hide ONLY these tooltips in info mode, and disable info mode by default.
-                    //Tooltip::fixed(Anchor::TopCenter, item.description()),
+                    Tooltip::fixed(Anchor::BottomCenter, item.short_description()),
                     HandIndex(i),
                     children![(
                         module(
