@@ -1,6 +1,9 @@
+use bevy::text::FontSmoothing;
+
 use crate::game::combat::health::Health;
 use crate::game::ship::IsEnemyShip;
 use crate::game::ship::IsPlayerShip;
+use crate::game::ship::IsPlayerShipBody;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -84,20 +87,19 @@ fn display_damage_indicator(
     mut commands: Commands,
     assets: Res<Assets<Image>>,
     damage_config: ConfigRef<DamageConfig>,
-    player_ship: Single<(Entity, &Transform), With<IsPlayerShip>>,
-    enemy_ship: Single<(Entity, &Transform), With<IsEnemyShip>>,
-    sprite_query: Query<&Sprite>,
+    player_ship: Single<Entity, With<IsPlayerShip>>,
+    player_ship_body: Single<(&Sprite, &GlobalTransform), With<IsPlayerShipBody>>,
+    enemy_ship: Single<(Entity, &Sprite, &Transform), With<IsEnemyShip>>,
 ) {
     let rng = &mut thread_rng();
     let entity = r!(trigger.get_target());
     let damage_config = r!(damage_config.get());
-    let (player, player_transform) = *player_ship;
-    let (enemy, enemy_transform) = *enemy_ship;
-    let (sprite, mut transform) = if entity == player {
-        (r!(sprite_query.get(player)), *player_transform)
-    } else if entity == enemy {
-        (r!(sprite_query.get(enemy)), *enemy_transform)
+    let (sprite, mut transform) = if entity == *player_ship {
+        (player_ship_body.0, player_ship_body.1.compute_transform())
+    } else if entity == enemy_ship.0 {
+        (enemy_ship.1, *enemy_ship.2)
     } else {
+        warn!("No match found for entity.");
         return;
     };
     let sprite_size = r!(assets.get(&sprite.image)).size_f32();
@@ -107,9 +109,14 @@ fn display_damage_indicator(
 
     commands.spawn((
         IsDamagePopup,
-        Text2d::new(trigger.0.to_string()),
-        TextFont::from_font_size(16.),
-        TextColor::from(Color::srgba(0.7, 0.2, 0.2, 1.)),
+        Text2d::new(format!("-{}", trigger.0)),
+        TextFont {
+            font: default(),
+            font_size: 12. + (trigger.0 * 1.5),
+            line_height: default(),
+            font_smoothing: FontSmoothing::None,
+        },
+        TextColor::from(Color::srgba(0.9, 0.1, 0.1, 1.)),
         transform,
         RigidBody::Kinematic,
         LinearVelocity(damage_config.damage_popup_velocity),

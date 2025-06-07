@@ -23,6 +23,7 @@ pub(super) fn plugin(app: &mut App) {
     app.configure::<(
         ConfigHandle<ShipConfig>,
         IsPlayerShip,
+        IsPlayerShipBody,
         IsEnemyShip,
         IsWeapon,
     )>();
@@ -58,6 +59,8 @@ pub fn player_ship(ship_config: &ShipConfig, game_assets: &GameAssets, health: f
             ),
             (
                 Name::new("Body"),
+                IsPlayerShipBody,
+                Transform::default(),
                 Sprite::from_image(image),
                 Collider::rectangle(80.0, 10.0),
                 CollisionLayers::new(GameLayer::Player, LayerMask::ALL),
@@ -183,6 +186,16 @@ impl Config for ShipConfig {
 pub struct IsPlayerShip;
 
 impl Configure for IsPlayerShip {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+    }
+}
+
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
+pub struct IsPlayerShipBody;
+
+impl Configure for IsPlayerShipBody {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
     }
