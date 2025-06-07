@@ -61,7 +61,12 @@ pub fn fade_in(title_assets: &TitleAssets) -> impl Bundle {
     (
         widget::nonblocking_overlay(1000),
         FadeIn::new(FADE_IN_SECS),
-        ImageNode::from(title_assets.background.clone()).with_color(Color::srgb(0.8, 0.8, 0.8)),
+        ImageNode::from(title_assets.background.clone())
+            .with_rect(Rect {
+                min: vec2(20.0, 20.0),
+                max: vec2(500.0, 290.0),
+            })
+            .with_color(Color::srgb(0.8, 0.8, 0.8)),
     )
 }
 
@@ -115,6 +120,11 @@ pub fn fade_out(title_assets: &TitleAssets, to_screen: Screen) -> impl Bundle {
     (
         widget::blocking_overlay(1000),
         FadeOut::new(FADE_OUT_SECS + FADE_OUT_PAUSE_SECS, to_screen),
-        ImageNode::from(title_assets.background.clone()).with_color(Color::srgb(0.8, 0.8, 0.8)),
+        ImageNode::from(title_assets.background.clone())
+            .with_rect(Rect {
+                min: vec2(20.0, 20.0),
+                max: vec2(500.0, 290.0),
+            })
+            .with_color(Color::srgb(0.8, 0.8, 0.8)),
     )
 }

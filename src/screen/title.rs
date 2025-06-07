@@ -34,7 +34,10 @@ fn spawn_title_screen(
 fn background(title_assets: &TitleAssets) -> impl Bundle {
     (
         Name::new("Background"),
-        ImageNode::from(title_assets.background.clone()),
+        ImageNode::from(title_assets.background.clone()).with_rect(Rect {
+            min: vec2(20.0, 20.0),
+            max: vec2(500.0, 290.0),
+        }),
         Node::DEFAULT.full_size().abs(),
         GlobalZIndex(-2),
         DespawnOnExitState::<Screen>::Recursive,
@@ -47,7 +50,7 @@ fn background(title_assets: &TitleAssets) -> impl Bundle {
 pub struct TitleAssets {
     #[asset(path = "audio/music/Bevy Jam 6 song 3_5.ogg")]
     music: Handle<AudioSource>,
-    #[asset(path = "image/space/level0.png")]
+    #[asset(path = "image/space/space0.png")]
     pub background: Handle<Image>,
 }
 

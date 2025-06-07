@@ -53,7 +53,10 @@ fn spawn_splash_screen(
 fn background(title_assets: &TitleAssets) -> impl Bundle {
     (
         Name::new("Background"),
-        ImageNode::from(title_assets.background.clone()),
+        ImageNode::from(title_assets.background.clone()).with_rect(Rect {
+            min: vec2(20.0, 20.0),
+            max: vec2(500.0, 290.0),
+        }),
         Node::DEFAULT.full_size().abs(),
         GlobalZIndex(-2),
         DespawnOnExitState::<Screen>::Recursive,

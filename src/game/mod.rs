@@ -36,25 +36,25 @@ pub enum GameLayer {
 #[reflect(Resource)]
 pub struct GameAssets {
     // Space background images.
-    #[asset(path = "image/space/level0.png")]
+    #[asset(path = "image/space/space0.png")]
     pub bg_level0: Handle<Image>,
-    #[asset(path = "image/space/level1.png")]
+    #[asset(path = "image/space/space1.png")]
     pub bg_level1: Handle<Image>,
-    #[asset(path = "image/space/level2.png")]
+    #[asset(path = "image/space/space2.png")]
     pub bg_level2: Handle<Image>,
-    #[asset(path = "image/space/level3.png")]
+    #[asset(path = "image/space/space3.png")]
     pub bg_level3: Handle<Image>,
-    #[asset(path = "image/space/level4.png")]
+    #[asset(path = "image/space/space4.png")]
     pub bg_level4: Handle<Image>,
-    #[asset(path = "image/space/level5.png")]
+    #[asset(path = "image/space/space5.png")]
     pub bg_level5: Handle<Image>,
-    #[asset(path = "image/space/level6.png")]
+    #[asset(path = "image/space/space6.png")]
     pub bg_level6: Handle<Image>,
-    #[asset(path = "image/space/level7.png")]
+    #[asset(path = "image/space/space7.png")]
     pub bg_level7: Handle<Image>,
-    #[asset(path = "image/space/level8.png")]
+    #[asset(path = "image/space/space8.png")]
     pub bg_level8: Handle<Image>,
-    #[asset(path = "image/space/level9.png")]
+    #[asset(path = "image/space/space9.png")]
     pub bg_level9: Handle<Image>,
 
     // HUD layout.
