@@ -146,6 +146,12 @@ pub struct GameAssets {
     // SFX.
     #[asset(path = "audio/sfx/Firing Laser SFX.ogg")]
     pub laser_spawn_sfx: Handle<AudioSource>,
+    #[asset(path = "audio/sfx/Reactor Module SFX_2 Base.ogg")]
+    pub module_activate_sfx: Handle<AudioSource>,
+    #[asset(path = "audio/sfx/Space Hit SFX 1.ogg")]
+    pub module_insert_sfx: Handle<AudioSource>,
+    #[asset(path = "audio/sfx/Click SFX 1.ogg")]
+    pub module_hover_sfx: Handle<AudioSource>,
 }
 
 impl Configure for GameAssets {

@@ -57,11 +57,12 @@ fn sync_flux_display_to_phase(
 ) {
     for child_of in &mut label_query {
         let mut border_color = cq!(border_query.get_mut(child_of.parent()));
-        border_color.0 = if phase.will_be_in(&Phase::Reactor) {
-            ThemeColor::MonitorText
-        } else {
-            ThemeColor::MonitorDimText
-        };
+        border_color.0 =
+            if phase.will_be_in(&state!(Phase::PowerUp | Phase::Player | Phase::PowerDown)) {
+                ThemeColor::MonitorText
+            } else {
+                ThemeColor::MonitorDimText
+            };
     }
 }
 

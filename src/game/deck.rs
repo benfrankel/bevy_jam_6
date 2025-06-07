@@ -34,6 +34,8 @@ pub struct PlayerDeck {
     pub flux: f32,
     pub heat_capacity: f32,
     pub reactor: Vec<Module>,
+    pub reactor_chain: Vec<usize>,
+    pub reactor_chain_idx: usize,
     pub last_effect: ModuleAction,
     pub last_touched_idx: Option<usize>,
 }
@@ -141,13 +143,13 @@ impl PlayerDeck {
         })
     }
 
-    /// Determine whether the reactor is done yielding actions.
-    pub fn is_reactor_done(&self) -> bool {
+    /// Determine whether the reactor is done powering up.
+    pub fn is_power_up_done(&self) -> bool {
         self.next_matching_module().is_none()
     }
 
-    /// Simulate one reactor step and get the next action.
-    pub fn step_reactor(&mut self) -> Option<ModuleAction> {
+    /// Simulate one step powering up the reactor and return false if done.
+    pub fn step_power_up(&mut self) -> bool {
         // Activate the first matching module.
         if let Some(idx) = self.next_matching_module() {
             let slot = &mut self.reactor[idx];
@@ -156,24 +158,53 @@ impl PlayerDeck {
             self.last_effect = slot.effect;
             self.flux += 1.0;
             slot.heat += self.flux;
+            self.reactor_chain.push(idx);
             self.last_touched_idx = Some(idx);
 
-            return Some(slot.effect);
+            true
+        } else {
+            self.last_effect = ModuleAction::Nothing;
+            self.last_touched_idx = None;
+            self.reactor_chain_idx = 0;
+            false
+        }
+    }
+
+    /// Determine whether the reactor chain is done yielding actions.
+    pub fn is_reactor_chain_done(&self) -> bool {
+        self.reactor_chain_idx >= self.reactor_chain.len()
+    }
+
+    /// Take one step through the reactor chain, returning the action or `None` if done.
+    pub fn step_reactor_chain(&mut self) -> Option<ModuleAction> {
+        self.last_touched_idx = self.reactor_chain.get(self.reactor_chain_idx).copied();
+        self.reactor_chain_idx += 1;
+        self.last_touched_idx.map(|idx| self.reactor[idx].effect)
+    }
+
+    /// Determine whether the reactor is done powering down.
+    pub fn is_power_down_done(&self) -> bool {
+        self.flux == 0.0
+            && !self.reactor.iter().any(|slot| {
+                matches!(slot.status, ModuleStatus::SlotInactive) && slot.heat > self.heat_capacity
+            })
+            && self.next_available_slot().is_some()
+    }
+
+    /// Simulate one step powering down the reactor and return false if done.
+    pub fn step_power_down(&mut self) -> bool {
+        // Deactivate reactor chain slots in reverse order.
+        if let Some(idx) = self.reactor_chain.pop() {
+            self.reactor[idx].status = ModuleStatus::SlotInactive;
+            self.flux -= 1.0;
+            return true;
         }
 
-        // If there was no match, reset the reactor.
-        self.last_touched_idx = None;
-        self.last_effect = ModuleAction::Nothing;
-        self.flux = 0.0;
-        for slot in &mut self.reactor {
-            cq!(matches!(slot.status, ModuleStatus::SlotActive));
-            slot.status = ModuleStatus::SlotInactive;
-        }
-
-        // Mark any naturally overheated slots.
+        // Mark naturally overheated slots.
         for slot in &mut self.reactor {
             cq!(matches!(slot.status, ModuleStatus::SlotInactive) && slot.heat > self.heat_capacity);
             slot.status = ModuleStatus::SlotOverheated;
+            return true;
         }
 
         // If there are no available slots remaining, artificially mark the hottest slot as overheated.
@@ -184,9 +215,10 @@ impl PlayerDeck {
                 .rev()
                 .max_by_key(|slot| (slot.heat * 100.0) as i64));
             slot.status = ModuleStatus::SlotOverheated;
+            return true;
         }
 
-        None
+        false
     }
 
     /// Determines whether setup is complete.

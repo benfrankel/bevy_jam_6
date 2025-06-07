@@ -7,7 +7,7 @@ use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudConfig;
 use crate::game::hud::module::module;
 use crate::game::phase::Phase;
-use crate::game::phase::player::PlayerActions;
+use crate::game::phase::helm::HelmActions;
 use crate::prelude::*;
 use crate::screen::gameplay::GameplayAction;
 
@@ -161,10 +161,10 @@ fn open_pause_menu(
 
 fn player_end_turn(
     trigger: Trigger<Pointer<Click>>,
-    mut player_actions: ResMut<ActionState<PlayerActions>>,
+    mut player_actions: ResMut<ActionState<HelmActions>>,
 ) {
     rq!(matches!(trigger.event.button, PointerButton::Primary));
-    player_actions.press(&PlayerActions::EndTurn);
+    player_actions.press(&HelmActions::EndTurn);
 }
 
 fn mini_button_base<E, B, M, I>(image: Handle<Image>, description: &str, action: I) -> impl Bundle
@@ -214,16 +214,18 @@ fn sync_phase_display(
     for (mut image_node, mut tooltip) in &mut phase_display_query {
         image_node.image = match phase {
             Phase::Setup => &game_assets.phase_setup,
-            Phase::Player => &game_assets.phase_player,
-            Phase::Reactor => &game_assets.phase_reactor,
+            Phase::Helm => &game_assets.phase_player,
+            Phase::PowerUp | Phase::Player | Phase::PowerDown => &game_assets.phase_reactor,
             Phase::Enemy => &game_assets.phase_enemy,
         }
         .clone();
         tooltip.content =
             TooltipContent::Primary(RichText::from_sections(parse_rich(match phase {
                 Phase::Setup => "[b]Setup phase[r]\n\nPreparing the ship.",
-                Phase::Player => "[b]Player phase[r]\n\nAwaiting your command.",
-                Phase::Reactor => "[b]Reactor phase[r]\n\nDirecting power to the reactor.",
+                Phase::Helm => "[b]Player phase[r]\n\nAwaiting your command.",
+                Phase::PowerUp | Phase::Player | Phase::PowerDown => {
+                    "[b]Reactor phase[r]\n\nDirecting power to the reactor."
+                },
                 Phase::Enemy => "[b]Enemy phase[r]\n\nSustaining the enemy's barrage.",
             })));
     }
@@ -327,12 +329,12 @@ fn select_module_on_hover(
 fn play_module_on_click(
     trigger: Trigger<Pointer<Click>>,
     module_query: Query<(), With<HandIndex>>,
-    mut player_actions: ResMut<ActionState<PlayerActions>>,
+    mut player_actions: ResMut<ActionState<HelmActions>>,
 ) {
     rq!(matches!(trigger.event.button, PointerButton::Primary));
     let target = rq!(trigger.get_target());
     rq!(module_query.contains(target));
-    player_actions.press(&PlayerActions::PlayModule);
+    player_actions.press(&HelmActions::PlayModule);
 }
 
 #[derive(Component, Reflect, Debug)]

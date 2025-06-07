@@ -1,6 +1,8 @@
 mod enemy;
-pub mod player;
-mod reactor;
+pub mod helm;
+mod player;
+mod power_down;
+mod power_up;
 mod setup;
 
 use crate::game::level::Level;
@@ -18,10 +20,20 @@ struct PhaseConfig {
     setup_first_cooldown: f32,
     setup_last_cooldown: f32,
 
-    reactor_cooldown: f32,
-    reactor_cooldown_decay: f32,
-    reactor_first_cooldown: f32,
-    reactor_last_cooldown: f32,
+    power_up_cooldown: f32,
+    power_up_cooldown_decay: f32,
+    power_up_first_cooldown: f32,
+    power_up_last_cooldown: f32,
+
+    player_cooldown: f32,
+    player_cooldown_decay: f32,
+    player_first_cooldown: f32,
+    player_last_cooldown: f32,
+
+    power_down_cooldown: f32,
+    power_down_cooldown_decay: f32,
+    power_down_first_cooldown: f32,
+    power_down_last_cooldown: f32,
 
     enemy_cooldown: f32,
     enemy_cooldown_decay: f32,
@@ -39,8 +51,10 @@ impl Config for PhaseConfig {
 pub enum Phase {
     #[default]
     Setup,
+    Helm,
+    PowerUp,
     Player,
-    Reactor,
+    PowerDown,
     Enemy,
 }
 
@@ -55,8 +69,10 @@ impl Configure for Phase {
 
         app.add_plugins((
             setup::plugin,
+            helm::plugin,
+            power_up::plugin,
             player::plugin,
-            reactor::plugin,
+            power_down::plugin,
             enemy::plugin,
         ));
     }

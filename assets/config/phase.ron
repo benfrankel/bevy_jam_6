@@ -4,10 +4,20 @@
     setup_first_cooldown: 0.4,
     setup_last_cooldown: 0.3,
 
-    reactor_cooldown: 0.64,
-    reactor_cooldown_decay: 0.8,
-    reactor_first_cooldown: 0.8,
-    reactor_last_cooldown: 1.5,
+    power_up_cooldown: 0.64,
+    power_up_cooldown_decay: 0.8,
+    power_up_first_cooldown: 0.8,
+    power_up_last_cooldown: 0.5,
+
+    player_cooldown: 0.64,
+    player_cooldown_decay: 0.8,
+    player_first_cooldown: 0,
+    player_last_cooldown: 0.5,
+
+    power_down_cooldown: 0.25,
+    power_down_cooldown_decay: 0.7,
+    power_down_first_cooldown: 0,
+    power_down_last_cooldown: 0.5,
 
     enemy_cooldown: 0.64,
     enemy_cooldown_decay: 0.8,

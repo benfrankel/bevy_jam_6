@@ -42,7 +42,7 @@ fn step_enemy_phase(
     mut commands: Commands,
     round: Res<Round>,
     phase_config: ConfigRef<PhaseConfig>,
-    mut next_phase: NextMut<Phase>,
+    mut phase: NextMut<Phase>,
     step: Res<Step>,
     mut step_timer: ResMut<StepTimer>,
     mut enemy_deck: ResMut<EnemyDeck>,
@@ -52,7 +52,7 @@ fn step_enemy_phase(
 
     // Step the enemy deck.
     let Some(action) = enemy_deck.step(round.0) else {
-        next_phase.enter(Phase::Setup);
+        phase.enter(Phase::Setup);
         return;
     };
     commands.entity(*enemy_ship).trigger(OnModuleAction(action));
