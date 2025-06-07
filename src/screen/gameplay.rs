@@ -9,9 +9,14 @@ use crate::screen::Screen;
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(
         StateFlush,
-        Screen::Gameplay.on_edge(
-            Level::disable,
-            (spawn_gameplay_screen, (Level(0).enter(), Level::trigger)),
+        (
+            Screen::Gameplay.on_edge(
+                Level::disable,
+                (spawn_gameplay_screen, (Level(0).enter(), Level::trigger)),
+            ),
+            Menu::ANY
+                .on_enable(spawn_menu_overlay)
+                .run_if(Screen::Gameplay.will_update()),
         ),
     );
 
@@ -26,6 +31,15 @@ fn spawn_gameplay_screen(
     commands.spawn((
         music_audio(&audio_settings, game_assets.music.clone()),
         DespawnOnExitState::<Screen>::Recursive,
+    ));
+}
+
+fn spawn_menu_overlay(mut commands: Commands) {
+    commands.spawn((
+        widget::blocking_overlay(1),
+        ThemeColor::Overlay.set::<BackgroundColor>(),
+        DespawnOnExitState::<Screen>::default(),
+        DespawnOnDisableState::<Menu>::default(),
     ));
 }
 
@@ -51,7 +65,8 @@ impl Configure for GameplayAction {
         app.add_systems(
             Update,
             Screen::Gameplay.on_update((
-                (spawn_pause_overlay, Menu::Pause.enter())
+                Menu::Pause
+                    .enter()
                     .in_set(UpdateSystems::RecordInput)
                     .run_if(Menu::is_disabled.and(action_just_pressed(Self::Pause))),
                 Menu::clear
@@ -63,15 +78,6 @@ impl Configure for GameplayAction {
             )),
         );
     }
-}
-
-fn spawn_pause_overlay(mut commands: Commands) {
-    commands.spawn((
-        widget::blocking_overlay(1),
-        ThemeColor::Overlay.set::<BackgroundColor>(),
-        DespawnOnExitState::<Screen>::default(),
-        DespawnOnDisableState::<Menu>::default(),
-    ));
 }
 
 fn toggle_tooltips(mut tooltip_settings: ResMut<TooltipSettings>) {
