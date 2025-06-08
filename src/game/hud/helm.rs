@@ -266,12 +266,8 @@ fn sync_hand(
                     Tooltip::fixed(Anchor::BottomCenter, parse_rich(item.short_description())),
                     HandIndex(i),
                     children![(
-                        module(
-                            &game_assets,
-                            item,
-                            player_deck.heat_capacity,
-                            NodeShake::default()
-                        ),
+                        module(&game_assets, item, player_deck.heat_capacity),
+                        NodeShake::default(),
                         Patch(move |entity| {
                             if i == selected_idx {
                                 r!(entity.get_mut::<Node>()).top = Vw(-2.0);

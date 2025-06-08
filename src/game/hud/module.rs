@@ -1,5 +1,3 @@
-use crate::animation::offset::NodeOffset;
-use crate::animation::shake::NodeShake;
 use crate::game::GameAssets;
 use crate::game::module::Module;
 use crate::game::module::ModuleAction;
@@ -10,12 +8,7 @@ pub(super) fn plugin(app: &mut App) {
     app.configure::<IsModuleSlotGlow>();
 }
 
-pub fn module(
-    game_assets: &GameAssets,
-    module: Module,
-    heat_capacity: f32,
-    shake: NodeShake,
-) -> impl Bundle {
+pub fn module(game_assets: &GameAssets, module: Module, heat_capacity: f32) -> impl Bundle {
     let background = match module.status {
         ModuleStatus::FaceUp => &game_assets.module_face_up,
         ModuleStatus::FaceDown => &game_assets.module_face_down,
@@ -68,8 +61,6 @@ pub fn module(
             aspect_ratio: Some(1.0),
             ..Node::ROW_CENTER
         },
-        NodeOffset::new(Vw(0.), Vw(0.)),
-        shake,
         Pickable::IGNORE,
         children![
             (

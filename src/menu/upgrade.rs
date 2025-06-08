@@ -148,7 +148,7 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
             .to_string(),
         Upgrade::NothingPack(modules) => {
             format!(
-                "[b]Starter Pack[r]\n\nStart your reactor chains with three new Starter modules:\n\n{}",
+                "[b]Starter Pack[r]\n\nUnpack three helpful Starter modules:\n\n{}",
                 modules
                     .iter()
                     .map(|x| x.short_description())
@@ -158,7 +158,7 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
         },
         Upgrade::RepairPack(modules) => {
             format!(
-                "[b]Repair Pack[r]\n\nExtend your reactor chains with three new Repair modules:\n\n{}",
+                "[b]Repair Pack[r]\n\nUnpack three new Repair modules:\n\n{}",
                 modules
                     .iter()
                     .map(|x| x.short_description())
@@ -168,7 +168,7 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
         },
         Upgrade::MissilePack(modules) => {
             format!(
-                "[b]Missile Pack[r]\n\nExtend your reactor chains with three new Missile modules:\n\n{}",
+                "[b]Missile Pack[r]\n\nUnpack three new Missile modules:\n\n{}",
                 modules
                     .iter()
                     .map(|x| x.short_description())
@@ -178,7 +178,7 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
         },
         Upgrade::LaserPack(modules) => {
             format!(
-                "[b]Laser Pack[r]\n\nExtend your reactor chains with three new Laser modules:\n\n{}",
+                "[b]Laser Pack[r]\n\nUnpack three new Laser modules:\n\n{}",
                 modules
                     .iter()
                     .map(|x| x.short_description())
@@ -188,7 +188,7 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
         },
         Upgrade::FireballPack(modules) => {
             format!(
-                "[b]Fireball Pack[r]\n\nFinish your reactor chains with three new Fireball modules:\n\n{}",
+                "[b]Fireball Pack[r]\n\nUnpack three powerful Fireball modules:\n\n{}",
                 modules
                     .iter()
                     .map(|x| x.short_description())

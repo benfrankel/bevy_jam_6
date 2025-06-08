@@ -98,7 +98,8 @@ fn sync_module_grid(
                     }
 
                     parent.spawn((
-                        module(&game_assets, slot, player_deck.heat_capacity, shake),
+                        module(&game_assets, slot, player_deck.heat_capacity),
+                        shake,
                         ReactorIndex(i),
                         Tooltip::fixed(
                             Anchor::CenterRight,

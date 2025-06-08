@@ -46,7 +46,7 @@ impl Module {
 
     pub fn short_description(&self) -> String {
         let condition = match self.condition {
-            ModuleAction::Nothing => "-> ",
+            ModuleAction::Nothing => "[b]Start[r] -> ",
             ModuleAction::Missile => "[b]Missile[r] -> ",
             ModuleAction::Laser => "[b]Laser[r] -> ",
             ModuleAction::Fireball => "[b]Fireball[r] -> ",
@@ -74,7 +74,7 @@ impl Module {
             ModuleStatus::SlotEmpty => format!("{header}\n\nEmpty slot"),
             _ => {
                 let condition = match self.condition {
-                    ModuleAction::Nothing => "unconditionally ",
+                    ModuleAction::Nothing => "at the start of a new chain, ",
                     ModuleAction::Missile => "after launching a missile, ",
                     ModuleAction::Laser => "after firing a laser, ",
                     ModuleAction::Fireball => "after unleashing a fireball, ",
