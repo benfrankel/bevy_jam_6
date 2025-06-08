@@ -302,8 +302,8 @@ fn apply_offset_to_selected_module(
     container_query: Query<&HandIndex>,
 ) {
     for (mut node, child_of) in &mut module_query {
-        let index = cq!(container_query.get(child_of.parent()));
-        node.top = if index.0 == player_deck.selected_idx {
+        let idx = cq!(container_query.get(child_of.parent()));
+        node.top = if idx.0 == player_deck.selected_idx {
             Vw(-2.0)
         } else {
             Val::ZERO
@@ -320,9 +320,10 @@ fn select_module_on_hover(
     mut player_deck: ResMut<PlayerDeck>,
 ) {
     let target = rq!(trigger.get_target());
-    let (_, index) = rq!(module_query.get_mut(target));
+    let (_, idx) = rq!(module_query.get_mut(target));
+    rq!(idx.0 != player_deck.selected_idx);
 
-    player_deck.bypass_change_detection().selected_idx = index.0;
+    player_deck.bypass_change_detection().selected_idx = idx.0;
     commands.spawn((
         sfx_audio(&audio_settings, game_assets.module_hover_sfx.clone(), 1.0),
         DespawnOnExitState::<Level>::default(),

@@ -117,7 +117,7 @@ fn sync_module_grid(
 fn play_hover_sfx_on_hover(
     trigger: Trigger<Pointer<Over>>,
     mut commands: Commands,
-    reactor_module_query: Query<&ReactorIndex>,
+    reactor_module_query: Query<Ref<ReactorIndex>>,
     player_deck: Res<PlayerDeck>,
     audio_settings: Res<AudioSettings>,
     game_assets: Res<GameAssets>,
@@ -128,6 +128,7 @@ fn play_hover_sfx_on_hover(
         player_deck.reactor[idx.0].status,
         ModuleStatus::SlotEmpty,
     ));
+    rq!(!idx.is_added());
 
     commands.spawn((
         sfx_audio(&audio_settings, game_assets.module_hover_sfx.clone(), 1.0),
