@@ -3,21 +3,14 @@
         max_health: 50,
 
         storage: [
-            Module(condition: Repair, effect: Repair),
+            Module(condition: Nothing, effect: Missile),
         ],
         hand: [
             Module(condition: Nothing, effect: Missile),
-            Module(condition: Nothing, effect: Missile),
-            Module(condition: Nothing, effect: Laser),
-            Module(condition: Nothing, effect: Fireball),
-            Module(condition: Nothing, effect: Repair),
-            /*
-            Module(condition: Nothing, effect: Missile),
-            Module(condition: Nothing, effect: Repair),
             Module(condition: Missile, effect: Missile),
             Module(condition: Missile, effect: Repair),
             Module(condition: Repair, effect: Missile),
-            */
+            Module(condition: Repair, effect: Repair),
         ],
         selected_idx: 2,
 
