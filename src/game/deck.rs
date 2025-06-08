@@ -39,6 +39,7 @@ pub struct PlayerDeck {
     pub reactor_chain: VecDeque<usize>,
     pub last_effect: ModuleAction,
     pub last_touched_idx: Option<usize>,
+    pub selected_reactor_idx: usize,
 }
 
 impl Configure for PlayerDeck {
@@ -52,12 +53,10 @@ impl PlayerDeck {
     /// Reset deck.
     pub fn reset(&mut self) {
         // Discard modules from reactor / hand to storage.
-        for slot in &mut self.reactor {
-            cq!(!matches!(slot.status, ModuleStatus::SlotEmpty));
-            slot.status = ModuleStatus::FaceUp;
-            slot.heat = 0.0;
-            self.storage.push(*slot);
+        for idx in self.reactor.len()..0 {
+            self.discard_module(idx);
         }
+
         self.storage.append(&mut self.hand);
 
         // Create a new deck from storage and number of reactor slots.
@@ -217,6 +216,16 @@ impl PlayerDeck {
         }
 
         true
+    }
+
+    pub fn discard_module(&mut self, idx: usize) {
+        let mut slot = self.reactor[idx];
+        rq!(!matches!(slot.status, ModuleStatus::SlotEmpty));
+        slot.status = ModuleStatus::FaceUp;
+        slot.heat = 0.0;
+        self.storage.push(slot);
+
+        self.reactor[idx].status = ModuleStatus::SlotEmpty;
     }
 }
 

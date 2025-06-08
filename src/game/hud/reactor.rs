@@ -1,13 +1,17 @@
 use crate::animation::shake::NodeShake;
+use crate::core::audio::AudioSettings;
+use crate::core::audio::sfx_audio;
 use crate::game::GameAssets;
 use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudConfig;
 use crate::game::hud::flux::flux_display;
 use crate::game::hud::module::module;
+use crate::game::level::Level;
+use crate::game::phase::helm::HelmActions;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<IsModuleGrid>();
+    app.configure::<(IsModuleGrid, ReactorIndex)>();
 }
 
 pub fn reactor(game_assets: &GameAssets) -> impl Bundle {
@@ -54,6 +58,22 @@ impl Configure for IsModuleGrid {
     }
 }
 
+#[derive(Component, Reflect)]
+#[reflect(Component)]
+pub struct ReactorIndex(pub usize);
+
+impl Configure for ReactorIndex {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+        // app.add_systems(
+        //     Update,
+        //     apply_offset_to_selected_module.in_set(UpdateSystems::Update),
+        // );
+        app.add_observer(select_module_on_hover);
+        app.add_observer(discard_module_on_press);
+    }
+}
+
 fn sync_module_grid(
     mut commands: Commands,
     game_assets: Res<GameAssets>,
@@ -80,14 +100,52 @@ fn sync_module_grid(
                             shake.exponent = hud_config.module_shake_exponent;
                         }
                     }
-                    parent.spawn((
-                        module(&game_assets, slot, player_deck.heat_capacity, shake),
-                        Tooltip::fixed(
-                            Anchor::CenterRight,
-                            parse_rich(slot.description(player_deck.heat_capacity)),
-                        ),
-                    ));
+                    parent.spawn(((
+                        Name::new("ReactorModuleInteractionRegion"),
+                        Node {
+                            padding: UiRect::all(Vw(0.4167)),
+                            ..Node::COLUMN_CENTER.full_height()
+                        },
+                        Tooltip::fixed(Anchor::BottomCenter, parse_rich(slot.short_description())),
+                        ReactorIndex(i),
+                        children![
+                            module(&game_assets, slot, player_deck.heat_capacity, shake),
+                            Tooltip::fixed(
+                                Anchor::CenterRight,
+                                parse_rich(slot.description(player_deck.heat_capacity)),
+                            ),
+                        ],
+                    ),));
                 }
             });
     }
+}
+
+fn select_module_on_hover(
+    trigger: Trigger<Pointer<Over>>,
+    mut commands: Commands,
+    audio_settings: Res<AudioSettings>,
+    game_assets: Res<GameAssets>,
+    mut module_query: Query<(&mut Node, &ReactorIndex)>,
+    mut player_deck: ResMut<PlayerDeck>,
+) {
+    let target = rq!(trigger.get_target());
+    let (_, index) = rq!(module_query.get_mut(target));
+
+    player_deck.bypass_change_detection().selected_reactor_idx = index.0;
+    commands.spawn((
+        sfx_audio(&audio_settings, game_assets.module_hover_sfx.clone(), 1.0),
+        DespawnOnExitState::<Level>::default(),
+    ));
+}
+
+fn discard_module_on_press(
+    trigger: Trigger<Pointer<Click>>,
+    module_query: Query<(), With<ReactorIndex>>,
+    mut player_actions: ResMut<ActionState<HelmActions>>,
+) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
+    let target = rq!(trigger.get_target());
+    rq!(module_query.contains(target));
+    player_actions.press(&HelmActions::DiscardModule);
 }
