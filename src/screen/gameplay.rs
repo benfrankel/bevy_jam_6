@@ -62,7 +62,7 @@ impl Configure for GameplayAction {
                 Menu::Help
                     .enter()
                     .in_set(UpdateSystems::RecordInput)
-                    .run_if(action_just_pressed(Self::ToggleHelp)),
+                    .run_if(Menu::is_disabled.and(action_just_pressed(Self::ToggleHelp))),
                 Menu::pop.in_set(UpdateSystems::RecordInput).run_if(
                     Menu::Help
                         .will_update()
