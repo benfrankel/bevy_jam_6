@@ -8,9 +8,13 @@ pub(super) fn plugin(app: &mut App) {
         StateFlush,
         (
             Screen::Gameplay.on_edge(Level::disable, (Level(0).enter(), Level::trigger).chain()),
-            Menu::ANY
-                .on_enable(spawn_menu_overlay)
-                .run_if(Screen::Gameplay.will_update()),
+            Menu::ANY.on_enter(
+                spawn_menu_overlay.run_if(
+                    Screen::Gameplay
+                        .will_enter()
+                        .and(Screen::is_triggered.or(Menu::is_disabled)),
+                ),
+            ),
         ),
     );
 
