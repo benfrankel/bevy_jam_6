@@ -39,15 +39,11 @@ fn spawn_upgrade_menu(
     player_deck: Res<PlayerDeck>,
     upgrade_history: Res<UpgradeHistory>,
 ) {
-    let _level = r!(level.get()).0;
+    let level = r!(level.get()).0;
     let _level_config = r!(level_config.get());
 
     // Generate upgrade offers.
-    let upgrades = generate_upgrades(
-        &mut thread_rng(),
-        player_deck.reactor.len(),
-        &upgrade_history,
-    );
+    let upgrades = generate_upgrades(&mut thread_rng(), &player_deck, &upgrade_history, level);
 
     commands
         .entity(menu_root.ui)
@@ -91,7 +87,7 @@ fn enter_next_level(
         // Upgrade deck.
         match &mut selector.upgrade {
             Upgrade::FluxCapacitor => player_deck.reactor.extend([Module::EMPTY; 3]),
-            Upgrade::QuantumCooler => player_deck.heat_capacity += 8.0,
+            Upgrade::QuantumCooler => player_deck.heat_capacity += 12.0,
             Upgrade::AlienAlloy => player_deck.max_health += 50.0,
             Upgrade::NothingPack(modules)
             | Upgrade::RepairPack(modules)
@@ -136,7 +132,7 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
         Upgrade::FireballPack(_) => &game_assets.upgrade_pack_fireball,
     }
     .clone();
-    // TODO: Write up tooltips.
+
     let description = match &upgrade {
         Upgrade::FluxCapacitor => "[b]Flux Capacitor[r]\n\n\
             Increase the maximum flux that the reactor can achieve.\n\n\
@@ -144,7 +140,7 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
             .to_string(),
         Upgrade::QuantumCooler => "[b]Quantum Cooler[r]\n\n\
             Allow your reactor modules to activate more before overheating.\n\n\
-            [b]Reactor heat capacity:[r] +8"
+            [b]Reactor heat capacity:[r] +12"
             .to_string(),
         Upgrade::AlienAlloy => "[b]Alien Alloy[r]\n\n\
             Reinforce your hull with a legendary alloy from another star.\n\n\
@@ -152,62 +148,52 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
             .to_string(),
         Upgrade::NothingPack(modules) => {
             format!(
-                "[b]Starter Pack[r]\n\n\
-                Start your reactor chains with three new Starter modules:\n\n\
-                {}\n\
-                {}\n\
-                {}",
-                modules[0].short_description(),
-                modules[1].short_description(),
-                modules[2].short_description(),
+                "[b]Starter Pack[r]\n\nStart your reactor chains with three new Starter modules:\n\n{}",
+                modules
+                    .iter()
+                    .map(|x| x.short_description())
+                    .collect::<Vec<_>>()
+                    .join("\n"),
             )
         },
         Upgrade::RepairPack(modules) => {
             format!(
-                "[b]Repair Pack[r]\n\n\
-                Extend your reactor chains with three new Repair modules:\n\n\
-                {}\n\
-                {}\n\
-                {}",
-                modules[0].short_description(),
-                modules[1].short_description(),
-                modules[2].short_description(),
+                "[b]Repair Pack[r]\n\nExtend your reactor chains with three new Repair modules:\n\n{}",
+                modules
+                    .iter()
+                    .map(|x| x.short_description())
+                    .collect::<Vec<_>>()
+                    .join("\n"),
             )
         },
         Upgrade::MissilePack(modules) => {
             format!(
-                "[b]Missile Pack[r]\n\n\
-                Extend your reactor chains with three new Missile modules:\n\n\
-                {}\n\
-                {}\n\
-                {}",
-                modules[0].short_description(),
-                modules[1].short_description(),
-                modules[2].short_description(),
+                "[b]Missile Pack[r]\n\nExtend your reactor chains with three new Missile modules:\n\n{}",
+                modules
+                    .iter()
+                    .map(|x| x.short_description())
+                    .collect::<Vec<_>>()
+                    .join("\n"),
             )
         },
         Upgrade::LaserPack(modules) => {
             format!(
-                "[b]Laser Pack[r]\n\n\
-                Extend your reactor chains with three new Laser modules:\n\n\
-                {}\n\
-                {}\n\
-                {}",
-                modules[0].short_description(),
-                modules[1].short_description(),
-                modules[2].short_description(),
+                "[b]Laser Pack[r]\n\nExtend your reactor chains with three new Laser modules:\n\n{}",
+                modules
+                    .iter()
+                    .map(|x| x.short_description())
+                    .collect::<Vec<_>>()
+                    .join("\n"),
             )
         },
         Upgrade::FireballPack(modules) => {
             format!(
-                "[b]Fireball Pack[r]\n\n\
-                Finish your reactor chains with three new Fireball modules:\n\n\
-                {}\n\
-                {}\n\
-                {}",
-                modules[0].short_description(),
-                modules[1].short_description(),
-                modules[2].short_description(),
+                "[b]Fireball Pack[r]\n\nFinish your reactor chains with three new Fireball modules:\n\n{}",
+                modules
+                    .iter()
+                    .map(|x| x.short_description())
+                    .collect::<Vec<_>>()
+                    .join("\n"),
             )
         },
     };
@@ -334,13 +320,18 @@ impl Configure for IsNextLevelButton {
 
 fn generate_upgrades(
     rng: &mut impl Rng,
-    reactor_len: usize,
+    player_deck: &PlayerDeck,
     upgrade_history: &UpgradeHistory,
+    level: usize,
 ) -> Vec<Upgrade> {
     let mut upgrades = vec![];
 
     // Offer primary upgrades.
-    if reactor_len < 18 {
+    if player_deck.heat_capacity
+        < 0.25 * (player_deck.reactor.len() * player_deck.reactor.len()) as f32
+    {
+        upgrades.push(Upgrade::QuantumCooler);
+    } else if player_deck.reactor.len() < 18 {
         upgrades.push(Upgrade::FluxCapacitor);
     } else {
         upgrades.push(if rng.r#gen() {
@@ -356,12 +347,12 @@ fn generate_upgrades(
     });
 
     // Offer module packs.
-    if !upgrade_history.took_fireball_pack {
-        // TODO: Calculate and roll the odds (use level and level config).
+    // TODO: Get weight from level / level config.
+    if !upgrade_history.took_fireball_pack && rng.gen_bool(0.2 * level as f64) {
         upgrades.push(Upgrade::FireballPack(vec![]));
     }
-    if !upgrade_history.took_nothing_pack {
-        // TODO: Calculate and roll the odds (use level and level config).
+    // TODO: Get weight from level / level config.
+    if !upgrade_history.took_nothing_pack && rng.gen_bool(0.2 * level as f64) {
         upgrades.push(Upgrade::NothingPack(vec![]));
     }
     for _ in upgrades.len()..6 {
