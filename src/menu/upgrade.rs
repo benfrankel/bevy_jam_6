@@ -391,11 +391,12 @@ fn generate_upgrades(
         for _ in 0..3 {
             // TODO: Get weights from level / level config.
             other_actions.push(*c!(all_actions.choose_weighted(rng, |&x| match x {
-                x if x == action => 0.0,
                 ModuleAction::Missile => 1.0,
                 ModuleAction::Repair => 0.6,
                 ModuleAction::Laser => 0.7,
+                x @ ModuleAction::Nothing if x == action => 0.0,
                 ModuleAction::Nothing => 0.1,
+                x @ ModuleAction::Fireball if x == action => 0.0,
                 ModuleAction::Fireball => 0.1,
             })));
         }
@@ -414,7 +415,9 @@ fn generate_upgrades(
             _ => {
                 modules.push(Module::new(action, other_actions[0]));
                 modules.push(Module::new(other_actions[1], action));
-                if rng.r#gen() {
+                if matches!(other_actions[2], ModuleAction::Fireball)
+                    || (!matches!(other_actions[2], ModuleAction::Nothing) && rng.r#gen())
+                {
                     modules.push(Module::new(action, other_actions[2]));
                 } else {
                     modules.push(Module::new(other_actions[2], action));
