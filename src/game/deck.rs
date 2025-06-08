@@ -30,7 +30,7 @@ pub struct PlayerDeck {
     pub storage: Vec<Module>,
     pub hand: Vec<Module>,
     pub selected_idx: usize,
-    pub just_drew: bool,
+    pub just_used_storage: bool,
 
     // Reactor:
     pub flux: f32,
@@ -86,10 +86,22 @@ impl PlayerDeck {
     }
 
     /// Draw the next module from storage to hand.
-    pub fn draw(&mut self) {
+    pub fn draw_module(&mut self) {
         let draw = rq!(self.storage.pop());
         self.hand.push(draw);
-        self.just_drew = true;
+        self.just_used_storage = true;
+    }
+
+    /// Discard a module from the reactor to storage.
+    pub fn discard_module(&mut self, idx: usize) {
+        let mut slot = self.reactor[idx];
+        rq!(!matches!(slot.status, ModuleStatus::SlotEmpty));
+        self.reactor[idx].status = ModuleStatus::SlotEmpty;
+
+        slot.status = ModuleStatus::FaceUp;
+        slot.heat = 0.0;
+        self.storage.push(slot);
+        self.just_used_storage = true;
     }
 
     /// Try to play the currently selected module from hand to reactor,
@@ -202,29 +214,20 @@ impl PlayerDeck {
         }
     }
 
+    /// Determine whether setting up the helm is done.
     pub fn is_setup_done(&self) -> bool {
         self.storage.is_empty() || self.hand.len() >= 5
     }
 
-    /// Steps setting up the deck, returning false if setup was already complete.
+    /// Steps setting up the helm, returning false if setup was already complete.
     pub fn step_setup(&mut self) -> bool {
         if !self.storage.is_empty() && self.hand.len() < 5 {
-            self.draw();
+            self.draw_module();
         } else {
             return false;
         }
 
         true
-    }
-
-    pub fn discard_module(&mut self, idx: usize) {
-        let mut slot = self.reactor[idx];
-        rq!(!matches!(slot.status, ModuleStatus::SlotEmpty));
-        slot.status = ModuleStatus::FaceUp;
-        slot.heat = 0.0;
-        self.storage.push(slot);
-
-        self.reactor[idx].status = ModuleStatus::SlotEmpty;
     }
 }
 
