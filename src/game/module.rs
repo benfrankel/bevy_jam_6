@@ -103,7 +103,7 @@ impl Module {
                     ModuleAction::Missile => "\n\n[b]Damage:[r] 1 times flux",
                     ModuleAction::Laser => "\n\n[b]Damage:[r] 2 times flux",
                     ModuleAction::Fireball => "\n\n[b]Damage:[r] 8 times flux",
-                    ModuleAction::Repair => "\n\n[b]Heal:[r] 1 times flux",
+                    ModuleAction::Repair => "\n\n[b]Heal:[r] 2 times flux",
                 };
 
                 format!("{header}{heat}\n\n{body}{stats}")
@@ -248,7 +248,7 @@ fn on_module_action(
         },
 
         ModuleAction::Repair => {
-            commands.entity(ship).trigger(OnHeal(flux));
+            commands.entity(ship).trigger(OnHeal(2.0 * flux));
             commands.spawn((
                 sfx_audio(
                     &audio_settings,

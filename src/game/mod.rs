@@ -123,6 +123,24 @@ pub struct GameAssets {
     #[asset(path = "image/ui/skip_button.png")]
     pub skip_button: Handle<Image>,
 
+    // Upgrade icons.
+    #[asset(path = "image/ui/upgrade_pack_nothing.png")]
+    pub upgrade_pack_nothing: Handle<Image>,
+    #[asset(path = "image/ui/upgrade_pack_repair.png")]
+    pub upgrade_pack_repair: Handle<Image>,
+    #[asset(path = "image/ui/upgrade_pack_missile.png")]
+    pub upgrade_pack_missile: Handle<Image>,
+    #[asset(path = "image/ui/upgrade_pack_laser.png")]
+    pub upgrade_pack_laser: Handle<Image>,
+    #[asset(path = "image/ui/upgrade_pack_fireball.png")]
+    pub upgrade_pack_fireball: Handle<Image>,
+    #[asset(path = "image/ui/upgrade_capacitor.png")]
+    pub upgrade_capacitor: Handle<Image>,
+    #[asset(path = "image/ui/upgrade_cooler.png")]
+    pub upgrade_cooler: Handle<Image>,
+    #[asset(path = "image/ui/upgrade_alloy.png")]
+    pub upgrade_alloy: Handle<Image>,
+
     // Spaceships.
     #[asset(path = "image/ship/player.png")]
     pub player_ship: Handle<Image>,
