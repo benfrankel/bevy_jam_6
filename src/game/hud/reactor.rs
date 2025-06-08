@@ -96,27 +96,17 @@ fn sync_module_grid(
                             shake.exponent = hud_config.module_shake_exponent;
                         }
                     }
+
                     parent.spawn((
-                        Name::new("ReactorModuleInteractionRegion"),
-                        Node {
-                            padding: UiRect::all(Vw(0.4167)),
-                            ..Node::COLUMN_CENTER.full_height()
-                        },
+                        module(&game_assets, slot, player_deck.heat_capacity, shake),
+                        ReactorIndex(i),
                         Tooltip::fixed(
                             Anchor::CenterRight,
                             parse_rich(slot.description(player_deck.heat_capacity)),
                         ),
-                        ReactorIndex(i),
                         Patch(|entity| {
                             entity.observe(play_hover_sfx_on_hover);
                         }),
-                        children![
-                            module(&game_assets, slot, player_deck.heat_capacity, shake),
-                            Tooltip::fixed(
-                                Anchor::CenterRight,
-                                parse_rich(slot.description(player_deck.heat_capacity)),
-                            ),
-                        ],
                     ));
                 }
             });
