@@ -8,25 +8,25 @@
 
         // Level 1:
         LevelSetup(
-            enemy_deck: EnemyDeck(actions: [Missile, Missile, Missile, Laser]),
+            enemy_deck: EnemyDeck(actions: [Laser, Missile, Missile, Missile]),
             enemy_health: 50,
         ),
 
         // Level 2:
         LevelSetup(
-            enemy_deck: EnemyDeck(actions: [Missile, Missile, Missile, Laser, Laser]),
+            enemy_deck: EnemyDeck(actions: [Laser, Laser, Missile, Missile, Missile]),
             enemy_health: 100,
         ),
 
         // Level 3:
         LevelSetup(
-            enemy_deck: EnemyDeck(actions: [Missile, Missile, Missile, Missile, Laser, Laser, Laser]),
+            enemy_deck: EnemyDeck(actions: [Laser, Laser, Laser, Missile, Missile, Missile, Missile]),
             enemy_health: 200,
         ),
 
         // Level 4:
         LevelSetup(
-            enemy_deck: EnemyDeck(actions: [Laser, Laser, Laser, Laser, Laser, Laser]),
+            enemy_deck: EnemyDeck(actions: [Laser, Laser, Laser, Laser, Missile, Missile, Missile, Laser]),
             enemy_health: 300,
         ),
 

@@ -81,6 +81,8 @@ fn enter_next_level(
 
     // Apply upgrades.
     for mut selector in &mut selector_query {
+        rq!(selector.selected);
+
         // Record upgrade history.
         match selector.upgrade {
             Upgrade::NothingPack(_) => upgrade_history.took_nothing_pack = true,

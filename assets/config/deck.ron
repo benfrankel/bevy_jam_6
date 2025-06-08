@@ -3,18 +3,18 @@
         max_health: 50,
 
         storage: [
-            Module(condition: Nothing, effect: Missile),
-        ],
-        hand: [
-            Module(condition: Nothing, effect: Missile),
             Module(condition: Missile, effect: Missile),
             Module(condition: Missile, effect: Repair),
             Module(condition: Repair, effect: Missile),
             Module(condition: Repair, effect: Repair),
+            Module(condition: Nothing, effect: Missile),
         ],
-        selected_idx: 2,
+        hand: [
+            Module(condition: Nothing, effect: Missile),
+        ],
+        selected_idx: 0,
 
-        heat_capacity: 8,
+        heat_capacity: 4,
         reactor: [
             Module(status: SlotEmpty),
             Module(status: SlotEmpty),
