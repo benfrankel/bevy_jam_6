@@ -29,7 +29,6 @@ pub enum HelmActions {
     SelectRight,
     PlayModule,
     EndTurn,
-    DiscardModule,
 }
 
 impl Configure for HelmActions {
@@ -80,9 +79,6 @@ impl Configure for HelmActions {
                 helm_end_turn
                     .in_set(UpdateSystems::RecordInput)
                     .run_if(action_just_pressed(Self::EndTurn)),
-                helm_discard_reactor_module
-                    .in_set(UpdateSystems::RecordInput)
-                    .run_if(action_just_pressed(Self::DiscardModule)),
             ),
         );
     }
@@ -91,13 +87,11 @@ impl Configure for HelmActions {
 fn disable_end_turn(mut helm_actions: ResMut<ActionState<HelmActions>>) {
     helm_actions.disable_action(&HelmActions::PlayModule);
     helm_actions.disable_action(&HelmActions::EndTurn);
-    helm_actions.disable_action(&HelmActions::DiscardModule);
 }
 
 fn enable_end_turn(mut helm_actions: ResMut<ActionState<HelmActions>>) {
     helm_actions.enable_action(&HelmActions::PlayModule);
     helm_actions.enable_action(&HelmActions::EndTurn);
-    helm_actions.enable_action(&HelmActions::DiscardModule);
 }
 
 fn disable_helm_actions(mut helm_actions: ResMut<ActionState<HelmActions>>) {
@@ -152,19 +146,4 @@ fn helm_play_module(
 
 fn helm_end_turn(mut phase: NextMut<Phase>) {
     phase.enter(Phase::Reactor);
-}
-
-fn helm_discard_reactor_module(
-    mut commands: Commands,
-    audio_settings: Res<AudioSettings>,
-    game_assets: Res<GameAssets>,
-    mut player_deck: ResMut<PlayerDeck>,
-) {
-    let i = player_deck.selected_reactor_idx;
-    player_deck.discard_module(i);
-
-    commands.spawn((
-        sfx_audio(&audio_settings, game_assets.module_hover_sfx.clone(), 1.0),
-        DespawnOnExitState::<Level>::default(),
-    ));
 }

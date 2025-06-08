@@ -39,7 +39,6 @@ pub struct PlayerDeck {
     pub reactor_chain: VecDeque<usize>,
     pub last_effect: ModuleAction,
     pub last_touched_idx: Option<usize>,
-    pub selected_reactor_idx: usize,
 }
 
 impl Configure for PlayerDeck {
