@@ -11,7 +11,7 @@ fn spawn_help_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
         .entity(menu_root.ui)
         .with_child(widget::popup(children![
             widget::label_base(
-                Vw(2.0),
+                Vw(1.8),
                 ThemeColor::BodyText,
                 JustifyText::Left,
                 1.8,

@@ -413,8 +413,18 @@ fn generate_upgrades(
                 }
             },
             _ => {
-                modules.push(Module::new(action, other_actions[0]));
-                modules.push(Module::new(other_actions[1], action));
+                if matches!(other_actions[0], ModuleAction::Nothing) {
+                    modules.push(Module::new(other_actions[0], action));
+                } else {
+                    modules.push(Module::new(action, other_actions[0]));
+                }
+
+                if matches!(other_actions[1], ModuleAction::Fireball) {
+                    modules.push(Module::new(action, other_actions[1]));
+                } else {
+                    modules.push(Module::new(other_actions[1], action));
+                }
+
                 if matches!(other_actions[2], ModuleAction::Fireball)
                     || (!matches!(other_actions[2], ModuleAction::Nothing) && rng.r#gen())
                 {
@@ -422,6 +432,7 @@ fn generate_upgrades(
                 } else {
                     modules.push(Module::new(other_actions[2], action));
                 }
+
                 modules.shuffle(rng);
             },
         }

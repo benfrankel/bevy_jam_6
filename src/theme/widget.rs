@@ -195,14 +195,19 @@ pub fn label_base(
     text: impl AsRef<str>,
 ) -> impl Bundle {
     let text = text.as_ref();
+    let rich_text = RichText::from_sections(parse_rich(text))
+        .with_justify(justify)
+        .with_font_smoothing(FontSmoothing::None)
+        .with_line_height(LineHeight::RelativeToFont(line_height));
+    let text_colors = std::iter::repeat(text_color)
+        .take(rich_text.sections.len().max(1))
+        .collect::<Vec<_>>();
+
     (
         Name::new(format!("Label(\"{text}\")")),
-        RichText::from_sections(parse_rich(text))
-            .with_justify(justify)
-            .with_font_smoothing(FontSmoothing::None)
-            .with_line_height(LineHeight::RelativeToFont(line_height)),
+        rich_text,
         DynamicFontSize::new(font_size).with_step(8.0),
-        ThemeColorForText(vec![text_color]),
+        ThemeColorForText(text_colors),
     )
 }
 
