@@ -267,6 +267,7 @@ fn sync_hand(
                     HandIndex(i),
                     children![(
                         module(&game_assets, item, player_deck.heat_capacity),
+                        Pickable::IGNORE,
                         NodeShake::default(),
                         Patch(move |entity| {
                             if i == selected_idx {

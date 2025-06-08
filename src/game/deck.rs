@@ -52,10 +52,10 @@ impl PlayerDeck {
     /// Reset deck.
     pub fn reset(&mut self) {
         // Discard modules from reactor / hand to storage.
-        for idx in self.reactor.len()..0 {
-            self.discard_module(idx);
+        let rng = &mut thread_rng();
+        for idx in 0..self.reactor.len() {
+            self.discard_module(idx, rng);
         }
-
         self.storage.append(&mut self.hand);
 
         // Create a new deck from storage and number of reactor slots.
@@ -93,14 +93,15 @@ impl PlayerDeck {
     }
 
     /// Discard a module from the reactor to storage.
-    pub fn discard_module(&mut self, idx: usize) {
+    pub fn discard_module(&mut self, idx: usize, rng: &mut impl Rng) {
         let mut slot = self.reactor[idx];
         rq!(!matches!(slot.status, ModuleStatus::SlotEmpty));
         self.reactor[idx].status = ModuleStatus::SlotEmpty;
 
         slot.status = ModuleStatus::FaceUp;
         slot.heat = 0.0;
-        self.storage.push(slot);
+        let storage_idx = rng.gen_range(0..=self.storage.len());
+        self.storage.insert(storage_idx, slot);
         self.just_used_storage = true;
     }
 
@@ -118,15 +119,9 @@ impl PlayerDeck {
             .clamp(0, self.hand.len().saturating_sub(1));
 
         // Place it in the next available reactor slot.
-        let slot = &mut self.reactor[slot_idx];
-        if !matches!(slot.status, ModuleStatus::SlotEmpty) {
-            slot.status = ModuleStatus::FaceUp;
-            slot.heat = 0.0;
-            let idx = rng.gen_range(0..=self.storage.len());
-            self.storage.insert(idx, *slot);
-        }
+        self.discard_module(slot_idx, rng);
         selected.status = ModuleStatus::SlotInactive;
-        *slot = selected;
+        self.reactor[slot_idx] = selected;
         self.last_touched_idx = Some(slot_idx);
 
         true

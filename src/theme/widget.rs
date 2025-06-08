@@ -199,9 +199,8 @@ pub fn label_base(
         .with_justify(justify)
         .with_font_smoothing(FontSmoothing::None)
         .with_line_height(LineHeight::RelativeToFont(line_height));
-    let text_colors = std::iter::repeat(text_color)
-        .take(rich_text.sections.len().max(1))
-        .collect::<Vec<_>>();
+    let text_colors =
+        std::iter::repeat_n(text_color, rich_text.sections.len().max(1)).collect::<Vec<_>>();
 
     (
         Name::new(format!("Label(\"{text}\")")),

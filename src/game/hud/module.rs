@@ -61,7 +61,6 @@ pub fn module(game_assets: &GameAssets, module: Module, heat_capacity: f32) -> i
             aspect_ratio: Some(1.0),
             ..Node::ROW_CENTER
         },
-        Pickable::IGNORE,
         children![
             (
                 Name::new("Condition"),
