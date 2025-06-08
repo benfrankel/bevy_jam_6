@@ -28,6 +28,7 @@ impl Config for LevelConfig {
 #[derive(Reflect, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields, default)]
 pub struct LevelSetup {
+    pub name: String,
     pub enemy_deck: EnemyDeck,
     pub enemy_health: f32,
 }
@@ -108,6 +109,14 @@ fn spawn_level(
 
     commands.spawn(background(&game_assets, level));
     commands.spawn((hud(&game_assets), DespawnOnExitState::<Level>::default()));
+    commands.spawn((
+        widget::tiny_label(format!("[b]{}", level_setup.name)),
+        Node {
+            top: Vw(1.0),
+            right: Vw(1.0),
+            ..Node::DEFAULT.abs()
+        },
+    ));
     commands.spawn((
         player_ship(ship_config, &game_assets, player_deck.max_health),
         DespawnOnExitState::<Level>::default(),

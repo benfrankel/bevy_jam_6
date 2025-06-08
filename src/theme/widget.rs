@@ -137,6 +137,10 @@ pub fn label(text: impl AsRef<str>) -> impl Bundle {
     label_base(Vw(3.5), ThemeColor::BodyText, text)
 }
 
+pub fn tiny_label(text: impl AsRef<str>) -> impl Bundle {
+    label_base(Vw(1.4), ThemeColor::BodyText, text)
+}
+
 pub fn small_label(text: impl AsRef<str>) -> impl Bundle {
     label_base(Vw(2.0), ThemeColor::BodyText, text)
 }
