@@ -1,5 +1,6 @@
 mod credits;
 mod defeat;
+mod help;
 mod intro;
 mod loading;
 mod main;
@@ -52,6 +53,7 @@ pub enum Menu {
     Settings,
     Credits,
     Loading,
+    Help,
     Pause,
     Upgrade,
     Defeat,
@@ -75,6 +77,7 @@ impl Configure for Menu {
             settings::plugin,
             credits::plugin,
             loading::plugin,
+            help::plugin,
             pause::plugin,
             upgrade::plugin,
             defeat::plugin,

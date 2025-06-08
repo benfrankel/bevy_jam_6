@@ -48,7 +48,12 @@ impl Configure for Level {
                 (reset_decks, reset_camera),
                 (
                     (set_up_decks, spawn_level).chain(),
-                    (Menu::release, Menu::clear).chain(),
+                    (
+                        Menu::release,
+                        Menu::clear,
+                        Menu::Help.enter().run_if(Level(0).will_enter()),
+                    )
+                        .chain(),
                 ),
             ),
         );

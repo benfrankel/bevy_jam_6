@@ -27,7 +27,7 @@ pub fn flux_display() -> impl Bundle {
         ),
         children![(
             IsFluxLabel,
-            widget::colored_label("", default()),
+            widget::colored_label(default(), ""),
             NodeShake::default(),
         )],
     )

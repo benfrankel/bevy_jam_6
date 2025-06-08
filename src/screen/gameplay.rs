@@ -30,7 +30,7 @@ fn spawn_menu_overlay(mut commands: Commands) {
 pub enum GameplayAction {
     Pause,
     CloseMenu,
-    ToggleTooltips,
+    ToggleHelp,
 }
 
 impl Configure for GameplayAction {
@@ -42,7 +42,7 @@ impl Configure for GameplayAction {
                 .with(Self::Pause, KeyCode::Escape)
                 .with(Self::Pause, KeyCode::KeyP)
                 .with(Self::CloseMenu, KeyCode::KeyP)
-                .with(Self::ToggleTooltips, KeyCode::KeyI),
+                .with(Self::ToggleHelp, KeyCode::KeyI),
         );
         app.add_plugins(InputManagerPlugin::<Self>::default());
         app.add_systems(
@@ -55,14 +55,16 @@ impl Configure for GameplayAction {
                 Menu::clear
                     .in_set(UpdateSystems::RecordInput)
                     .run_if(Menu::is_enabled.and(action_just_pressed(Self::CloseMenu))),
-                toggle_tooltips
+                Menu::Help
+                    .enter()
                     .in_set(UpdateSystems::RecordInput)
-                    .run_if(action_just_pressed(Self::ToggleTooltips)),
+                    .run_if(action_just_pressed(Self::ToggleHelp)),
+                Menu::pop.in_set(UpdateSystems::RecordInput).run_if(
+                    Menu::Help
+                        .will_update()
+                        .and(action_just_pressed(Self::ToggleHelp)),
+                ),
             )),
         );
     }
-}
-
-fn toggle_tooltips(mut tooltip_settings: ResMut<TooltipSettings>) {
-    tooltip_settings.enabled ^= true;
 }

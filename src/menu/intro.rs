@@ -14,11 +14,20 @@ fn spawn_intro_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
         .entity(menu_root.ui)
         .with_child(widget::popup(children![
             widget::header("[b]Mission received:"),
-            widget::paragraph(
-                "\
-                Protect our home star\n\
-                against the tyrant threat from afar.\n\
-                Command the Weber?"
+            (
+                widget::label_base(
+                    Vw(3.5),
+                    ThemeColor::BodyText,
+                    JustifyText::Center,
+                    1.6,
+                    "Protect our home star\n\
+                    against the tyrant threat from afar.\n\
+                    Command The Weber?"
+                ),
+                Node {
+                    margin: UiRect::top(Vw(-1.0)).with_bottom(Vw(4.0)),
+                    ..default()
+                },
             ),
             widget::row_of_buttons(children![
                 widget::button("Decline", go_back),

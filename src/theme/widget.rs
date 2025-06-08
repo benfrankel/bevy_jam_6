@@ -1,4 +1,6 @@
 use bevy::ecs::system::IntoObserverSystem;
+use bevy::text::FontSmoothing;
+use bevy::text::LineHeight;
 
 use crate::animation::backup::Backup;
 use crate::animation::offset::NodeOffset;
@@ -123,7 +125,13 @@ pub fn stretch(children: impl Bundle) -> impl Bundle {
 
 pub fn header(text: impl AsRef<str>) -> impl Bundle {
     (
-        label_base(Vw(5.0), ThemeColor::BodyText, text),
+        label_base(
+            Vw(5.0),
+            ThemeColor::BodyText,
+            JustifyText::Center,
+            1.2,
+            text,
+        ),
         Node {
             margin: UiRect::bottom(Vw(4.2)),
             ..default()
@@ -132,46 +140,67 @@ pub fn header(text: impl AsRef<str>) -> impl Bundle {
 }
 
 pub fn big_label(text: impl AsRef<str>) -> impl Bundle {
-    label_base(Vw(5.0), ThemeColor::BodyText, text)
-}
-
-pub fn label(text: impl AsRef<str>) -> impl Bundle {
-    label_base(Vw(3.5), ThemeColor::BodyText, text)
-}
-
-pub fn tiny_label(text: impl AsRef<str>) -> impl Bundle {
-    label_base(Vw(1.35), ThemeColor::BodyText, text)
-}
-
-pub fn small_label(text: impl AsRef<str>) -> impl Bundle {
-    label_base(Vw(2.0), ThemeColor::BodyText, text)
-}
-
-pub fn small_colored_label(text: impl AsRef<str>, color: ThemeColor) -> impl Bundle {
-    label_base(Vw(2.0), color, text)
-}
-
-pub fn colored_label(text: impl AsRef<str>, color: ThemeColor) -> impl Bundle {
-    label_base(Vw(3.5), color, text)
-}
-
-pub fn paragraph(text: &'static str) -> impl Bundle {
-    (
-        Name::new("Paragraph"),
-        Node {
-            margin: UiRect::top(Vw(4.0)).with_bottom(Vw(5.2)),
-            row_gap: Vw(1.4),
-            ..Node::COLUMN_MID
-        },
-        Children::spawn(SpawnIter(text.lines().map(label))),
+    label_base(
+        Vw(5.0),
+        ThemeColor::BodyText,
+        JustifyText::Center,
+        1.2,
+        text,
     )
 }
 
-pub fn label_base(font_size: Val, text_color: ThemeColor, text: impl AsRef<str>) -> impl Bundle {
+pub fn label(text: impl AsRef<str>) -> impl Bundle {
+    label_base(
+        Vw(3.5),
+        ThemeColor::BodyText,
+        JustifyText::Center,
+        1.2,
+        text,
+    )
+}
+
+pub fn tiny_label(text: impl AsRef<str>) -> impl Bundle {
+    label_base(
+        Vw(1.35),
+        ThemeColor::BodyText,
+        JustifyText::Center,
+        1.2,
+        text,
+    )
+}
+
+pub fn small_label(text: impl AsRef<str>) -> impl Bundle {
+    label_base(
+        Vw(2.0),
+        ThemeColor::BodyText,
+        JustifyText::Center,
+        1.2,
+        text,
+    )
+}
+
+pub fn small_colored_label(color: ThemeColor, text: impl AsRef<str>) -> impl Bundle {
+    label_base(Vw(2.0), color, JustifyText::Center, 1.2, text)
+}
+
+pub fn colored_label(color: ThemeColor, text: impl AsRef<str>) -> impl Bundle {
+    label_base(Vw(3.5), color, JustifyText::Center, 1.2, text)
+}
+
+pub fn label_base(
+    font_size: Val,
+    text_color: ThemeColor,
+    justify: JustifyText,
+    line_height: f32,
+    text: impl AsRef<str>,
+) -> impl Bundle {
     let text = text.as_ref();
     (
         Name::new(format!("Label(\"{text}\")")),
-        RichText::from_sections(parse_rich(text)).with_justify(JustifyText::Center),
+        RichText::from_sections(parse_rich(text))
+            .with_justify(justify)
+            .with_font_smoothing(FontSmoothing::None)
+            .with_line_height(LineHeight::RelativeToFont(line_height)),
         DynamicFontSize::new(font_size).with_step(8.0),
         ThemeColorForText(vec![text_color]),
     )
@@ -258,7 +287,13 @@ where
         Backup::<BoxShadow>::default(),
         InteractionSfx,
         children![(
-            label_base(font_size, ThemeColor::PrimaryText, text),
+            label_base(
+                font_size,
+                ThemeColor::PrimaryText,
+                JustifyText::Center,
+                1.2,
+                text,
+            ),
             Pickable::IGNORE,
         )],
         InteractionDisabled(false),

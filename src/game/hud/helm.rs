@@ -91,7 +91,7 @@ fn storage(game_assets: &GameAssets) -> impl Bundle {
         Tooltip::fixed(Anchor::TopCenter, ""),
         NodeShake::default(),
         children![(
-            widget::small_colored_label("", ThemeColor::IconText),
+            widget::small_colored_label(ThemeColor::IconText, ""),
             IsStorageLabel,
         )],
     )
@@ -117,7 +117,7 @@ fn info_button(game_assets: &GameAssets) -> impl Bundle {
         Name::new("InfoButton"),
         mini_button_base(
             game_assets.info_button.clone(),
-            "[b]Info mode (I)[r]\n\nToggle informational tooltips.",
+            "[b]Instruction Manual (I)[r]\n\nRead the ship's instruction manual.",
             toggle_tooltips,
         ),
     )
@@ -150,7 +150,7 @@ fn toggle_tooltips(
     mut gameplay_action: ResMut<ActionState<GameplayAction>>,
 ) {
     rq!(matches!(trigger.event.button, PointerButton::Primary));
-    gameplay_action.press(&GameplayAction::ToggleTooltips);
+    gameplay_action.press(&GameplayAction::ToggleHelp);
 }
 
 fn open_pause_menu(
