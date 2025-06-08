@@ -5,7 +5,6 @@ use crate::game::deck::DeckConfig;
 use crate::game::deck::EnemyDeck;
 use crate::game::deck::PlayerDeck;
 use crate::game::hud::hud;
-use crate::game::module::Module;
 use crate::game::ship::ShipConfig;
 use crate::game::ship::enemy_ship;
 use crate::game::ship::player_ship;
@@ -31,15 +30,6 @@ impl Config for LevelConfig {
 pub struct LevelSetup {
     pub enemy_deck: EnemyDeck,
     pub enemy_health: f32,
-    pub fixed_rewards: Vec<LevelReward>,
-}
-
-#[derive(Reflect, Copy, Clone, Debug, Serialize, Deserialize)]
-pub enum LevelReward {
-    MaxHealth(f32),
-    HeatCapacity(f32),
-    ReactorSlots(usize),
-    Module(Module),
 }
 
 #[derive(State, Reflect, Copy, Clone, Default, Eq, PartialEq, Debug)]

@@ -1,0 +1,284 @@
+use crate::animation::backup::Backup;
+use crate::animation::offset::NodeOffset;
+use crate::game::GameAssets;
+use crate::game::deck::PlayerDeck;
+use crate::game::level::Level;
+use crate::game::level::LevelConfig;
+use crate::game::module::Module;
+use crate::menu::Menu;
+use crate::menu::MenuRoot;
+use crate::prelude::*;
+
+pub(super) fn plugin(app: &mut App) {
+    app.configure::<(UpgradeHistory, IsNextLevelButton, UpgradeSelector)>();
+
+    app.add_systems(StateFlush, Menu::Upgrade.on_enter(spawn_upgrade_menu));
+}
+
+#[derive(Reflect, Clone, Debug)]
+pub enum Upgrade {
+    FluxCapacitor,
+    QuantumCooler,
+    AlienAlloy,
+    NothingPack(Vec<Module>),
+    RepairPack(Vec<Module>),
+    MissilePack(Vec<Module>),
+    LaserPack(Vec<Module>),
+    FireballPack(Vec<Module>),
+}
+
+fn spawn_upgrade_menu(
+    mut commands: Commands,
+    menu_root: Res<MenuRoot>,
+    game_assets: Res<GameAssets>,
+    level_config: ConfigRef<LevelConfig>,
+    level: NextRef<Level>,
+    player_deck: Res<PlayerDeck>,
+    upgrade_history: Res<UpgradeHistory>,
+) {
+    let _level = r!(level.get()).0;
+    let _level_config = r!(level_config.get());
+
+    // Generate upgrade offers.
+    let upgrades = generate_upgrades(
+        &mut thread_rng(),
+        player_deck.reactor.len(),
+        &upgrade_history,
+    );
+
+    commands
+        .entity(menu_root.ui)
+        .with_child(widget::popup(children![
+            widget::header("[b]They slipped away!"),
+            widget::small_label(
+                "The leaders of this star have offered to repair and upgrade your ship.\nThey urge you to keep up the pursuit.",
+            ),
+            offered_upgrades(&game_assets, upgrades),
+            widget::row_of_buttons(children![(
+                IsNextLevelButton,
+                widget::button("Next star", enter_next_level),
+                Patch(|entity| {
+                    r!(entity.get_mut::<InteractionDisabled>()).0 = true;
+                }),
+            )])
+        ]));
+}
+
+fn enter_next_level(
+    trigger: Trigger<Pointer<Click>>,
+    button_query: Query<&InteractionDisabled, With<Button>>,
+    mut selector_query: Query<&mut UpgradeSelector>,
+    mut player_deck: ResMut<PlayerDeck>,
+    mut level: NextMut<Level>,
+) {
+    let target = r!(trigger.get_target());
+    let disabled = r!(button_query.get(target));
+    rq!(!disabled.0);
+
+    // Apply upgrades.
+    for mut selector in &mut selector_query {
+        match &mut selector.upgrade {
+            Upgrade::FluxCapacitor => player_deck.reactor.extend([Module::EMPTY; 3]),
+            Upgrade::QuantumCooler => player_deck.heat_capacity += 8.0,
+            Upgrade::AlienAlloy => player_deck.max_health += 50.0,
+            Upgrade::NothingPack(modules)
+            | Upgrade::RepairPack(modules)
+            | Upgrade::MissilePack(modules)
+            | Upgrade::LaserPack(modules)
+            | Upgrade::FireballPack(modules) => player_deck.storage.append(modules),
+        }
+    }
+
+    // Enter next level.
+    r!(level.get_mut()).0 += 1;
+}
+
+fn offered_upgrades(game_assets: &GameAssets, mut upgrades: Vec<Upgrade>) -> impl Bundle {
+    (
+        Name::new("OfferedUpgrades"),
+        Node {
+            margin: UiRect::top(Vw(4.0)).with_bottom(Vw(5.2)),
+            column_gap: Vw(2.4),
+            ..Node::ROW_CENTER
+        },
+        children![
+            upgrade_selector(game_assets, upgrades.remove(0)),
+            upgrade_selector(game_assets, upgrades.remove(0)),
+            upgrade_selector(game_assets, upgrades.remove(0)),
+            upgrade_selector(game_assets, upgrades.remove(0)),
+            upgrade_selector(game_assets, upgrades.remove(0)),
+            upgrade_selector(game_assets, upgrades.remove(0)),
+        ],
+    )
+}
+
+fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
+    let image = match upgrade {
+        Upgrade::FluxCapacitor => &game_assets.upgrade_capacitor,
+        Upgrade::QuantumCooler => &game_assets.upgrade_cooler,
+        Upgrade::AlienAlloy => &game_assets.upgrade_alloy,
+        Upgrade::NothingPack(_) => &game_assets.upgrade_pack_nothing,
+        Upgrade::RepairPack(_) => &game_assets.upgrade_pack_repair,
+        Upgrade::MissilePack(_) => &game_assets.upgrade_pack_missile,
+        Upgrade::LaserPack(_) => &game_assets.upgrade_pack_laser,
+        Upgrade::FireballPack(_) => &game_assets.upgrade_pack_fireball,
+    }
+    .clone();
+
+    (
+        Name::new("UpgradeSelector"),
+        UpgradeSelector::new(upgrade),
+        ImageNode::from(image),
+        Node {
+            width: Vw(6.0417),
+            aspect_ratio: Some(1.0),
+            ..default()
+        },
+        NodeOffset::default(),
+        InteractionTheme {
+            hovered: NodeOffset::new(Val::ZERO, Vw(-0.5)),
+            pressed: NodeOffset::new(Val::ZERO, Vw(0.5)),
+            ..default()
+        },
+        BoxShadow::from(ShadowStyle {
+            color: Color::BLACK.with_alpha(0.5),
+            x_offset: Val::ZERO,
+            y_offset: Vw(0.7),
+            spread_radius: Vw(0.5),
+            blur_radius: Vw(0.5),
+        }),
+        Backup::<BoxShadow>::default(),
+        InteractionSfx,
+        InteractionDisabled(false),
+        Patch(|entity| {
+            entity.observe(toggle_upgrade_selector);
+        }),
+    )
+}
+
+fn toggle_upgrade_selector(
+    trigger: Trigger<Pointer<Click>>,
+    mut selector_query: Query<(Entity, &mut UpgradeSelector, &mut Node)>,
+    mut disabled_query: Query<&mut InteractionDisabled>,
+    button_query: Query<Entity, With<IsNextLevelButton>>,
+) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
+    let target = r!(trigger.get_target());
+
+    // Toggle the selector.
+    let disabled = r!(disabled_query.get(target));
+    rq!(!disabled.0);
+    let (_, mut selector, mut node) = rq!(selector_query.get_mut(target));
+    selector.selected ^= true;
+    node.top = if selector.selected {
+        Vw(-2.0)
+    } else {
+        Val::ZERO
+    };
+
+    // Update interaction disabling of selectors based on total selected.
+    let total_selected = selector_query.iter().filter(|(_, x, _)| x.selected).count();
+    for (entity, selector, _) in &mut selector_query {
+        let mut disabled = cq!(disabled_query.get_mut(entity));
+        if total_selected < 3 {
+            disabled.0 = false;
+        } else if !selector.selected {
+            disabled.0 = true;
+        }
+    }
+
+    // Update interaction disabling of next level button.
+    for entity in &button_query {
+        cq!(disabled_query.get_mut(entity)).0 = total_selected < 3;
+    }
+}
+
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
+struct UpgradeSelector {
+    upgrade: Upgrade,
+    selected: bool,
+}
+
+impl Configure for UpgradeSelector {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+    }
+}
+
+impl UpgradeSelector {
+    fn new(upgrade: Upgrade) -> Self {
+        Self {
+            upgrade,
+            selected: false,
+        }
+    }
+}
+
+#[derive(Resource, Reflect, Default, Debug)]
+#[reflect(Resource)]
+struct UpgradeHistory {
+    took_nothing_pack: bool,
+    took_fireball_pack: bool,
+}
+
+impl Configure for UpgradeHistory {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+        app.init_resource::<Self>();
+        app.add_systems(StateFlush, Level::ANY.on_exit(reset_upgrade_history));
+    }
+}
+
+fn reset_upgrade_history(mut upgrade_history: ResMut<UpgradeHistory>) {
+    *upgrade_history = default();
+}
+
+fn generate_upgrades(
+    rng: &mut impl Rng,
+    reactor_len: usize,
+    upgrade_history: &UpgradeHistory,
+) -> Vec<Upgrade> {
+    let mut upgrades = vec![];
+
+    if reactor_len < 18 {
+        upgrades.push(Upgrade::FluxCapacitor);
+    } else {
+        upgrades.push(if rng.r#gen() {
+            Upgrade::QuantumCooler
+        } else {
+            Upgrade::AlienAlloy
+        });
+    }
+    upgrades.push(if rng.r#gen() {
+        Upgrade::QuantumCooler
+    } else {
+        Upgrade::AlienAlloy
+    });
+    // TODO: Populate module packs.
+    if !upgrade_history.took_fireball_pack {
+        // TODO: Calculate and roll the odds (use level and level config).
+        upgrades.push(Upgrade::FireballPack(vec![]));
+    }
+    if !upgrade_history.took_nothing_pack {
+        // TODO: Calculate and roll the odds (use level and level config).
+        upgrades.push(Upgrade::NothingPack(vec![]));
+    }
+    for _ in upgrades.len()..6 {
+        // TODO: Weighted random pack (missile more likely than heal / laser).
+        upgrades.push(Upgrade::MissilePack(vec![]));
+    }
+    // TODO: Shuffle upgrades (or only the last four, aka the packs).
+
+    upgrades
+}
+
+#[derive(Component, Reflect, Debug, Copy, Clone)]
+#[reflect(Component)]
+struct IsNextLevelButton;
+
+impl Configure for IsNextLevelButton {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+    }
+}

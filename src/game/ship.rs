@@ -151,7 +151,7 @@ fn win_level_on_death(
     if r!(level.get()).0 == 9 {
         menu.push(Menu::Victory);
     } else {
-        menu.push(Menu::LevelUp);
+        menu.push(Menu::Upgrade);
     }
     menu.acquire();
 }

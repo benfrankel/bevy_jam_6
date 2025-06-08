@@ -1,11 +1,11 @@
 mod credits;
 mod defeat;
 mod intro;
-mod level_up;
 mod loading;
 mod main;
 mod pause;
 mod settings;
+mod upgrade;
 mod victory;
 
 use crate::prelude::*;
@@ -53,7 +53,7 @@ pub enum Menu {
     Credits,
     Loading,
     Pause,
-    LevelUp,
+    Upgrade,
     Defeat,
     Victory,
 }
@@ -76,7 +76,7 @@ impl Configure for Menu {
             credits::plugin,
             loading::plugin,
             pause::plugin,
-            level_up::plugin,
+            upgrade::plugin,
             defeat::plugin,
             victory::plugin,
         ));
