@@ -30,7 +30,7 @@ pub struct PlayerDeck {
     pub storage: Vec<Module>,
     pub hand: Vec<Module>,
     pub selected_idx: usize,
-    pub just_drawn: Option<bool>,
+    pub just_drew: bool,
 
     // Reactor:
     pub flux: f32,
@@ -87,18 +87,16 @@ impl PlayerDeck {
             .min(self.hand.len().saturating_sub(1));
     }
 
-    /// Draw a random module from storage to hand.
+    /// Draw the next module from storage to hand.
     pub fn draw(&mut self) {
-        rq!(!self.storage.is_empty());
-        let idx = thread_rng().gen_range(0..self.storage.len());
-        let draw = self.storage.swap_remove(idx);
+        let draw = rq!(self.storage.pop());
         self.hand.push(draw);
-        self.just_drawn = Some(true);
+        self.just_drew = true;
     }
 
     /// Try to play the currently selected module from hand to reactor,
     /// returning false if it's not possible.
-    pub fn play_selected(&mut self) -> bool {
+    pub fn play_selected(&mut self, rng: &mut impl Rng) -> bool {
         rq!(!self.hand.is_empty() && !self.reactor.is_empty());
         let slot_idx = rq!(self.next_available_slot());
 
@@ -114,7 +112,8 @@ impl PlayerDeck {
         if !matches!(slot.status, ModuleStatus::SlotEmpty) {
             slot.status = ModuleStatus::FaceUp;
             slot.heat = 0.0;
-            self.storage.push(*slot);
+            let idx = rng.gen_range(0..self.storage.len());
+            self.storage.insert(idx, *slot);
         }
         selected.status = ModuleStatus::SlotInactive;
         *slot = selected;

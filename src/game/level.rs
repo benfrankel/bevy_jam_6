@@ -59,10 +59,20 @@ fn reset_camera(camera_root: Res<CameraRoot>, mut camera_query: Query<&mut Shake
     *shake = default();
 }
 
-fn reset_decks(mut player_deck: ResMut<PlayerDeck>, mut enemy_deck: ResMut<EnemyDeck>) {
-    player_deck.reset();
-    player_deck.shuffle(&mut thread_rng());
+fn reset_decks(
+    deck_config: ConfigRef<DeckConfig>,
+    level: NextRef<Level>,
+    mut player_deck: ResMut<PlayerDeck>,
+    mut enemy_deck: ResMut<EnemyDeck>,
+) {
     enemy_deck.reset();
+    if level.will_be_in(&Level(0)) {
+        let deck_config = r!(deck_config.get());
+        *player_deck = deck_config.initial_player_deck.clone();
+    } else {
+        player_deck.reset();
+        player_deck.shuffle(&mut thread_rng());
+    }
 }
 
 fn set_up_decks(

@@ -135,7 +135,7 @@ fn helm_play_module(
     mut player_deck: ResMut<PlayerDeck>,
     mut phase: NextMut<Phase>,
 ) {
-    if player_deck.play_selected() {
+    if player_deck.play_selected(&mut thread_rng()) {
         phase.enter(Phase::Reactor);
         commands.spawn((
             sfx_audio(&audio_settings, game_assets.module_insert_sfx.clone(), 1.0),

@@ -411,8 +411,8 @@ fn apply_shake_storage_on_draw(
     mut shake: Single<&mut NodeShake, With<IsStorage>>,
 ) {
     let hud_config = r!(hud_config.get());
-    if player_deck.just_drawn.is_some() {
-        player_deck.just_drawn = None;
+    if player_deck.just_drew {
+        player_deck.just_drew = false;
         shake.trauma = hud_config.module_shake_trauma;
         shake.decay = hud_config.module_shake_decay;
     };
