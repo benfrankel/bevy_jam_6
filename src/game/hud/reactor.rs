@@ -82,7 +82,10 @@ fn sync_module_grid(
                     }
                     parent.spawn((
                         module(&game_assets, slot, player_deck.heat_capacity, shake),
-                        Tooltip::fixed(Anchor::CenterRight, slot.description()),
+                        Tooltip::fixed(
+                            Anchor::CenterRight,
+                            slot.description(player_deck.heat_capacity),
+                        ),
                     ));
                 }
             });

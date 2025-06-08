@@ -61,14 +61,12 @@ impl Module {
         RichText::from_sections(parse_rich(format!("{condition}{effect}")))
     }
 
-    pub fn description(&self) -> RichText {
+    pub fn description(&self, heat_capacity: f32) -> RichText {
         let header = "[b]Reactor module[r]";
         let heat = if matches!(self.status, ModuleStatus::SlotOverheated) {
             " (OVERHEATED)".to_string()
-        } else if self.heat > f32::EPSILON {
-            format!(" ({} heat)", self.heat)
         } else {
-            "".to_string()
+            format!(" (heat: {}/{})", self.heat, heat_capacity)
         };
         RichText::from_sections(parse_rich(match self.status {
             ModuleStatus::FaceDown => header.to_string(),
