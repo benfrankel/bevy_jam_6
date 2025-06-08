@@ -84,7 +84,7 @@ fn sync_module_grid(
                         module(&game_assets, slot, player_deck.heat_capacity, shake),
                         Tooltip::fixed(
                             Anchor::CenterRight,
-                            slot.description(player_deck.heat_capacity),
+                            parse_rich(slot.description(player_deck.heat_capacity)),
                         ),
                     ));
                 }

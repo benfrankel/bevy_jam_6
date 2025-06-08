@@ -7,13 +7,9 @@ pub(super) fn plugin(app: &mut App) {
             Name::new("PrimaryTooltip"),
             Node {
                 padding: UiRect::all(Vw(1.0)),
-                //border: UiRect::all(Px(1.0)),
                 ..Node::DEFAULT.abs()
             },
-            //BackgroundColor(Color::srgba(0.106, 0.118, 0.122, 0.5)),
             ThemeColor::Popup.set::<BackgroundColor>(),
-            //BorderRadius::all(Vw(3.0)),
-            //ThemeColor::BorderColor.set::<BorderColor>(),
             BoxShadow(vec![ShadowStyle {
                 color: Color::BLACK.with_alpha(0.5),
                 x_offset: Val::ZERO,

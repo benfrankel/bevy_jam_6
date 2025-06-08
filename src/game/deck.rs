@@ -112,7 +112,7 @@ impl PlayerDeck {
         if !matches!(slot.status, ModuleStatus::SlotEmpty) {
             slot.status = ModuleStatus::FaceUp;
             slot.heat = 0.0;
-            let idx = rng.gen_range(0..self.storage.len());
+            let idx = rng.gen_range(0..=self.storage.len());
             self.storage.insert(idx, *slot);
         }
         selected.status = ModuleStatus::SlotInactive;

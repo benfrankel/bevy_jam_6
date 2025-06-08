@@ -44,13 +44,13 @@ impl Module {
         }
     }
 
-    pub fn short_description(&self) -> RichText {
+    pub fn short_description(&self) -> String {
         let condition = match self.condition {
-            ModuleAction::Nothing => "",
-            ModuleAction::Missile => "[b]Missile[r] / ",
-            ModuleAction::Laser => "[b]Laser[r] / ",
-            ModuleAction::Fireball => "[b]Fireball[r] / ",
-            ModuleAction::Repair => "[b]Repair[r] / ",
+            ModuleAction::Nothing => "-> ",
+            ModuleAction::Missile => "[b]Missile[r] -> ",
+            ModuleAction::Laser => "[b]Laser[r] -> ",
+            ModuleAction::Fireball => "[b]Fireball[r] -> ",
+            ModuleAction::Repair => "[b]Repair[r] -> ",
         };
         let effect = match self.effect {
             ModuleAction::Nothing => "[b]Nothing[r]",
@@ -59,17 +59,17 @@ impl Module {
             ModuleAction::Fireball => "[b]Fireball[r]",
             ModuleAction::Repair => "[b]Repair[r]",
         };
-        RichText::from_sections(parse_rich(format!("{condition}{effect}")))
+        format!("{condition}{effect}")
     }
 
-    pub fn description(&self, heat_capacity: f32) -> RichText {
+    pub fn description(&self, heat_capacity: f32) -> String {
         let header = "[b]Reactor module[r]";
         let heat = if matches!(self.status, ModuleStatus::SlotOverheated) {
             " (OVERHEATED)".to_string()
         } else {
             format!(" (heat: {}/{})", self.heat, heat_capacity)
         };
-        RichText::from_sections(parse_rich(match self.status {
+        match self.status {
             ModuleStatus::FaceDown => header.to_string(),
             ModuleStatus::SlotEmpty => format!("{header}\n\nEmpty slot"),
             _ => {
@@ -100,15 +100,15 @@ impl Module {
 
                 let stats = match self.effect {
                     ModuleAction::Nothing => "",
-                    ModuleAction::Missile => "\n\nDamage: 1 times flux",
-                    ModuleAction::Laser => "\n\nDamage: 2 times flux",
-                    ModuleAction::Fireball => "\n\nDamage: 8 times flux",
-                    ModuleAction::Repair => "\n\nHeal: 2 times flux",
+                    ModuleAction::Missile => "\n\n[b]Damage:[r] 1 times flux",
+                    ModuleAction::Laser => "\n\n[b]Damage:[r] 2 times flux",
+                    ModuleAction::Fireball => "\n\n[b]Damage:[r] 8 times flux",
+                    ModuleAction::Repair => "\n\n[b]Heal:[r] 2 times flux",
                 };
 
                 format!("{header}{heat}\n\n{body}{stats}")
             },
-        }))
+        }
     }
 }
 

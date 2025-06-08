@@ -267,7 +267,7 @@ fn sync_hand(
                         padding: UiRect::all(Vw(0.4167)),
                         ..Node::COLUMN_CENTER.full_height()
                     },
-                    Tooltip::fixed(Anchor::BottomCenter, item.short_description()),
+                    Tooltip::fixed(Anchor::BottomCenter, parse_rich(item.short_description())),
                     HandIndex(i),
                     children![(
                         module(

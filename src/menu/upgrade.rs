@@ -53,13 +53,11 @@ fn spawn_upgrade_menu(
         .entity(menu_root.ui)
         .with_child(widget::popup(children![
             widget::header("[b]They slipped away!"),
-            widget::small_label(
-                "The leaders of this star have offered to improve your ship.\nThey urge you to keep up the pursuit.",
-            ),
+            widget::label("Choose 3 upgrades:"),
             offered_upgrades(&game_assets, upgrades),
             widget::row_of_buttons(children![(
                 IsNextLevelButton,
-                widget::button("Next star", enter_next_level),
+                widget::button("Pursue", enter_next_level),
                 Patch(|entity| {
                     r!(entity.get_mut::<InteractionDisabled>()).0 = true;
                 }),
@@ -140,14 +138,78 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
     .clone();
     // TODO: Write up tooltips.
     let description = match &upgrade {
-        Upgrade::FluxCapacitor => "[b]Flux Capacitor[r]\n\n",
-        Upgrade::QuantumCooler => "[b]Quantum Cooler[r]\n\n",
-        Upgrade::AlienAlloy => "[b]Alien Alloy[r]\n\n",
-        Upgrade::NothingPack(_modules) => "[b]Starter Pack[r]\n\n",
-        Upgrade::RepairPack(_modules) => "[b]Repair Pack[r]\n\n",
-        Upgrade::MissilePack(_modules) => "[b]Missile Pack[r]\n\n",
-        Upgrade::LaserPack(_modules) => "[b]Laser Pack[r]\n\n",
-        Upgrade::FireballPack(_modules) => "[b]Fireball Pack[r]\n\n",
+        Upgrade::FluxCapacitor => "[b]Flux Capacitor[r]\n\n\
+            Increase the maximum flux that the reactor can achieve.\n\n\
+            [b]Reactor slots:[r] +3"
+            .to_string(),
+        Upgrade::QuantumCooler => "[b]Quantum Cooler[r]\n\n\
+            Allow your reactor modules to activate more before overheating.\n\n\
+            [b]Reactor heat capacity:[r] +8"
+            .to_string(),
+        Upgrade::AlienAlloy => "[b]Alien Alloy[r]\n\n\
+            Reinforce your hull with a legendary alloy from another star.\n\n\
+            [b]Ship max health:[r] +50"
+            .to_string(),
+        Upgrade::NothingPack(modules) => {
+            format!(
+                "[b]Starter Pack[r]\n\n\
+                Start your reactor chains with three new Starter modules:\n\n\
+                {}\n\
+                {}\n\
+                {}",
+                modules[0].short_description(),
+                modules[1].short_description(),
+                modules[2].short_description(),
+            )
+        },
+        Upgrade::RepairPack(modules) => {
+            format!(
+                "[b]Repair Pack[r]\n\n\
+                Extend your reactor chains with three new Repair modules:\n\n\
+                {}\n\
+                {}\n\
+                {}",
+                modules[0].short_description(),
+                modules[1].short_description(),
+                modules[2].short_description(),
+            )
+        },
+        Upgrade::MissilePack(modules) => {
+            format!(
+                "[b]Missile Pack[r]\n\n\
+                Extend your reactor chains with three new Missile modules:\n\n\
+                {}\n\
+                {}\n\
+                {}",
+                modules[0].short_description(),
+                modules[1].short_description(),
+                modules[2].short_description(),
+            )
+        },
+        Upgrade::LaserPack(modules) => {
+            format!(
+                "[b]Laser Pack[r]\n\n\
+                Extend your reactor chains with three new Laser modules:\n\n\
+                {}\n\
+                {}\n\
+                {}",
+                modules[0].short_description(),
+                modules[1].short_description(),
+                modules[2].short_description(),
+            )
+        },
+        Upgrade::FireballPack(modules) => {
+            format!(
+                "[b]Fireball Pack[r]\n\n\
+                Finish your reactor chains with three new Fireball modules:\n\n\
+                {}\n\
+                {}\n\
+                {}",
+                modules[0].short_description(),
+                modules[1].short_description(),
+                modules[2].short_description(),
+            )
+        },
     };
 
     (
