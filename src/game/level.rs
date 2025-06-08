@@ -1,6 +1,9 @@
 use crate::animation::shake::Shake;
+use crate::core::audio::AudioSettings;
+use crate::core::audio::sfx_audio;
 use crate::core::camera::CameraRoot;
 use crate::game::GameAssets;
+use crate::game::GameLayer;
 use crate::game::deck::DeckConfig;
 use crate::game::deck::EnemyDeck;
 use crate::game::deck::PlayerDeck;
@@ -133,6 +136,38 @@ fn spawn_level(
         Transform::from_xyz(59.0, 93.0, 0.0),
         DespawnOnExitState::<Level>::default(),
     ));
+    commands
+        .spawn((
+            Name::new("EnemyEscapeSensor"),
+            Transform::from_xyz(59.0, 200.0, 0.0),
+            Sensor,
+            Collider::rectangle(400.0, 50.0),
+            CollisionLayers::new(GameLayer::Default, GameLayer::Enemy),
+            CollisionEventsEnabled,
+            DespawnOnExitState::<Level>::default(),
+        ))
+        .observe(win_level_on_enemy_escape);
+}
+
+fn win_level_on_enemy_escape(
+    _: Trigger<OnCollisionStart>,
+    mut commands: Commands,
+    audio_settings: Res<AudioSettings>,
+    game_assets: Res<GameAssets>,
+    mut menu: ResMut<NextStateStack<Menu>>,
+    level: NextRef<Level>,
+) {
+    commands.spawn((
+        sfx_audio(&audio_settings, game_assets.ship_death_sfx.clone(), 1.0),
+        DespawnOnExitState::<Level>::default(),
+    ));
+
+    if r!(level.get()).0 == 9 {
+        menu.push(Menu::Victory);
+    } else {
+        menu.push(Menu::Upgrade);
+    }
+    menu.acquire();
 }
 
 fn background(game_assets: &GameAssets, level: usize) -> impl Bundle {

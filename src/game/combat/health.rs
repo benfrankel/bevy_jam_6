@@ -1,3 +1,4 @@
+use crate::game::combat::death::IsDead;
 use crate::game::combat::death::OnDeath;
 use crate::game::level::Level;
 use crate::prelude::*;
@@ -70,14 +71,17 @@ impl Configure for Health {
         app.add_systems(
             Update,
             (
-                detect_death.in_set(UpdateSystems::Update),
+                detect_death_from_health.in_set(UpdateSystems::Update),
                 clamp_health.in_set(UpdateSystems::SyncLate),
             ),
         );
     }
 }
 
-fn detect_death(mut commands: Commands, health_query: Query<(Entity, &Health), Changed<Health>>) {
+fn detect_death_from_health(
+    mut commands: Commands,
+    health_query: Query<(Entity, &Health), (Changed<Health>, Without<IsDead>)>,
+) {
     for (entity, health) in &health_query {
         rq!(health.current <= f32::EPSILON);
         commands.entity(entity).trigger(OnDeath);

@@ -14,7 +14,6 @@ use crate::game::combat::health::health_bar;
 use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudConfig;
 use crate::game::hud::helm::HandIndex;
-use crate::game::level::Level;
 use crate::menu::Menu;
 use crate::prelude::*;
 
@@ -116,7 +115,9 @@ pub fn enemy_ship(ship_config: &ShipConfig, game_assets: &GameAssets, health: f3
         Faction::Enemy,
         Health::new(health),
         Sprite::from_image(game_assets.enemy_ship.clone()),
-        RigidBody::Kinematic,
+        RigidBody::Dynamic,
+        Dominance(1),
+        Mass(1.0),
         Collider::rectangle(167.0, 15.0),
         CollisionLayers::new(GameLayer::Enemy, LayerMask::ALL),
         Shake::default(),
@@ -137,23 +138,9 @@ pub fn enemy_ship(ship_config: &ShipConfig, game_assets: &GameAssets, health: f3
             }
         })),
         Patch(|entity| {
-            entity.observe(win_level_on_death);
             entity.observe(shake_enemy_ship_on_damage);
         }),
     )
-}
-
-fn win_level_on_death(
-    _: Trigger<OnDeath>,
-    mut menu: ResMut<NextStateStack<Menu>>,
-    level: NextRef<Level>,
-) {
-    if r!(level.get()).0 == 9 {
-        menu.push(Menu::Victory);
-    } else {
-        menu.push(Menu::Upgrade);
-    }
-    menu.acquire();
 }
 
 fn shake_enemy_ship_on_damage(

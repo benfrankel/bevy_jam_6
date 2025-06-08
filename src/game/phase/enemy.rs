@@ -1,3 +1,4 @@
+use crate::game::combat::death::IsDead;
 use crate::game::deck::EnemyDeck;
 use crate::game::module::OnModuleAction;
 use crate::game::phase::Phase;
@@ -29,8 +30,9 @@ fn reset_step_timer_for_enemy(
     phase_config: ConfigRef<PhaseConfig>,
     mut step_timer: ResMut<StepTimer>,
     enemy_deck: Res<EnemyDeck>,
+    enemy_is_dead: Single<Has<IsDead>, With<IsEnemyShip>>,
 ) {
-    if enemy_deck.is_done(round.0) {
+    if *enemy_is_dead || enemy_deck.is_done(round.0) {
         step_timer.0 = Timer::from_seconds(0.0, TimerMode::Once);
     } else {
         let phase_config = r!(phase_config.get());
@@ -46,16 +48,23 @@ fn step_enemy_phase(
     step: Res<Step>,
     mut step_timer: ResMut<StepTimer>,
     mut enemy_deck: ResMut<EnemyDeck>,
-    enemy_ship: Single<Entity, With<IsEnemyShip>>,
+    mut enemy_ship: Single<(Entity, Has<IsDead>, &mut ExternalForce), With<IsEnemyShip>>,
 ) {
     let phase_config = r!(phase_config.get());
+
+    if enemy_ship.1 {
+        enemy_ship.2.apply_force(phase_config.enemy_escape_force);
+        return;
+    }
 
     // Step the enemy deck.
     let Some(action) = enemy_deck.step(round.0) else {
         phase.enter(Phase::Setup);
         return;
     };
-    commands.entity(*enemy_ship).trigger(OnModuleAction(action));
+    commands
+        .entity(enemy_ship.0)
+        .trigger(OnModuleAction(action));
 
     // Set the next cooldown.
     let cooldown = Duration::from_secs_f32(if enemy_deck.is_done(round.0) {

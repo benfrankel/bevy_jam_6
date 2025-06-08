@@ -139,7 +139,7 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
             [b]Reactor slots:[r] +3"
             .to_string(),
         Upgrade::QuantumCooler => "[b]Quantum Cooler[r]\n\n\
-            Allow your reactor modules to activate more before overheating.\n\n\
+            Allow reactor modules to operate at higher heat levels.\n\n\
             [b]Reactor heat capacity:[r] +12"
             .to_string(),
         Upgrade::AlienAlloy => "[b]Alien Alloy[r]\n\n\
@@ -334,16 +334,16 @@ fn generate_upgrades(
     } else if player_deck.reactor.len() < 18 {
         upgrades.push(Upgrade::FluxCapacitor);
     } else {
-        upgrades.push(if rng.r#gen() {
-            Upgrade::QuantumCooler
-        } else {
+        upgrades.push(if rng.gen_bool(0.8) {
             Upgrade::AlienAlloy
+        } else {
+            Upgrade::QuantumCooler
         });
     }
-    upgrades.push(if rng.r#gen() {
-        Upgrade::QuantumCooler
-    } else {
+    upgrades.push(if rng.gen_bool(0.8) {
         Upgrade::AlienAlloy
+    } else {
+        Upgrade::QuantumCooler
     });
 
     // Offer module packs.

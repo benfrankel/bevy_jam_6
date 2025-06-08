@@ -37,6 +37,7 @@ struct PhaseConfig {
     enemy_cooldown_decay: f32,
     enemy_first_cooldown: f32,
     enemy_last_cooldown: f32,
+    enemy_escape_force: Vec2,
 }
 
 impl Config for PhaseConfig {
