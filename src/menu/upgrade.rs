@@ -69,6 +69,7 @@ fn enter_next_level(
     button_query: Query<&InteractionDisabled, With<Button>>,
     mut selector_query: Query<&mut UpgradeSelector>,
     mut player_deck: ResMut<PlayerDeck>,
+    mut upgrade_history: ResMut<UpgradeHistory>,
     mut level: NextMut<Level>,
 ) {
     let target = r!(trigger.get_target());
@@ -77,6 +78,14 @@ fn enter_next_level(
 
     // Apply upgrades.
     for mut selector in &mut selector_query {
+        // Record upgrade history.
+        match selector.upgrade {
+            Upgrade::NothingPack(_) => upgrade_history.took_nothing_pack = true,
+            Upgrade::FireballPack(_) => upgrade_history.took_fireball_pack = true,
+            _ => {},
+        }
+
+        // Upgrade deck.
         match &mut selector.upgrade {
             Upgrade::FluxCapacitor => player_deck.reactor.extend([Module::EMPTY; 3]),
             Upgrade::QuantumCooler => player_deck.heat_capacity += 8.0,
