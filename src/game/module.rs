@@ -11,6 +11,7 @@ use crate::game::projectile::fireball::fireball;
 use crate::game::projectile::laser::laser;
 use crate::game::projectile::missile::missile;
 use crate::game::ship::IsWeapon;
+use crate::game::stats::Stats;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -153,6 +154,7 @@ fn on_module_action(
     ship_query: Query<(&Children, &Faction)>,
     children_query: Query<&Children>,
     weapon_query: Query<&GlobalTransform, With<IsWeapon>>,
+    mut stats: ResMut<Stats>,
 ) {
     let projectile_config = r!(projectile_config.get());
 
@@ -171,9 +173,10 @@ fn on_module_action(
     let weapon_transform = weapon_gt.compute_transform();
 
     // Determine flux.
-    let flux = match faction {
-        Faction::Player => player_deck.flux,
-        Faction::Enemy => enemy_deck.flux,
+    let is_player = faction == Faction::Player;
+    let flux = match is_player {
+        true => player_deck.flux,
+        false => enemy_deck.flux,
     };
 
     // Perform action.
@@ -194,6 +197,10 @@ fn on_module_action(
                 sfx_audio(&audio_settings, game_assets.missile_spawn_sfx.clone(), 1.0),
                 DespawnOnExitState::<Level>::default(),
             ));
+
+            if is_player {
+                stats.missiles_fired += 1;
+            }
         },
 
         ModuleAction::Laser => {
@@ -212,6 +219,10 @@ fn on_module_action(
                 sfx_audio(&audio_settings, game_assets.laser_spawn_sfx.clone(), 1.0),
                 DespawnOnExitState::<Level>::default(),
             ));
+
+            if is_player {
+                stats.lasers_fired += 1;
+            }
         },
 
         ModuleAction::Fireball => {
@@ -230,6 +241,10 @@ fn on_module_action(
                 sfx_audio(&audio_settings, game_assets.fireball_spawn_sfx.clone(), 1.0),
                 DespawnOnExitState::<Level>::default(),
             ));
+
+            if is_player {
+                stats.fireballs_unleashed += 1;
+            }
         },
 
         ModuleAction::Repair => {
@@ -242,6 +257,10 @@ fn on_module_action(
                 ),
                 DespawnOnExitState::<Level>::default(),
             ));
+
+            if is_player {
+                stats.total_repaired += flux;
+            }
         },
 
         _ => {},

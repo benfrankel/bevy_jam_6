@@ -1,11 +1,13 @@
 use crate::core::audio::AudioSettings;
 use crate::core::audio::sfx_audio;
 use crate::game::GameAssets;
+use crate::game::combat::faction::Faction;
 use crate::game::combat::health::Health;
 use crate::game::level::Level;
 use crate::game::ship::IsEnemyShip;
 use crate::game::ship::IsPlayerShip;
 use crate::game::ship::IsPlayerShipBody;
+use crate::game::stats::Stats;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -57,9 +59,23 @@ fn deal_damage_on_collision(
     mut commands: Commands,
     damage_query: Query<&Damage>,
     health_query: Query<(), With<Health>>,
+    faction_query: Query<&Faction>,
+    mut stats: ResMut<Stats>,
 ) {
     let hitbox = r!(trigger.get_target());
     let damage = rq!(damage_query.get(hitbox));
+
+    // Record stats
+    let hitbox_faction = r!(faction_query.get(hitbox));
+    // The hitbox_faction is for a missile, laser or other
+    // projectile, so we must reverse factions here.
+    match hitbox_faction {
+        Faction::Enemy => stats.damage_taken += damage.0,
+        Faction::Player => {
+            stats.damage_given += damage.0;
+            stats.highest_damage = stats.highest_damage.max(damage.0);
+        },
+    }
 
     let hurtbox = trigger.body.unwrap_or(trigger.collider);
     rq!(health_query.contains(hurtbox));

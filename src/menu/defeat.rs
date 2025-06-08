@@ -1,3 +1,6 @@
+use crate::game::level::Level;
+use crate::game::stats::Stats;
+use crate::game::stats::stats_grid;
 use crate::menu::Menu;
 use crate::menu::MenuRoot;
 use crate::prelude::*;
@@ -9,14 +12,22 @@ pub(super) fn plugin(app: &mut App) {
     app.add_systems(StateFlush, Menu::Defeat.on_enter(spawn_defeat_menu));
 }
 
-fn spawn_defeat_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
+fn spawn_defeat_menu(
+    mut commands: Commands,
+    menu_root: Res<MenuRoot>,
+    stats: Res<Stats>,
+    level: NextRef<Level>,
+) {
+    let level = r!(level.get()).0.to_string();
+
     commands
         .entity(menu_root.ui)
         .with_child(widget::popup(children![
             widget::header("[b]Defeat"),
+            stats_grid(stats, level),
             (
-                Node::COLUMN_CENTER.grow(),
-                children![widget::column_of_buttons(children![
+                Node::COLUMN_CENTER,
+                children![widget::row_of_buttons(children![
                     widget::wide_button("Try again", restart_game),
                     widget::wide_button("Main menu", quit_to_title),
                 ])],

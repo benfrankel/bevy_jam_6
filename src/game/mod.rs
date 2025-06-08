@@ -6,6 +6,7 @@ pub mod module;
 pub mod phase;
 pub mod projectile;
 pub mod ship;
+pub mod stats;
 
 use crate::prelude::*;
 
@@ -21,6 +22,7 @@ pub(super) fn plugin(app: &mut App) {
         module::plugin,
         ship::plugin,
         phase::plugin,
+        stats::plugin,
     ));
 }
 

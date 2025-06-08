@@ -8,6 +8,7 @@ use crate::game::phase::PhaseConfig;
 use crate::game::phase::Step;
 use crate::game::phase::StepTimer;
 use crate::game::phase::on_step_timer;
+use crate::game::stats::Stats;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -42,6 +43,7 @@ fn step_power_up_phase(
     step: Res<Step>,
     mut step_timer: ResMut<StepTimer>,
     mut player_deck: ResMut<PlayerDeck>,
+    mut stats: ResMut<Stats>,
 ) {
     let phase_config = r!(phase_config.get());
 
@@ -50,6 +52,10 @@ fn step_power_up_phase(
         phase.enter(Phase::Player);
         return;
     }
+
+    // Record max flux
+    stats.highest_flux = stats.highest_flux.max(player_deck.flux);
+
     commands.spawn((
         sfx_audio(
             &audio_settings,
