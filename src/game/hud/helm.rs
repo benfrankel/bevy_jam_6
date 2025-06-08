@@ -69,7 +69,7 @@ fn right_helm(game_assets: &GameAssets) -> impl Bundle {
         Name::new("RightHelm"),
         Node {
             width: Vw(12.0833),
-            padding: UiRect::top(Vw(1.0416)).with_bottom(Vw(1.4583)),
+            padding: UiRect::vertical(Vw(1.25)),
             row_gap: Vw(0.41666),
             ..Node::COLUMN_CENTER.full_height()
         },
@@ -85,7 +85,7 @@ fn storage(game_assets: &GameAssets) -> impl Bundle {
         Node {
             width: Vw(6.6666),
             aspect_ratio: Some(1.0),
-            padding: UiRect::bottom(Vw(0.2083)),
+            padding: UiRect::bottom(Vw(0.2083)).with_left(Vw(0.2083)),
             ..Node::ROW_CENTER
         },
         Tooltip::fixed(Anchor::TopCenter, ""),

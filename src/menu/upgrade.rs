@@ -54,7 +54,7 @@ fn spawn_upgrade_menu(
         .with_child(widget::popup(children![
             widget::header("[b]They slipped away!"),
             widget::small_label(
-                "The leaders of this star have offered to repair and upgrade your ship.\nThey urge you to keep up the pursuit.",
+                "The leaders of this star have offered to improve your ship.\nThey urge you to keep up the pursuit.",
             ),
             offered_upgrades(&game_assets, upgrades),
             widget::row_of_buttons(children![(
@@ -138,6 +138,17 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
         Upgrade::FireballPack(_) => &game_assets.upgrade_pack_fireball,
     }
     .clone();
+    // TODO: Write up tooltips.
+    let description = match &upgrade {
+        Upgrade::FluxCapacitor => "[b]Flux Capacitor[r]\n\n",
+        Upgrade::QuantumCooler => "[b]Quantum Cooler[r]\n\n",
+        Upgrade::AlienAlloy => "[b]Alien Alloy[r]\n\n",
+        Upgrade::NothingPack(_modules) => "[b]Starter Pack[r]\n\n",
+        Upgrade::RepairPack(_modules) => "[b]Repair Pack[r]\n\n",
+        Upgrade::MissilePack(_modules) => "[b]Missile Pack[r]\n\n",
+        Upgrade::LaserPack(_modules) => "[b]Laser Pack[r]\n\n",
+        Upgrade::FireballPack(_modules) => "[b]Fireball Pack[r]\n\n",
+    };
 
     (
         Name::new("UpgradeSelector"),
@@ -164,7 +175,7 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
         Backup::<BoxShadow>::default(),
         InteractionSfx,
         InteractionDisabled(false),
-        // TODO: Add tooltip.
+        Tooltip::fixed(Anchor::BottomCenter, parse_rich(description)),
         Patch(|entity| {
             entity.observe(toggle_upgrade_selector);
         }),

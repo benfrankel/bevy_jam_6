@@ -74,7 +74,7 @@ impl Module {
             ModuleStatus::SlotEmpty => format!("{header}\n\nEmpty slot"),
             _ => {
                 let condition = match self.condition {
-                    ModuleAction::Nothing => "",
+                    ModuleAction::Nothing => "unconditionally ",
                     ModuleAction::Missile => "after launching a missile, ",
                     ModuleAction::Laser => "after firing a laser, ",
                     ModuleAction::Fireball => "after unleashing a fireball, ",
@@ -100,10 +100,10 @@ impl Module {
 
                 let stats = match self.effect {
                     ModuleAction::Nothing => "",
-                    ModuleAction::Missile => "\n\n[b]Damage:[r] 1 times flux",
-                    ModuleAction::Laser => "\n\n[b]Damage:[r] 2 times flux",
-                    ModuleAction::Fireball => "\n\n[b]Damage:[r] 8 times flux",
-                    ModuleAction::Repair => "\n\n[b]Heal:[r] 2 times flux",
+                    ModuleAction::Missile => "\n\nDamage: 1 times flux",
+                    ModuleAction::Laser => "\n\nDamage: 2 times flux",
+                    ModuleAction::Fireball => "\n\nDamage: 8 times flux",
+                    ModuleAction::Repair => "\n\nHeal: 2 times flux",
                 };
 
                 format!("{header}{heat}\n\n{body}{stats}")

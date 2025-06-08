@@ -61,9 +61,11 @@ pub fn popup(children: impl Bundle) -> impl Bundle {
             BorderRadius::all(Vw(3.0)),
             ThemeColor::BorderColor.set::<BorderColor>(),
             BoxShadow::from(ShadowStyle {
+                color: Color::BLACK.with_alpha(0.5),
                 x_offset: Val::ZERO,
                 y_offset: Val::ZERO,
-                ..default()
+                spread_radius: Val::ZERO,
+                blur_radius: Val::Vw(4.0),
             }),
             FocusPolicy::Block,
             children,
@@ -138,7 +140,7 @@ pub fn label(text: impl AsRef<str>) -> impl Bundle {
 }
 
 pub fn tiny_label(text: impl AsRef<str>) -> impl Bundle {
-    label_base(Vw(1.4), ThemeColor::BodyText, text)
+    label_base(Vw(1.35), ThemeColor::BodyText, text)
 }
 
 pub fn small_label(text: impl AsRef<str>) -> impl Bundle {

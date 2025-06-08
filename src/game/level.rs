@@ -116,16 +116,17 @@ fn spawn_level(
             right: Vw(1.0),
             ..Node::DEFAULT.abs()
         },
+        DespawnOnExitState::<Level>::default(),
     ));
     commands.spawn((
         player_ship(ship_config, &game_assets, player_deck.max_health),
-        DespawnOnExitState::<Level>::default(),
         Transform::from_xyz(61.0, -46.0, 2.0),
+        DespawnOnExitState::<Level>::default(),
     ));
     commands.spawn((
         enemy_ship(ship_config, &game_assets, level_setup.enemy_health),
-        DespawnOnExitState::<Level>::default(),
         Transform::from_xyz(59.0, 93.0, 0.0),
+        DespawnOnExitState::<Level>::default(),
     ));
 }
 
