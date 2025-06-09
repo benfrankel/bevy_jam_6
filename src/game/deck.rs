@@ -128,6 +128,26 @@ impl PlayerDeck {
         true
     }
 
+    /// Try to discard the currently selected module from hand to storage,
+    /// returning false if it's not possible.
+    pub fn discard_selected(&mut self, rng: &mut impl Rng) -> bool {
+        rq!(!self.hand.is_empty());
+
+        // Remove selected module from hand.
+        let idx = self.selected_idx;
+        let selected = self.hand.remove(idx);
+        self.selected_idx = self
+            .selected_idx
+            .clamp(0, self.hand.len().saturating_sub(1));
+
+        // Insert it into storage.
+        let storage_idx = rng.gen_range(0..=self.storage.len());
+        self.storage.insert(storage_idx, selected);
+        self.just_used_storage = true;
+
+        true
+    }
+
     /// Find the next available reactor slot to place a module in.
     fn next_available_slot(&self) -> Option<usize> {
         self.reactor

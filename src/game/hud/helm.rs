@@ -292,7 +292,7 @@ impl Configure for HandIndex {
             apply_offset_to_selected_module.in_set(UpdateSystems::Update),
         );
         app.add_observer(select_module_on_hover);
-        app.add_observer(play_module_on_click);
+        app.add_observer(play_or_discard_module_on_click);
     }
 }
 
@@ -330,15 +330,19 @@ fn select_module_on_hover(
     ));
 }
 
-fn play_module_on_click(
+fn play_or_discard_module_on_click(
     trigger: Trigger<Pointer<Click>>,
     module_query: Query<(), With<HandIndex>>,
     mut player_actions: ResMut<ActionState<HelmActions>>,
 ) {
-    rq!(matches!(trigger.event.button, PointerButton::Primary));
     let target = rq!(trigger.get_target());
     rq!(module_query.contains(target));
-    player_actions.press(&HelmActions::PlayModule);
+
+    match trigger.event.button {
+        PointerButton::Primary => player_actions.press(&HelmActions::PlayModule),
+        PointerButton::Secondary => player_actions.press(&HelmActions::DiscardModule),
+        PointerButton::Middle => {},
+    }
 }
 
 #[derive(Component, Reflect, Debug)]

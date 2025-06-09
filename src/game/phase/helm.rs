@@ -28,16 +28,13 @@ pub enum HelmActions {
     SelectLeft,
     SelectRight,
     PlayModule,
+    DiscardModule,
     EndTurn,
 }
 
 impl Configure for HelmActions {
     fn configure(app: &mut App) {
-        let mut action_state = ActionState::<Self>::default();
-        action_state.disable_action(&Self::PlayModule);
-        action_state.disable_action(&Self::EndTurn);
-        app.insert_resource(action_state);
-
+        app.init_resource::<ActionState<Self>>();
         app.insert_resource(
             InputMap::default()
                 .with(Self::SelectLeft, GamepadButton::DPadLeft)
@@ -48,20 +45,21 @@ impl Configure for HelmActions {
                 .with(Self::SelectRight, GamepadButton::RightTrigger)
                 .with(Self::SelectRight, KeyCode::KeyD)
                 .with(Self::SelectRight, KeyCode::ArrowRight)
-                .with(Self::PlayModule, GamepadButton::East)
                 .with(Self::PlayModule, KeyCode::Space)
                 .with(Self::PlayModule, KeyCode::Enter)
                 .with(Self::PlayModule, KeyCode::NumpadEnter)
+                .with(Self::DiscardModule, KeyCode::Delete)
+                .with(Self::DiscardModule, KeyCode::Backspace)
+                .with(Self::DiscardModule, KeyCode::NumpadBackspace)
                 .with(Self::EndTurn, KeyCode::KeyE),
         );
         app.add_plugins(InputManagerPlugin::<Self>::default());
+        app.add_systems(Startup, disable_helm_phase_actions);
         app.add_systems(
             StateFlush,
             (
-                Phase::Helm.on_edge(disable_end_turn, enable_end_turn),
-                Pause
-                    .on_edge(enable_helm_actions, disable_helm_actions)
-                    .run_if(Phase::Helm.will_update()),
+                Phase::Helm.on_edge(disable_helm_phase_actions, enable_helm_phase_actions),
+                Pause.on_edge(enable_helm_actions, disable_helm_actions),
             ),
         );
         app.add_systems(
@@ -76,6 +74,9 @@ impl Configure for HelmActions {
                 helm_play_module
                     .in_set(UpdateSystems::RecordInput)
                     .run_if(action_just_pressed(Self::PlayModule)),
+                helm_discard_module
+                    .in_set(UpdateSystems::RecordInput)
+                    .run_if(action_just_pressed(Self::DiscardModule)),
                 helm_end_turn
                     .in_set(UpdateSystems::RecordInput)
                     .run_if(action_just_pressed(Self::EndTurn)),
@@ -84,13 +85,15 @@ impl Configure for HelmActions {
     }
 }
 
-fn disable_end_turn(mut helm_actions: ResMut<ActionState<HelmActions>>) {
+fn disable_helm_phase_actions(mut helm_actions: ResMut<ActionState<HelmActions>>) {
     helm_actions.disable_action(&HelmActions::PlayModule);
+    helm_actions.disable_action(&HelmActions::DiscardModule);
     helm_actions.disable_action(&HelmActions::EndTurn);
 }
 
-fn enable_end_turn(mut helm_actions: ResMut<ActionState<HelmActions>>) {
+fn enable_helm_phase_actions(mut helm_actions: ResMut<ActionState<HelmActions>>) {
     helm_actions.enable_action(&HelmActions::PlayModule);
+    helm_actions.enable_action(&HelmActions::DiscardModule);
     helm_actions.enable_action(&HelmActions::EndTurn);
 }
 
@@ -135,12 +138,30 @@ fn helm_play_module(
     mut player_deck: ResMut<PlayerDeck>,
     mut phase: NextMut<Phase>,
 ) {
-    if player_deck.play_selected(&mut thread_rng()) {
+    rq!(player_deck.play_selected(&mut thread_rng()));
+
+    phase.enter(Phase::Reactor);
+    commands.spawn((
+        sfx_audio(&audio_settings, game_assets.module_insert_sfx.clone(), 1.0),
+        DespawnOnExitState::<Level>::default(),
+    ));
+}
+
+fn helm_discard_module(
+    mut commands: Commands,
+    game_assets: Res<GameAssets>,
+    audio_settings: Res<AudioSettings>,
+    mut player_deck: ResMut<PlayerDeck>,
+    mut phase: NextMut<Phase>,
+) {
+    rq!(player_deck.discard_selected(&mut thread_rng()));
+
+    commands.spawn((
+        sfx_audio(&audio_settings, game_assets.module_hover_sfx.clone(), 1.0),
+        DespawnOnExitState::<Level>::default(),
+    ));
+    if player_deck.hand.is_empty() {
         phase.enter(Phase::Reactor);
-        commands.spawn((
-            sfx_audio(&audio_settings, game_assets.module_insert_sfx.clone(), 1.0),
-            DespawnOnExitState::<Level>::default(),
-        ));
     }
 }
 
