@@ -28,19 +28,15 @@ fn spawn_defeat_menu(
             (
                 Node::COLUMN_CENTER,
                 children![widget::row_of_buttons(children![
-                    widget::wide_button("Try again", restart_game),
-                    widget::wide_button("Main menu", quit_to_title),
+                    widget::wide_button("Retry star", restart_level),
+                    widget::wide_button("End pursuit", quit_to_title),
                 ])],
             )
         ]));
 }
 
-fn restart_game(
-    _: Trigger<Pointer<Click>>,
-    mut commands: Commands,
-    title_assets: Res<TitleAssets>,
-) {
-    commands.spawn(fade_out(&title_assets, Screen::Gameplay));
+fn restart_level(_: Trigger<Pointer<Click>>, mut level: FlushMut<Level>) {
+    level.refresh();
 }
 
 fn quit_to_title(

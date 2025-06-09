@@ -15,7 +15,6 @@ use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudConfig;
 use crate::game::hud::helm::HandIndex;
 use crate::game::level::Level;
-use crate::menu::Menu;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -51,6 +50,7 @@ pub fn player_ship(ship_config: &ShipConfig, game_assets: &GameAssets, health: f
         RigidBody::Kinematic,
         MaxLinearSpeed(ship_config.player_speed_max),
         Shake::default(),
+        Oscillate::default(),
         children![
             (
                 health_bar(),
@@ -76,24 +76,20 @@ pub fn player_ship(ship_config: &ShipConfig, game_assets: &GameAssets, health: f
             ),
         ],
         Patch(|entity| {
-            entity.observe(lose_level_on_death);
             entity.observe(shake_player_ship_on_damage);
             entity.observe(shake_screen_on_damage);
         }),
     )
 }
 
-fn lose_level_on_death(_: Trigger<OnDeath>, mut menu: ResMut<NextStateStack<Menu>>) {
-    menu.push(Menu::Defeat);
-    menu.acquire();
-}
-
 fn shake_player_ship_on_damage(
     trigger: Trigger<OnDamage>,
-    mut shake: Single<&mut Shake, With<IsPlayerShip>>,
+    mut shake_query: Query<&mut Shake>,
     hud_config: ConfigRef<HudConfig>,
 ) {
     let hud_config = r!(hud_config.get());
+    let target = r!(trigger.get_target());
+    let mut shake = r!(shake_query.get_mut(target));
 
     let factor = hud_config
         .player_ship_shake_damage_factor

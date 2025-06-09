@@ -5,7 +5,7 @@ pub(super) fn plugin(app: &mut App) {
     app.configure::<Oscillate>();
 }
 
-#[derive(Component, Reflect, Debug)]
+#[derive(Component, Reflect, Debug, Default)]
 #[reflect(Component)]
 #[require(Lifetime)]
 pub struct Oscillate {
