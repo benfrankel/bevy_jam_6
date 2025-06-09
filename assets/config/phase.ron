@@ -13,11 +13,11 @@
     player_cooldown: 0.512,
     player_cooldown_decay: 0.8,
     player_first_cooldown: 0,
-    player_last_cooldown: 0.2,
+    player_last_cooldown: 1.0,
 
     enemy_cooldown: 0.512,
     enemy_cooldown_decay: 0.8,
-    enemy_first_cooldown: 1.8,
+    enemy_first_cooldown: 1.0,
     enemy_last_cooldown: 1.2,
     enemy_escape_force: Vec2(0, 1000.0),
 )

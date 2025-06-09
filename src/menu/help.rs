@@ -15,13 +15,13 @@ fn spawn_help_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
                 ThemeColor::BodyText,
                 JustifyText::Left,
                 1.8,
-                "Welcome aboard [b]The Weber[r]!\
+                "> Welcome aboard [b]The Weber[r]!\
                 \n\n\
-                Insert modules into the [b]reactor[r] to forge powerful chain reactions. \
+                > Insert modules into the [b]reactor[r] to forge powerful chain reactions. \
                 Every module has a [b]condition[r] and an [b]effect[r]. \
                 The reactor will always activate the first matching module from the top left.\
                 \n\n\
-                When a module activates, the reactor's [b]flux[r] increases by 1, which adds to \
+                > When a module activates, the reactor's [b]flux[r] increases by 1, which adds to \
                 the module's [b]heat[r]. Overheated modules must be replaced.\
                 \n\n"
             ),

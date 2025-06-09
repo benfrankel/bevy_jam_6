@@ -113,7 +113,7 @@ fn info_button(game_assets: &GameAssets) -> impl Bundle {
         Name::new("InfoButton"),
         mini_button_base(
             game_assets.info_button.clone(),
-            "[b]Instruction Manual (I)[r]\n\nRead the ship's instruction manual.",
+            "[b]Instruction Manual (I)[r]\n\nDisplay the ship's instruction manual.",
             toggle_tooltips,
         ),
     )
@@ -124,7 +124,7 @@ fn pause_button(game_assets: &GameAssets) -> impl Bundle {
         Name::new("PauseButton"),
         mini_button_base(
             game_assets.pause_button.clone(),
-            "[b]Pause (P)[r]\n\nOpen the pause menu.",
+            "[b]Pause (P)[r]\n\nPause the game.",
             open_pause_menu,
         ),
     )
@@ -219,12 +219,12 @@ fn sync_phase_display(
         .clone();
         tooltip.content =
             TooltipContent::Primary(RichText::from_sections(parse_rich(match phase {
-                Phase::Setup => "[b]Setup phase[r]\n\nPreparing the ship.",
-                Phase::Helm => "[b]Player phase[r]\n\nAwaiting your command.",
+                Phase::Setup => "[b]Storage phase[r]\n\n> Pulling reactor modules from storage.",
+                Phase::Helm => "[b]Player phase[r]\n\n> Awaiting your command.",
                 Phase::Reactor | Phase::Player => {
-                    "[b]Reactor phase[r]\n\nDirecting power to the reactor."
+                    "[b]Reactor phase[r]\n\n> Directing power to the reactor."
                 },
-                Phase::Enemy => "[b]Enemy phase[r]\n\nSustaining the enemy's barrage.",
+                Phase::Enemy => "[b]Enemy phase[r]\n\n> Sustaining the enemy's barrage.",
             })));
     }
 }
@@ -368,7 +368,7 @@ fn sync_storage_tooltip(
 ) {
     for mut tooltip in &mut storage_query {
         tooltip.content = TooltipContent::Primary(RichText::from_sections(parse_rich(format!(
-            "[b]Storage[r]\n\n{} reactor module{} remaining.",
+            "[b]Storage[r]\n\n{} reactor module{} remaining to draw.",
             player_deck.storage.len(),
             if player_deck.storage.len() == 1 {
                 ""

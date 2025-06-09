@@ -81,13 +81,15 @@ impl Module {
                     ModuleAction::Repair => "after repairing the hull, ",
                 };
                 let effect = match (&self.condition, &self.effect) {
-                    (_, ModuleAction::Nothing) => "do nothing",
+                    (_, ModuleAction::Nothing) => "end the chain",
                     (ModuleAction::Missile, ModuleAction::Missile) => "launch another missile",
                     (_, ModuleAction::Missile) => "launch a missile",
                     (ModuleAction::Laser, ModuleAction::Laser) => "fire another laser",
                     (_, ModuleAction::Laser) => "fire a laser",
-                    (ModuleAction::Fireball, ModuleAction::Fireball) => "unleash another fireball",
-                    (_, ModuleAction::Fireball) => "unleash a fireball",
+                    (ModuleAction::Fireball, ModuleAction::Fireball) => {
+                        "unleash another fireball and end the chain"
+                    },
+                    (_, ModuleAction::Fireball) => "unleash a fireball and end the chain",
                     (ModuleAction::Repair, ModuleAction::Repair) => "repair the hull again",
                     (_, ModuleAction::Repair) => "repair the hull",
                 };
@@ -106,7 +108,7 @@ impl Module {
                     ModuleAction::Repair => "\n\n[b]Heal:[r] 2 times flux",
                 };
 
-                format!("{header}{heat}\n\n{body}{stats}")
+                format!("{header}{heat} - Right click to remove\n\n> {body}{stats}")
             },
         }
     }
