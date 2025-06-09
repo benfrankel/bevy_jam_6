@@ -17,9 +17,9 @@ fn spawn_pause_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
             widget::header("[b]Game paused"),
             widget::column_of_buttons(children![
                 widget::wide_button("Continue", close_menu),
-                widget::wide_button("Restart level", restart_level),
                 widget::wide_button("Settings", open_settings),
-                widget::wide_button("End run", quit_to_title),
+                widget::wide_button("Retry star", restart_level),
+                widget::wide_button("End pursuit", quit_to_title),
             ])
         ]));
 }

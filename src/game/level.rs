@@ -155,18 +155,13 @@ fn win_level_on_enemy_escape(
     audio_settings: Res<AudioSettings>,
     game_assets: Res<GameAssets>,
     mut menu: ResMut<NextStateStack<Menu>>,
-    level: NextRef<Level>,
 ) {
     commands.spawn((
         sfx_audio(&audio_settings, game_assets.ship_death_sfx.clone(), 1.0),
         DespawnOnExitState::<Level>::default(),
     ));
 
-    if r!(level.get()).0 == 9 {
-        menu.push(Menu::Victory);
-    } else {
-        menu.push(Menu::Upgrade);
-    }
+    menu.push(Menu::Upgrade);
     menu.acquire();
 }
 
