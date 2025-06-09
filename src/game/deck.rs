@@ -101,7 +101,7 @@ impl PlayerDeck {
 
         slot.status = ModuleStatus::FaceUp;
         slot.heat = 0.0;
-        let storage_idx = rng.gen_range(0..=self.storage.len());
+        let storage_idx = rng.gen_range(0..=self.storage.len() / 2);
         self.storage.insert(storage_idx, slot);
         self.just_used_storage = true;
     }
@@ -141,7 +141,7 @@ impl PlayerDeck {
             .clamp(0, self.hand.len().saturating_sub(1));
 
         // Insert it into storage.
-        let storage_idx = rng.gen_range(0..=self.storage.len());
+        let storage_idx = rng.gen_range(0..=self.storage.len() / 2);
         self.storage.insert(storage_idx, selected);
         self.just_used_storage = true;
 
