@@ -1,6 +1,6 @@
 (
     initial_player_deck: PlayerDeck(
-        max_health: 50,
+        max_health: 80,
 
         storage: [
             Module(condition: Nothing, effect: Missile),

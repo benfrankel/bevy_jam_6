@@ -346,13 +346,13 @@ fn generate_upgrades(
         upgrades.push(Upgrade::FluxCapacitor(3));
     } else {
         upgrades.push(if rng.gen_bool(0.8) {
-            Upgrade::AlienAlloy(50.0)
+            Upgrade::AlienAlloy(80.0)
         } else {
             Upgrade::QuantumCooler(10.0)
         });
     }
     upgrades.push(if rng.gen_bool(0.8) {
-        Upgrade::AlienAlloy(50.0)
+        Upgrade::AlienAlloy(80.0)
     } else {
         Upgrade::QuantumCooler(10.0)
     });
