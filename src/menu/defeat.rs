@@ -18,25 +18,27 @@ fn spawn_defeat_menu(
     stats: Res<Stats>,
     level: NextRef<Level>,
 ) {
-    let level = r!(level.get()).0.to_string();
+    let level = r!(level.get()).0;
 
     commands
         .entity(menu_root.ui)
         .with_child(widget::popup(children![
             widget::header("[b]Defeat"),
-            stats_grid(stats, level),
-            (
-                Node::COLUMN_CENTER,
-                children![widget::row_of_buttons(children![
-                    widget::wide_button("Retry star", restart_level),
-                    widget::wide_button("End pursuit", quit_to_title),
-                ])],
-            )
+            stats_grid(&stats, level),
+            widget::row_of_buttons(children![
+                widget::small_button("Retry star", restart_level),
+                widget::small_button("New mission", restart_game),
+                widget::small_button("Go home", quit_to_title),
+            ]),
         ]));
 }
 
 fn restart_level(_: Trigger<Pointer<Click>>, mut level: FlushMut<Level>) {
     level.refresh();
+}
+
+fn restart_game(_: Trigger<Pointer<Click>>, mut level: NextMut<Level>) {
+    level.enter(Level(0));
 }
 
 fn quit_to_title(

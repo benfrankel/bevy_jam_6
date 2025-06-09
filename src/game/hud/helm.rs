@@ -413,12 +413,12 @@ fn sync_storage_tooltip(
 
         tooltip.content = TooltipContent::Primary(RichText::from_sections(parse_rich(format!(
             "[b]Storage[r]\n\n\
-            {} reactor module{} remaining to draw:\n\n\
-            - {} Start{}\n\
-            - {} Repair{}\n\
-            - {} Missile{}\n\
-            - {} Laser{}\n\
-            - {} Fireball{}",
+            There are {} reactor module{} remaining to draw:\n\n\
+            - {} [b]starter{}[r]\n\
+            - {} [b]repair{}[r]\n\
+            - {} [b]missile{}[r]\n\
+            - {} [b]laser{}[r]\n\
+            - {} [b]fireball{}[r]",
             total,
             plural(total),
             starts,

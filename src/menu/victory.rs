@@ -18,29 +18,22 @@ fn spawn_victory_menu(
     stats: Res<Stats>,
     level: NextRef<Level>,
 ) {
-    let level = (r!(level.get()).0 + 1).to_string();
+    let level = r!(level.get()).0 + 1;
 
     commands
         .entity(menu_root.ui)
         .with_child(widget::popup(children![
             widget::header("[b]Victory"),
-            stats_grid(stats, level),
-            (
-                Node::ROW_CENTER.grow(),
-                children![widget::row_of_buttons(children![
-                    widget::wide_button("Play Again", restart_game),
-                    widget::wide_button("Main menu", quit_to_title),
-                ])],
-            )
+            stats_grid(&stats, level),
+            widget::row_of_buttons(children![
+                widget::wide_button("New mission", restart_game),
+                widget::wide_button("Go home", quit_to_title),
+            ]),
         ]));
 }
 
-fn restart_game(
-    _: Trigger<Pointer<Click>>,
-    mut commands: Commands,
-    title_assets: Res<TitleAssets>,
-) {
-    commands.spawn(fade_out(&title_assets, Screen::Gameplay));
+fn restart_game(_: Trigger<Pointer<Click>>, mut level: NextMut<Level>) {
+    level.enter(Level(0));
 }
 
 fn quit_to_title(

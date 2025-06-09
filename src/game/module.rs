@@ -201,7 +201,7 @@ fn on_module_action(
             ));
 
             if is_player {
-                stats.missiles_fired += 1;
+                stats.missiles += 1;
             }
         },
 
@@ -223,7 +223,7 @@ fn on_module_action(
             ));
 
             if is_player {
-                stats.lasers_fired += 1;
+                stats.lasers += 1;
             }
         },
 
@@ -245,7 +245,7 @@ fn on_module_action(
             ));
 
             if is_player {
-                stats.fireballs_unleashed += 1;
+                stats.fireballs += 1;
             }
         },
 
@@ -261,7 +261,7 @@ fn on_module_action(
             ));
 
             if is_player {
-                stats.total_repaired += flux;
+                stats.repairs += flux;
             }
         },
 

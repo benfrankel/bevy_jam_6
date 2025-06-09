@@ -210,13 +210,22 @@ pub fn label_base(
     )
 }
 
-pub fn small_button<E, B, M, I>(text: impl Into<String>, action: I) -> impl Bundle
+pub fn tiny_button<E, B, M, I>(text: impl Into<String>, action: I) -> impl Bundle
 where
     E: Event,
     B: Bundle,
     I: Sync + IntoObserverSystem<E, B, M>,
 {
     button_base(Vw(3.0), Vw(4.0), Vw(3.0), text, action)
+}
+
+pub fn small_button<E, B, M, I>(text: impl Into<String>, action: I) -> impl Bundle
+where
+    E: Event,
+    B: Bundle,
+    I: Sync + IntoObserverSystem<E, B, M>,
+{
+    button_base(Vw(25.0), Vw(6.0), Vw(2.5), text, action)
 }
 
 pub fn button<E, B, M, I>(text: impl Into<String>, action: I) -> impl Bundle
@@ -329,9 +338,9 @@ where
         },
         marker,
         children![
-            small_button("<", left_action),
+            tiny_button("<", left_action),
             stretch(children![label("")]),
-            small_button(">", right_action),
+            tiny_button(">", right_action),
         ],
     )
 }
