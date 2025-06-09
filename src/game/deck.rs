@@ -34,6 +34,7 @@ pub struct PlayerDeck {
 
     // Reactor:
     pub flux: f32,
+    pub chain: f32,
     pub heat_capacity: f32,
     pub reactor: Vec<Module>,
     pub reactor_chain: VecDeque<usize>,
@@ -141,11 +142,18 @@ impl PlayerDeck {
 
     /// Find the next matching reactor module to trigger.
     fn next_matching_module(&self) -> Option<usize> {
-        self.reactor.iter().position(|slot| {
-            matches!(slot.status, ModuleStatus::SlotInactive)
-                && (matches!(slot.condition, ModuleAction::Nothing)
-                    || slot.condition == self.last_effect)
-        })
+        self.reactor
+            .iter()
+            .position(|slot| {
+                matches!(slot.status, ModuleStatus::SlotInactive)
+                    && slot.condition == self.last_effect
+            })
+            .or_else(|| {
+                self.reactor.iter().position(|slot| {
+                    matches!(slot.status, ModuleStatus::SlotInactive)
+                        && slot.condition == ModuleAction::Nothing
+                })
+            })
     }
 
     /// Determine whether the reactor is done powering up.
@@ -163,6 +171,10 @@ impl PlayerDeck {
             self.last_effect = slot.effect;
             self.flux += 1.0;
             slot.heat += self.flux;
+            if slot.condition == ModuleAction::Nothing {
+                self.chain = 0.0;
+            }
+            self.chain += 1.0;
             self.reactor_chain.push_back(idx);
             self.last_touched_idx = Some(idx);
 

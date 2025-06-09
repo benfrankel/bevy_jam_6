@@ -48,7 +48,7 @@ fn spawn_upgrade_menu(
     commands
         .entity(menu_root.ui)
         .with_child(widget::popup(children![
-            widget::header("[b]They slipped away!"),
+            widget::header("[b]They got away!"),
             widget::label("Choose 3 upgrades:"),
             offered_upgrades(&game_assets, upgrades),
             widget::row_of_buttons(children![(

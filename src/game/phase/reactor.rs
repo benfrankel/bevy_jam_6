@@ -5,7 +5,6 @@ use crate::game::deck::PlayerDeck;
 use crate::game::level::Level;
 use crate::game::phase::Phase;
 use crate::game::phase::PhaseConfig;
-use crate::game::phase::Step;
 use crate::game::phase::StepTimer;
 use crate::game::phase::on_step_timer;
 use crate::game::stats::Stats;
@@ -40,7 +39,6 @@ fn step_power_up_phase(
     audio_settings: Res<AudioSettings>,
     phase_config: ConfigRef<PhaseConfig>,
     mut phase: NextMut<Phase>,
-    step: Res<Step>,
     mut step_timer: ResMut<StepTimer>,
     mut player_deck: ResMut<PlayerDeck>,
     mut stats: ResMut<Stats>,
@@ -55,12 +53,12 @@ fn step_power_up_phase(
 
     // Record max flux
     stats.highest_flux = stats.highest_flux.max(player_deck.flux);
-
+    stats.longest_chain = stats.longest_chain.max(player_deck.chain);
     commands.spawn((
         sfx_audio(
             &audio_settings,
             game_assets.module_activate_sfx.clone(),
-            2f32.powf((player_deck.flux - 1.0) / phase_config.reactor_sfx_tones),
+            2f32.powf((player_deck.chain - 1.0) / phase_config.reactor_sfx_tones),
         ),
         DespawnOnExitState::<Level>::default(),
     ));
@@ -69,7 +67,10 @@ fn step_power_up_phase(
     let cooldown = Duration::from_secs_f32(if player_deck.is_reactor_done() {
         phase_config.reactor_last_cooldown
     } else {
-        phase_config.reactor_cooldown * phase_config.reactor_cooldown_decay.powf(step.0 as _)
+        phase_config.reactor_cooldown
+            * phase_config
+                .reactor_cooldown_decay
+                .powf(player_deck.chain - 1.0)
     });
     step_timer.0.set_duration(cooldown);
 }

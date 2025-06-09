@@ -20,6 +20,7 @@ pub struct Stats {
     pub fireballs_unleashed: usize,
     pub total_repaired: f32,
     pub highest_flux: f32,
+    pub longest_chain: f32,
     pub average_rounds_per_level: f32,
     pub damage_given: f32,
     pub damage_taken: f32,
@@ -29,18 +30,18 @@ pub struct Stats {
 }
 
 fn increment_level_rounds(mut stats: ResMut<Stats>) {
-    stats.num_rounds_buffer += 1.;
+    stats.num_rounds_buffer += 1.0;
 }
 
 fn calculate_average_turns_per_round(mut stats: ResMut<Stats>) {
-    if stats.average_rounds_per_level > 0. {
+    if stats.average_rounds_per_level > 0.0 {
         stats.average_rounds_per_level =
-            (stats.average_rounds_per_level + stats.num_rounds_buffer) / 2.;
+            (stats.average_rounds_per_level + stats.num_rounds_buffer) / 2.0;
     } else {
         stats.average_rounds_per_level = stats.num_rounds_buffer;
     }
 
-    stats.num_rounds_buffer = 0.;
+    stats.num_rounds_buffer = 0.0;
 }
 
 pub fn stats_grid(stats: Res<Stats>, level: String) -> impl Bundle {

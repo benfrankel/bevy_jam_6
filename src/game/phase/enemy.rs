@@ -68,7 +68,7 @@ fn step_enemy_phase(
     // Explode or flee if dead.
     if enemy_ship.1 {
         if level.is_in(&Level(9)) {
-            // Death is ugly. This code quality portrays the realities of death.
+            // Death is ugly. This code is a metaphor for the realities of death.
             let death_oscillate1 = Oscillate::new(vec2(0.0, 0.0), vec2(1.34, 0.0), vec2(1.1, 1.2));
             let death_oscillate2 =
                 Oscillate::new(vec2(2.0, 2.0), vec2(1.34, 0.0), vec2(31.3, 46.7));
