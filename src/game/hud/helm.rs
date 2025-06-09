@@ -113,8 +113,8 @@ fn info_button(game_assets: &GameAssets) -> impl Bundle {
         Name::new("InfoButton"),
         mini_button_base(
             game_assets.info_button.clone(),
-            "[b]Instruction Manual (I)[r]\n\nDisplay the ship's instruction manual.",
-            toggle_tooltips,
+            parse_rich("[b]Instruction Manual (I)"),
+            open_help_menu,
         ),
     )
 }
@@ -124,7 +124,7 @@ fn pause_button(game_assets: &GameAssets) -> impl Bundle {
         Name::new("PauseButton"),
         mini_button_base(
             game_assets.pause_button.clone(),
-            "[b]Pause (P)[r]\n\nPause the game.",
+            parse_rich("[b]Pause (P)"),
             open_pause_menu,
         ),
     )
@@ -135,13 +135,13 @@ fn skip_button(game_assets: &GameAssets) -> impl Bundle {
         Name::new("SkipButton"),
         mini_button_base(
             game_assets.skip_button.clone(),
-            "[b]End turn (E)[r]\n\nEnd your turn without playing a module from your hand.",
+            parse_rich("[b]End turn (E)"),
             player_end_turn,
         ),
     )
 }
 
-fn toggle_tooltips(
+fn open_help_menu(
     trigger: Trigger<Pointer<Click>>,
     mut gameplay_action: ResMut<ActionState<GameplayAction>>,
 ) {
@@ -165,7 +165,11 @@ fn player_end_turn(
     player_actions.press(&HelmActions::EndTurn);
 }
 
-fn mini_button_base<E, B, M, I>(image: Handle<Image>, description: &str, action: I) -> impl Bundle
+fn mini_button_base<E, B, M, I>(
+    image: Handle<Image>,
+    description: impl Into<TooltipContent>,
+    action: I,
+) -> impl Bundle
 where
     E: Event,
     B: Bundle,
@@ -185,7 +189,7 @@ where
             pressed: NodeOffset::new(Val::ZERO, Vw(0.2083)),
             ..default()
         },
-        Tooltip::fixed(Anchor::TopCenter, parse_rich(description)),
+        Tooltip::fixed(Anchor::TopCenter, description),
         Patch(|entity| {
             entity.observe(action);
         }),
@@ -217,15 +221,19 @@ fn sync_phase_display(
             Phase::Enemy => &game_assets.phase_enemy,
         }
         .clone();
-        tooltip.content =
-            TooltipContent::Primary(RichText::from_sections(parse_rich(match phase {
-                Phase::Setup => "[b]Storage phase[r]\n\n> Pulling reactor modules from storage.",
-                Phase::Helm => "[b]Player phase[r]\n\n> Awaiting your command.",
-                Phase::Reactor | Phase::Player => {
-                    "[b]Reactor phase[r]\n\n> Directing power to the reactor."
+        tooltip.content = TooltipContent::Primary(
+            RichText::from_sections(parse_rich(match phase {
+                Phase::Setup => "[b]Storage phase[r]\n\nPulling reactor modules from storage.",
+                Phase::Helm => {
+                    "[b]Player phase[r]\n\nLeft or right click a module to play or discard it."
                 },
-                Phase::Enemy => "[b]Enemy phase[r]\n\n> Sustaining the enemy's barrage.",
-            })));
+                Phase::Reactor | Phase::Player => {
+                    "[b]Reactor phase[r]\n\nDirecting power to the reactor."
+                },
+                Phase::Enemy => "[b]Enemy phase[r]\n\nSustaining the enemy's barrage.",
+            }))
+            .with_justify(JustifyText::Center),
+        );
     }
 }
 

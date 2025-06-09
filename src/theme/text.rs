@@ -123,6 +123,14 @@ pub fn parse_rich(text: impl AsRef<str>) -> Vec<TextSection> {
                 ..default()
             },
         ),
+        (
+            "s",
+            TextStyle {
+                font: FONT_HANDLE,
+                color: Color::srgb(0.7, 0.7, 0.7),
+                ..default()
+            },
+        ),
     ]);
 
     parse_rich_custom(text, &styles, "r")

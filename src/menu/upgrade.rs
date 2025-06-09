@@ -138,25 +138,25 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
     let description = match &upgrade {
         Upgrade::FluxCapacitor(slots) => format!(
             "[b]Flux Capacitor[r]\n\n\
-            > Enhance your reactor with a state-of-the-art capacitor.\n\n\
+            Enhance your reactor with a state-of-the-art capacitor.\n\n\
             [b]Reactor slots:[r] +{}",
             slots,
         ),
         Upgrade::QuantumCooler(heat_capacity) => format!(
             "[b]Quantum Cooler[r]\n\n\
-            > Install a particle-level cooling system to limit overheating.\n\n\
+            Install a particle-level cooling system to limit overheating.\n\n\
             [b]Reactor heat capacity:[r] +{}",
             heat_capacity
         ),
         Upgrade::AlienAlloy(max_health) => format!(
             "[b]Alien Alloy[r]\n\n\
-            > Reinforce your hull with a legendary alloy from another star.\n\n\
+            Reinforce your hull with a legendary alloy from another star.\n\n\
             [b]Ship max health:[r] +{}",
             max_health,
         ),
         Upgrade::NothingPack(modules) => {
             format!(
-                "[b]Starter Pack[r]\n\n> Unpack three helpful new Starter modules:\n\n{}",
+                "[b]Starter Pack[r]\n\nUnpack three helpful new Starter modules.\n\n{}",
                 modules
                     .iter()
                     .map(|x| x.short_description())
@@ -166,7 +166,7 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
         },
         Upgrade::RepairPack(modules) => {
             format!(
-                "[b]Repair Pack[r]\n\n> Unpack three new Repair modules:\n\n{}",
+                "[b]Repair Pack[r]\n\nUnpack three new Repair modules.\n\n{}",
                 modules
                     .iter()
                     .map(|x| x.short_description())
@@ -176,7 +176,7 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
         },
         Upgrade::MissilePack(modules) => {
             format!(
-                "[b]Missile Pack[r]\n\n> Unpack three new Missile modules:\n\n{}",
+                "[b]Missile Pack[r]\n\nUnpack three new Missile modules.\n\n{}",
                 modules
                     .iter()
                     .map(|x| x.short_description())
@@ -186,7 +186,7 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
         },
         Upgrade::LaserPack(modules) => {
             format!(
-                "[b]Laser Pack[r]\n\n> Unpack three new Laser modules:\n\n{}",
+                "[b]Laser Pack[r]\n\nUnpack three new Laser modules.\n\n{}",
                 modules
                     .iter()
                     .map(|x| x.short_description())
@@ -196,7 +196,7 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
         },
         Upgrade::FireballPack(modules) => {
             format!(
-                "[b]Fireball Pack[r]\n\n> Unpack three powerful new Fireball modules:\n\n{}",
+                "[b]Fireball Pack[r]\n\nUnpack three powerful new Fireball modules.\n\n{}",
                 modules
                     .iter()
                     .map(|x| x.short_description())
@@ -231,7 +231,10 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
         Backup::<BoxShadow>::default(),
         InteractionSfx,
         InteractionDisabled(false),
-        Tooltip::fixed(Anchor::BottomCenter, parse_rich(description)),
+        Tooltip::fixed(
+            Anchor::BottomCenter,
+            RichText::from_sections(parse_rich(description)).with_justify(JustifyText::Center),
+        ),
         Patch(|entity| {
             entity.observe(toggle_upgrade_selector);
         }),
