@@ -138,7 +138,7 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
     let description = match &upgrade {
         Upgrade::FluxCapacitor(slots) => format!(
             "[b]Flux Capacitor[r]\n\n\
-            > Enhance your reactor's maximum flux with a state-of-the-art capacitor.\n\n\
+            > Enhance your reactor with a state-of-the-art capacitor.\n\n\
             [b]Reactor slots:[r] +{}",
             slots,
         ),

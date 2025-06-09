@@ -14,6 +14,7 @@ use crate::game::combat::health::health_bar;
 use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudConfig;
 use crate::game::hud::helm::HandIndex;
+use crate::game::level::Level;
 use crate::menu::Menu;
 use crate::prelude::*;
 
@@ -138,17 +139,31 @@ pub fn enemy_ship(ship_config: &ShipConfig, game_assets: &GameAssets, health: f3
             }
         })),
         Patch(|entity| {
+            entity.observe(survive_on_one_health);
             entity.observe(shake_enemy_ship_on_damage);
         }),
     )
 }
 
+fn survive_on_one_health(
+    trigger: Trigger<OnDeath>,
+    level: CurrentRef<Level>,
+    mut health_query: Query<&mut Health>,
+) {
+    let target = r!(trigger.get_target());
+    let mut health = r!(health_query.get_mut(target));
+    rq!(!level.is_in(&Level(9)));
+    health.current = 1.0;
+}
+
 fn shake_enemy_ship_on_damage(
     trigger: Trigger<OnDamage>,
-    mut shake: Single<&mut Shake, With<IsEnemyShip>>,
+    mut shake_query: Query<&mut Shake>,
     hud_config: ConfigRef<HudConfig>,
 ) {
     let hud_config = r!(hud_config.get());
+    let target = r!(trigger.get_target());
+    let mut shake = r!(shake_query.get_mut(target));
 
     let factor = hud_config
         .enemy_ship_shake_damage_factor

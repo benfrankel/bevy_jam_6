@@ -1,6 +1,7 @@
 use crate::core::audio::AudioSettings;
 use crate::core::audio::sfx_audio;
 use crate::game::GameAssets;
+use crate::game::combat::death::IsDead;
 use crate::game::combat::faction::Faction;
 use crate::game::combat::health::Health;
 use crate::game::level::Level;
@@ -65,7 +66,7 @@ fn deal_damage_on_collision(
     let hitbox = r!(trigger.get_target());
     let damage = rq!(damage_query.get(hitbox));
 
-    // Record stats
+    // Record stats:
     let hitbox_faction = r!(faction_query.get(hitbox));
     // The hitbox_faction is for a missile, laser or other
     // projectile, so we must reverse factions here.
@@ -84,9 +85,12 @@ fn deal_damage_on_collision(
     commands.entity(hurtbox).trigger(OnDamage(damage.0));
 }
 
-fn reduce_health_on_damage(trigger: Trigger<OnDamage>, mut health_query: Query<&mut Health>) {
+fn reduce_health_on_damage(
+    trigger: Trigger<OnDamage>,
+    mut health_query: Query<&mut Health, Without<IsDead /* Stop! He's already dead! */>>,
+) {
     let target = r!(trigger.get_target());
-    r!(health_query.get_mut(target)).current -= trigger.0;
+    rq!(health_query.get_mut(target)).current -= trigger.0;
 }
 
 fn play_ship_hurt_sfx_on_damage(
