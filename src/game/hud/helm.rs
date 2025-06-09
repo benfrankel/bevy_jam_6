@@ -9,6 +9,7 @@ use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudConfig;
 use crate::game::hud::module::module;
 use crate::game::level::Level;
+use crate::game::module::ModuleAction;
 use crate::game::phase::Phase;
 use crate::game::phase::helm::HelmActions;
 use crate::prelude::*;
@@ -225,7 +226,7 @@ fn sync_phase_display(
             RichText::from_sections(parse_rich(match phase {
                 Phase::Setup => "[b]Storage phase[r]\n\nPulling reactor modules from storage.",
                 Phase::Helm => {
-                    "[b]Player phase[r]\n\nLeft or right click a module to play or discard it."
+                    "[b]Player phase[r]\n\nLeft click a module to play it, right click to discard."
                 },
                 Phase::Reactor | Phase::Player => {
                     "[b]Reactor phase[r]\n\nDirecting power to the reactor."
@@ -374,19 +375,62 @@ impl Configure for IsStorage {
     }
 }
 
+fn plural(num: usize) -> &'static str {
+    if num == 1 { "" } else { "s" }
+}
+
 fn sync_storage_tooltip(
     player_deck: Res<PlayerDeck>,
     mut storage_query: Query<&mut Tooltip, With<IsStorage>>,
 ) {
     for mut tooltip in &mut storage_query {
+        let total = player_deck.storage.len();
+        let starts = player_deck
+            .storage
+            .iter()
+            .filter(|x| x.condition == ModuleAction::Nothing || x.effect == ModuleAction::Nothing)
+            .count();
+        let repairs = player_deck
+            .storage
+            .iter()
+            .filter(|x| x.condition == ModuleAction::Repair || x.effect == ModuleAction::Repair)
+            .count();
+        let missiles = player_deck
+            .storage
+            .iter()
+            .filter(|x| x.condition == ModuleAction::Missile || x.effect == ModuleAction::Missile)
+            .count();
+        let lasers = player_deck
+            .storage
+            .iter()
+            .filter(|x| x.condition == ModuleAction::Laser || x.effect == ModuleAction::Laser)
+            .count();
+        let fireballs = player_deck
+            .storage
+            .iter()
+            .filter(|x| x.condition == ModuleAction::Fireball || x.effect == ModuleAction::Fireball)
+            .count();
+
         tooltip.content = TooltipContent::Primary(RichText::from_sections(parse_rich(format!(
-            "[b]Storage[r]\n\n{} reactor module{} remaining to draw.",
-            player_deck.storage.len(),
-            if player_deck.storage.len() == 1 {
-                ""
-            } else {
-                "s"
-            },
+            "[b]Storage[r]\n\n\
+            {} reactor module{} remaining to draw:\n\n\
+            - {} Start{}\n\
+            - {} Repair{}\n\
+            - {} Missile{}\n\
+            - {} Laser{}\n\
+            - {} Fireball{}",
+            total,
+            plural(total),
+            starts,
+            plural(starts),
+            repairs,
+            plural(repairs),
+            missiles,
+            plural(missiles),
+            lasers,
+            plural(lasers),
+            fireballs,
+            plural(fireballs),
         ))));
     }
 }
