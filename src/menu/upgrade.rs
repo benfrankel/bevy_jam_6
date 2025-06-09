@@ -79,8 +79,8 @@ fn enter_next_level(
 
         // Record upgrade history.
         match selector.upgrade {
-            Upgrade::NothingPack(_) => upgrade_history.took_nothing_pack = true,
-            Upgrade::FireballPack(_) => upgrade_history.took_fireball_pack = true,
+            Upgrade::NothingPack(_) => upgrade_history.took_nothing_packs += 1,
+            Upgrade::FireballPack(_) => upgrade_history.took_fireball_packs += 1,
             _ => {},
         }
 
@@ -303,15 +303,15 @@ impl UpgradeSelector {
 #[derive(Resource, Reflect, Default, Debug)]
 #[reflect(Resource)]
 struct UpgradeHistory {
-    took_nothing_pack: bool,
-    took_fireball_pack: bool,
+    took_nothing_packs: usize,
+    took_fireball_packs: usize,
 }
 
 impl Configure for UpgradeHistory {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.init_resource::<Self>();
-        app.add_systems(StateFlush, Level::ANY.on_exit(reset_upgrade_history));
+        app.add_systems(StateFlush, Level(0).on_enter(reset_upgrade_history));
     }
 }
 
@@ -341,34 +341,44 @@ fn generate_upgrades(
     if player_deck.heat_capacity
         < 0.25 * (player_deck.reactor.len() * player_deck.reactor.len()) as f32
     {
-        upgrades.push(Upgrade::QuantumCooler(12.0));
+        upgrades.push(Upgrade::QuantumCooler(10.0));
     } else if player_deck.reactor.len() < 18 {
         upgrades.push(Upgrade::FluxCapacitor(3));
     } else {
         upgrades.push(if rng.gen_bool(0.8) {
             Upgrade::AlienAlloy(50.0)
         } else {
-            Upgrade::QuantumCooler(12.0)
+            Upgrade::QuantumCooler(10.0)
         });
     }
     upgrades.push(if rng.gen_bool(0.8) {
         Upgrade::AlienAlloy(50.0)
     } else {
-        Upgrade::QuantumCooler(12.0)
+        Upgrade::QuantumCooler(10.0)
     });
 
     // Offer module packs.
     // TODO: Get weight from level / level config.
-    if !upgrade_history.took_fireball_pack && rng.gen_bool((0.2 * level as f64).clamp(0.0, 1.0)) {
+    if rng.gen_bool(
+        (0.2 * level as f64 / (upgrade_history.took_fireball_packs + 1) as f64).clamp(0.0, 1.0),
+    ) {
         upgrades.push(Upgrade::FireballPack(vec![]));
     }
     // TODO: Get weight from level / level config.
-    if !upgrade_history.took_nothing_pack && rng.gen_bool((0.2 * level as f64).clamp(0.0, 1.0)) {
+    if rng.gen_bool(
+        (0.2 * level as f64 / (upgrade_history.took_nothing_packs + 1) as f64).clamp(0.0, 1.0),
+    ) {
         upgrades.push(Upgrade::NothingPack(vec![]));
     }
     for _ in upgrades.len()..6 {
         // TODO: Get weights from level / level config.
-        let choice = cq!(sample_weighted(rng, 5, |x| [1.0, 0.6, 0.7, 0.1, 0.1][x], 1)).index(0);
+        let choice = cq!(sample_weighted(
+            rng,
+            5,
+            |x| [1.0, 0.8, 0.6, 0.1, 0.08][x],
+            1,
+        ))
+        .index(0);
         upgrades.push(match choice {
             0 => Upgrade::MissilePack(vec![]),
             1 => Upgrade::RepairPack(vec![]),
@@ -408,7 +418,7 @@ fn generate_upgrades(
                 x @ ModuleAction::Nothing if x == action => 0.0,
                 ModuleAction::Nothing => 0.1,
                 x @ ModuleAction::Fireball if x == action => 0.0,
-                ModuleAction::Fireball => 0.1,
+                ModuleAction::Fireball => 0.08,
             })));
         }
 

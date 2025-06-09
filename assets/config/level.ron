@@ -4,7 +4,7 @@
         LevelSetup(
             name: "Alpha Centauri",
             enemy_deck: EnemyDeck(actions: [Missile, Missile, Missile]),
-            enemy_health: 16,
+            enemy_health: 15,
         ),
 
         // Level 1:
@@ -18,56 +18,56 @@
         LevelSetup(
             name: "Betelgeuse",
             enemy_deck: EnemyDeck(actions: [Laser, Laser, Missile, Missile, Missile]),
-            enemy_health: 80,
+            enemy_health: 75,
         ),
 
         // Level 3:
         LevelSetup(
             name: "Epsilon Ursae Majoris",
             enemy_deck: EnemyDeck(actions: [Laser, Laser, Laser, Missile, Missile, Missile, Missile]),
-            enemy_health: 140,
+            enemy_health: 115,
         ),
 
         // Level 4:
         LevelSetup(
             name: "Hadar",
             enemy_deck: EnemyDeck(actions: [Laser, Laser, Laser, Laser, Missile, Missile, Missile, Laser]),
-            enemy_health: 220,
+            enemy_health: 160,
         ),
 
         // Level 5:
         LevelSetup(
             name: "Bellatrix",
             enemy_deck: EnemyDeck(actions: [Laser, Laser, Laser, Laser, Laser, Laser, Laser]),
-            enemy_health: 300,
+            enemy_health: 220,
         ),
 
         // Level 6:
         LevelSetup(
             name: "Polaris",
             enemy_deck: EnemyDeck(actions: [Laser, Laser, Laser, Laser, Laser, Laser, Laser, Laser]),
-            enemy_health: 400,
+            enemy_health: 300,
         ),
 
         // Level 7:
         LevelSetup(
             name: "Fomalhaut",
             enemy_deck: EnemyDeck(actions: [Laser, Laser, Laser, Laser, Laser, Laser, Laser, Laser, Laser]),
-            enemy_health: 500,
+            enemy_health: 400,
         ),
 
         // Level 8:
         LevelSetup(
             name: "Omega Persei",
             enemy_deck: EnemyDeck(actions: [Laser, Laser, Laser, Laser, Laser, Laser, Laser, Laser, Laser]),
-            enemy_health: 600,
+            enemy_health: 500,
         ),
 
         // Level 9:
         LevelSetup(
             name: "???",
             enemy_deck: EnemyDeck(actions: [Laser, Laser, Laser, Laser, Laser, Laser, Laser, Laser, Laser, Missile, Missile, Missile, Missile, Missile, Missile, Missile, Missile, Laser, Fireball]),
-            enemy_health: 700,
+            enemy_health: 600,
         ),
     ],
 )
