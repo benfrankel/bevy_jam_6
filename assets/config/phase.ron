@@ -19,5 +19,5 @@
     enemy_cooldown_decay: 0.8,
     enemy_first_cooldown: 1.0,
     enemy_last_cooldown: 1.2,
-    enemy_escape_force: Vec2(0, 1000.0),
+    enemy_escape_force: Vec2(0, 50000.0),
 )
