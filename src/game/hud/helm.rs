@@ -375,10 +375,6 @@ impl Configure for IsStorage {
     }
 }
 
-fn plural(num: usize) -> &'static str {
-    if num == 1 { "" } else { "s" }
-}
-
 fn sync_storage_tooltip(
     player_deck: Res<PlayerDeck>,
     mut storage_query: Query<&mut Tooltip, With<IsStorage>>,
@@ -413,12 +409,13 @@ fn sync_storage_tooltip(
 
         tooltip.content = TooltipContent::Primary(RichText::from_sections(parse_rich(format!(
             "[b]Storage[r]\n\n\
-            There are {} reactor module{} remaining to draw:\n\n\
+            There {} {} reactor module{} remaining to draw:\n\n\
             - {} [b]starter{}[r]\n\
             - {} [b]repair{}[r]\n\
             - {} [b]missile{}[r]\n\
             - {} [b]laser{}[r]\n\
             - {} [b]fireball{}[r]",
+            are(total),
             total,
             plural(total),
             starts,
@@ -433,6 +430,14 @@ fn sync_storage_tooltip(
             plural(fireballs),
         ))));
     }
+}
+
+fn plural(num: usize) -> &'static str {
+    if num == 1 { "" } else { "s" }
+}
+
+fn are(num: usize) -> &'static str {
+    if num == 1 { "is" } else { "are" }
 }
 
 fn sync_storage_shake(
