@@ -7,9 +7,6 @@ use crate::game::deck::EnemyDeck;
 use crate::game::deck::PlayerDeck;
 use crate::game::level::Level;
 use crate::game::projectile::ProjectileConfig;
-use crate::game::projectile::fireball::fireball;
-use crate::game::projectile::laser::laser;
-use crate::game::projectile::missile::missile;
 use crate::game::ship::Weapon;
 use crate::game::stats::Stats;
 use crate::prelude::*;
@@ -187,22 +184,17 @@ fn on_module_action(
     // Perform action.
     match trigger.action {
         Action::Missile => {
+            let projectile = &projectile_config.projectiles["missile"];
             commands.spawn((
-                missile(
-                    rng,
-                    projectile_config,
-                    &game_assets,
-                    faction,
-                    flux,
-                    weapon_transform,
-                    trigger.target,
-                ),
+                projectile.generate(rng, faction, flux, weapon_transform, trigger.target),
                 DespawnOnExitState::<Level>::default(),
             ));
-            commands.spawn((
-                sfx_audio(&audio_settings, game_assets.missile_spawn_sfx.clone(), 1.0),
-                DespawnOnExitState::<Level>::default(),
-            ));
+            if let Some(spawn_sfx) = &projectile.spawn_sfx {
+                commands.spawn((
+                    sfx_audio(&audio_settings, spawn_sfx.clone(), 1.0),
+                    DespawnOnExitState::<Level>::default(),
+                ));
+            }
 
             if is_player {
                 stats.missiles += 1;
@@ -210,22 +202,17 @@ fn on_module_action(
         },
 
         Action::Laser => {
+            let projectile = &projectile_config.projectiles["laser"];
             commands.spawn((
-                laser(
-                    rng,
-                    projectile_config,
-                    &game_assets,
-                    faction,
-                    flux,
-                    weapon_transform,
-                    trigger.target,
-                ),
+                projectile.generate(rng, faction, flux, weapon_transform, trigger.target),
                 DespawnOnExitState::<Level>::default(),
             ));
-            commands.spawn((
-                sfx_audio(&audio_settings, game_assets.laser_spawn_sfx.clone(), 1.0),
-                DespawnOnExitState::<Level>::default(),
-            ));
+            if let Some(spawn_sfx) = &projectile.spawn_sfx {
+                commands.spawn((
+                    sfx_audio(&audio_settings, spawn_sfx.clone(), 1.0),
+                    DespawnOnExitState::<Level>::default(),
+                ));
+            }
 
             if is_player {
                 stats.lasers += 1;
@@ -233,22 +220,17 @@ fn on_module_action(
         },
 
         Action::Fireball => {
+            let projectile = &projectile_config.projectiles["fireball"];
             commands.spawn((
-                fireball(
-                    rng,
-                    projectile_config,
-                    &game_assets,
-                    faction,
-                    flux,
-                    weapon_transform,
-                    trigger.target,
-                ),
+                projectile.generate(rng, faction, flux, weapon_transform, trigger.target),
                 DespawnOnExitState::<Level>::default(),
             ));
-            commands.spawn((
-                sfx_audio(&audio_settings, game_assets.fireball_spawn_sfx.clone(), 1.0),
-                DespawnOnExitState::<Level>::default(),
-            ));
+            if let Some(spawn_sfx) = &projectile.spawn_sfx {
+                commands.spawn((
+                    sfx_audio(&audio_settings, spawn_sfx.clone(), 1.0),
+                    DespawnOnExitState::<Level>::default(),
+                ));
+            }
 
             if is_player {
                 stats.fireballs += 1;

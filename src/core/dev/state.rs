@@ -17,7 +17,7 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
-pub(super) fn on_load(config: &DevConfig, world: &mut World) {
+pub(super) fn on_load(config: &mut DevConfig, world: &mut World) {
     r!(world.get_resource_mut::<StateDebugSettings>()).log_flush = config.log_state_flush;
     if let Some(screen) = config.initial_screen {
         r!(world.get_resource_mut::<NextStateBuffer<Screen>>()).enter(screen);

@@ -24,8 +24,7 @@ fn spawn_help_menu(mut commands: Commands, menu_root: Res<MenuRoot>, player_deck
                     The reactor will always activate the first matching module from the top left.\
                     \n\n\
                     > When a module activates, it gains [b]heat[r] equal to the length of the current \
-                    chain, which might make it overheat! [b]Flux[r] tracks the length of the longest \
-                    chain and boosts your power.\
+                    chain, while [b]flux[r] tracks the longest chain and boosts your power.\
                     \n\n",
                     player_deck.name,
                 ),

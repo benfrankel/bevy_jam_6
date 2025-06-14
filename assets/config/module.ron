@@ -1,0 +1,8 @@
+(
+    actions: [
+        ActionTemplate(
+            name: "Fireball",
+
+        ),
+    ],
+)

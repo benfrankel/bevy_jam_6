@@ -11,7 +11,7 @@ pub trait Config: Asset + Serialize + for<'de> Deserialize<'de> {
     const FILE: &'static str;
     const FOLDER: &'static str = "config";
 
-    fn on_load(&self, world: &mut World) {
+    fn on_load(&mut self, world: &mut World) {
         let _ = world;
     }
 
@@ -55,7 +55,7 @@ fn apply_config<C: Config>(world: &mut World, mut cursor: Local<EventCursor<Asse
         .read(r!(world.get_resource::<Events<AssetEvent<_>>>()))
         .any(|event| {
             let handle = &r!(world.get_resource::<ConfigHandle<C>>()).0;
-            event.is_loaded_with_dependencies(handle) || event.is_modified(handle)
+            event.is_loaded_with_dependencies(handle)
         })
     {
         return;
@@ -66,9 +66,9 @@ fn apply_config<C: Config>(world: &mut World, mut cursor: Local<EventCursor<Asse
         r!(world.get_resource::<FrameCount>()).0,
         type_name::<C>(),
     );
-    world.resource_scope(|world, config: Mut<Assets<C>>| {
+    world.resource_scope(|world, mut config: Mut<Assets<C>>| {
         let config_handle = r!(world.get_resource::<ConfigHandle<C>>());
-        let config = r!(config.get(&config_handle.0));
+        let config = r!(config.get_mut(&config_handle.0));
         config.on_load(world);
     });
 }

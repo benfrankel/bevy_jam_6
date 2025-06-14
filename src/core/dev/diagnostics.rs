@@ -39,7 +39,7 @@ const FILTER: [DiagnosticPath; 8] = [
 ];
 
 /// Enable diagnostics determined by the loaded config.
-pub(super) fn on_load(config: &DevConfig, world: &mut World) {
+pub(super) fn on_load(config: &mut DevConfig, world: &mut World) {
     let mut paths = vec![];
 
     if config.log_frame_time {

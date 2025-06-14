@@ -28,7 +28,7 @@ struct CameraConfig {
 impl Config for CameraConfig {
     const FILE: &'static str = "camera.ron";
 
-    fn on_load(&self, world: &mut World) {
+    fn on_load(&mut self, world: &mut World) {
         let camera = r!(world.get_resource::<CameraRoot>()).primary;
         let projection = r!(world.query::<&mut Projection>().get_mut(world, camera));
 
