@@ -1,6 +1,7 @@
 use bevy::asset::load_internal_binary_asset;
 use bevy::asset::weak_handle;
 
+use crate::core::camera::CameraRoot;
 use crate::core::window::WindowRoot;
 use crate::prelude::*;
 
@@ -17,19 +18,12 @@ pub(super) fn plugin(app: &mut App) {
         "../../assets/font/pypx-B.ttf",
         |bytes: &[u8], _path: String| Font::try_from_bytes(bytes.to_vec()).unwrap()
     );
-    load_internal_binary_asset!(
-        app,
-        THICK_FONT_HANDLE,
-        "../../assets/font/pypx-T.ttf",
-        |bytes: &[u8], _path: String| Font::try_from_bytes(bytes.to_vec()).unwrap()
-    );
 
     app.configure::<DynamicFontSize>();
 }
 
 pub const FONT_HANDLE: Handle<Font> = weak_handle!("7bb72ab4-990c-4656-b7f1-08f1f2a2e72a");
 pub const BOLD_FONT_HANDLE: Handle<Font> = weak_handle!("b30e0c4e-52cb-4775-aaeb-ced1b93a4cd0");
-pub const THICK_FONT_HANDLE: Handle<Font> = weak_handle!("b099a4e0-1119-4ff7-b4c0-4a80ed5c5765");
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
@@ -71,12 +65,20 @@ impl DynamicFontSize {
 }
 
 pub fn apply_dynamic_font_size(
+    camera_root: Res<CameraRoot>,
+    camera_query: Query<&Camera>,
     window_root: Res<WindowRoot>,
     window_query: Query<&Window>,
     mut text_query: Query<(&DynamicFontSize, &ComputedNode, &mut RichText)>,
 ) {
-    let window = rq!(window_query.get(window_root.primary));
-    let viewport_size = window.resolution.size();
+    let camera = rq!(camera_query.get(camera_root.primary));
+    let viewport_size = if let Some(viewport) = &camera.viewport {
+        viewport.physical_size
+    } else {
+        let window = rq!(window_query.get(window_root.primary));
+        window.resolution.physical_size()
+    }
+    .as_vec2();
 
     for (font_size, computed_node, mut text) in &mut text_query {
         // Compute font size.
@@ -99,7 +101,7 @@ pub fn apply_dynamic_font_size(
     }
 }
 
-/// Parses a "rich text" string with tags `"[r]"`, `"[b]"`, and `"[t]"`.
+/// Parses a "rich text" string with tags `"[r]"`, `"[b]"`, and `"[s]"`.
 pub fn parse_rich(text: impl AsRef<str>) -> Vec<TextSection> {
     let styles = HashMap::from([
         (
@@ -113,13 +115,6 @@ pub fn parse_rich(text: impl AsRef<str>) -> Vec<TextSection> {
             "b",
             TextStyle {
                 font: BOLD_FONT_HANDLE,
-                ..default()
-            },
-        ),
-        (
-            "t",
-            TextStyle {
-                font: THICK_FONT_HANDLE,
                 ..default()
             },
         ),

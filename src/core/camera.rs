@@ -60,6 +60,7 @@ impl FromWorld for CameraRoot {
             primary: world
                 .spawn((
                     Name::new("PrimaryCamera"),
+                    IsDefaultUiCamera,
                     Camera2d,
                     Letterbox(16.0 / 9.0),
                     Projection::Orthographic(OrthographicProjection {
@@ -71,7 +72,6 @@ impl FromWorld for CameraRoot {
                         target: Entity::PLACEHOLDER,
                         rate: Vec2::splat(100.0),
                     },
-                    IsDefaultUiCamera,
                     Shake {
                         exponent: 2.0,
                         ..default()
