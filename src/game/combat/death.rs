@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<(OnDeath, IsDead)>();
+    app.configure::<(OnDeath, Dead)>();
 }
 
 #[derive(Event, Reflect, Debug)]
@@ -15,9 +15,9 @@ impl Configure for OnDeath {
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-pub struct IsDead;
+pub struct Dead;
 
-impl Configure for IsDead {
+impl Configure for Dead {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.add_observer(mark_dead_on_death);
@@ -26,5 +26,5 @@ impl Configure for IsDead {
 
 fn mark_dead_on_death(trigger: Trigger<OnDeath>, mut commands: Commands) {
     let target = rq!(trigger.get_target());
-    commands.entity(target).try_insert(IsDead);
+    commands.entity(target).try_insert(Dead);
 }

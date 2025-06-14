@@ -1,18 +1,18 @@
 use crate::core::audio::AudioSettings;
 use crate::core::audio::sfx_audio;
 use crate::game::GameAssets;
-use crate::game::combat::death::IsDead;
+use crate::game::combat::death::Dead;
 use crate::game::combat::faction::Faction;
 use crate::game::combat::health::Health;
 use crate::game::level::Level;
-use crate::game::ship::IsEnemyShip;
-use crate::game::ship::IsPlayerShip;
-use crate::game::ship::IsPlayerShipBody;
+use crate::game::ship::EnemyShip;
+use crate::game::ship::PlayerShip;
+use crate::game::ship::PlayerShipBody;
 use crate::game::stats::Stats;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<(ConfigHandle<DamageConfig>, Damage, OnDamage, IsDamagePopup)>();
+    app.configure::<(ConfigHandle<DamageConfig>, Damage, OnDamage, DamagePopup)>();
 }
 
 #[derive(Component, Reflect, Debug)]
@@ -87,7 +87,7 @@ fn deal_damage_on_collision(
 
 fn reduce_health_on_damage(
     trigger: Trigger<OnDamage>,
-    mut health_query: Query<&mut Health, Without<IsDead /* Stop! He's already dead! */>>,
+    mut health_query: Query<&mut Health, Without<Dead /* Stop! He's already dead! */>>,
 ) {
     let target = r!(trigger.get_target());
     rq!(health_query.get_mut(target)).current -= trigger.0;
@@ -107,9 +107,9 @@ fn play_ship_hurt_sfx_on_damage(
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
-struct IsDamagePopup;
+struct DamagePopup;
 
-impl Configure for IsDamagePopup {
+impl Configure for DamagePopup {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.add_observer(spawn_damage_popup_on_damage);
@@ -127,9 +127,9 @@ fn spawn_damage_popup_on_damage(
     mut commands: Commands,
     assets: Res<Assets<Image>>,
     damage_config: ConfigRef<DamageConfig>,
-    player_ship: Single<Entity, With<IsPlayerShip>>,
-    player_ship_body: Single<(&Sprite, &GlobalTransform), With<IsPlayerShipBody>>,
-    enemy_ship: Single<(Entity, &Sprite, &Transform), With<IsEnemyShip>>,
+    player_ship: Single<Entity, With<PlayerShip>>,
+    player_ship_body: Single<(&Sprite, &GlobalTransform), With<PlayerShipBody>>,
+    enemy_ship: Single<(Entity, &Sprite, &Transform), With<EnemyShip>>,
 ) {
     let target = r!(trigger.get_target());
     let damage_config = r!(damage_config.get());
@@ -160,7 +160,7 @@ fn spawn_damage_popup_on_damage(
 
     commands.spawn((
         Name::new("DamagePopup"),
-        IsDamagePopup,
+        DamagePopup,
         Text2d::new("-".to_string()),
         TextFont {
             font: FONT_HANDLE,
@@ -189,7 +189,7 @@ fn apply_fade_out_to_damage_popup(
     mut commands: Commands,
     time: Res<Time>,
     damage_config: ConfigRef<DamageConfig>,
-    damage_popup_query: Query<(Entity, &Children), With<IsDamagePopup>>,
+    damage_popup_query: Query<(Entity, &Children), With<DamagePopup>>,
     mut text_color_query: Query<&mut TextColor>,
 ) {
     let damage_config = r!(damage_config.get());

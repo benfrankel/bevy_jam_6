@@ -1,4 +1,4 @@
-use crate::game::combat::death::IsDead;
+use crate::game::combat::death::Dead;
 use crate::game::combat::death::OnDeath;
 use crate::game::level::Level;
 use crate::prelude::*;
@@ -7,14 +7,14 @@ pub fn plugin(app: &mut App) {
     app.configure::<(
         ConfigHandle<HealthConfig>,
         Health,
-        IsHealthBar,
+        HealthBar,
         OnHeal,
-        IsHealPopup,
+        HealPopup,
     )>();
 }
 
 pub fn health_bar() -> impl Bundle {
-    (Name::new("HealthBar"), IsHealthBar)
+    (Name::new("HealthBar"), HealthBar)
 }
 
 #[derive(Asset, Reflect, Serialize, Deserialize, Default)]
@@ -80,7 +80,7 @@ impl Configure for Health {
 
 fn detect_death_from_health(
     mut commands: Commands,
-    health_query: Query<(Entity, &Health), (Changed<Health>, Without<IsDead>)>,
+    health_query: Query<(Entity, &Health), (Changed<Health>, Without<Dead>)>,
 ) {
     for (entity, health) in &health_query {
         rq!(health.current <= f32::EPSILON);
@@ -98,9 +98,9 @@ fn clamp_health(mut health_query: Query<&mut Health, Changed<Health>>) {
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
 #[require(Sprite)]
-pub struct IsHealthBar;
+pub struct HealthBar;
 
-impl Configure for IsHealthBar {
+impl Configure for HealthBar {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.add_systems(Update, sync_health_bar.in_set(UpdateSystems::SyncLate));
@@ -110,7 +110,7 @@ impl Configure for IsHealthBar {
 fn sync_health_bar(
     health_config: ConfigRef<HealthConfig>,
     health_query: Query<&Health>,
-    mut health_bar_query: Query<(&ChildOf, &mut Sprite), With<IsHealthBar>>,
+    mut health_bar_query: Query<(&ChildOf, &mut Sprite), With<HealthBar>>,
 ) {
     let health_config = r!(health_config.get());
     for (child_of, mut sprite) in &mut health_bar_query {
@@ -140,9 +140,9 @@ fn increase_health_on_heal(trigger: Trigger<OnHeal>, mut health_query: Query<&mu
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
-struct IsHealPopup;
+struct HealPopup;
 
-impl Configure for IsHealPopup {
+impl Configure for HealPopup {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.add_observer(spawn_heal_popup_on_heal);
@@ -181,7 +181,7 @@ fn spawn_heal_popup_on_heal(
     transform.scale = (transform.scale.xy() * Vec2::splat(scale)).extend(transform.scale.z);
 
     commands.spawn((
-        IsHealPopup,
+        HealPopup,
         Text2d::new("+".to_string()),
         TextFont {
             font: FONT_HANDLE,
@@ -210,7 +210,7 @@ fn apply_fade_out_to_heal_popup(
     mut commands: Commands,
     time: Res<Time>,
     health_config: ConfigRef<HealthConfig>,
-    heal_popup_query: Query<(Entity, &Children), With<IsHealPopup>>,
+    heal_popup_query: Query<(Entity, &Children), With<HealPopup>>,
     mut text_color_query: Query<&mut TextColor>,
 ) {
     let health_config = r!(health_config.get());

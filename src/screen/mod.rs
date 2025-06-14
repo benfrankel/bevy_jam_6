@@ -7,7 +7,7 @@ use crate::core::camera::CameraRoot;
 use crate::game::level::Level;
 use crate::menu::Menu;
 use crate::prelude::*;
-use crate::theme::widget::IsLoadingBarFill;
+use crate::theme::widget::LoadingBarFill;
 
 pub fn plugin(app: &mut App) {
     app.configure::<(ScreenRoot, Screen, ScreenTime)>();
@@ -58,7 +58,7 @@ impl Configure for Screen {
     fn configure(app: &mut App) {
         app.init_state::<Self>();
         app.add_plugins(ProgressPlugin::<BevyState<Self>>::new());
-        app.configure::<IsLoadingBarFill<Self>>();
+        app.configure::<LoadingBarFill<Self>>();
         app.add_systems(
             StateFlush,
             Screen::ANY.on_exit((

@@ -5,7 +5,7 @@ use crate::game::module::ModuleStatus;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<IsModuleSlotGlow>();
+    app.configure::<ModuleSlotGlow>();
 }
 
 pub fn module(game_assets: &GameAssets, module: Module, heat_capacity: f32) -> impl Bundle {
@@ -76,7 +76,7 @@ pub fn module(game_assets: &GameAssets, module: Module, heat_capacity: f32) -> i
             ),
             (
                 Name::new("Glow"),
-                IsModuleSlotGlow,
+                ModuleSlotGlow,
                 ImageNode::from(glow).with_color(Color::srgb(0.831, 0.463, 0.459).with_alpha(heat)),
                 Node::default().full_size().abs(),
                 ZIndex(1),
@@ -88,9 +88,9 @@ pub fn module(game_assets: &GameAssets, module: Module, heat_capacity: f32) -> i
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-struct IsModuleSlotGlow;
+struct ModuleSlotGlow;
 
-impl Configure for IsModuleSlotGlow {
+impl Configure for ModuleSlotGlow {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
     }

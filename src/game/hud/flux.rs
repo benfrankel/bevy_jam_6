@@ -5,7 +5,7 @@ use crate::game::phase::Phase;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<IsFluxLabel>();
+    app.configure::<FluxLabel>();
 }
 
 pub fn flux_display() -> impl Bundle {
@@ -26,7 +26,7 @@ pub fn flux_display() -> impl Bundle {
             ),
         ),
         children![(
-            IsFluxLabel,
+            FluxLabel,
             widget::colored_label(default(), ""),
             NodeShake::default(),
         )],
@@ -35,16 +35,16 @@ pub fn flux_display() -> impl Bundle {
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-struct IsFluxLabel;
+struct FluxLabel;
 
-impl Configure for IsFluxLabel {
+impl Configure for FluxLabel {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.add_systems(
             Update,
             sync_flux_label
                 .in_set(UpdateSystems::SyncLate)
-                .run_if(resource_changed::<PlayerDeck>.or(any_match_filter::<Added<IsFluxLabel>>)),
+                .run_if(resource_changed::<PlayerDeck>.or(any_match_filter::<Added<FluxLabel>>)),
         );
         app.add_systems(StateFlush, Phase::ANY.on_enter(sync_flux_display_to_phase));
     }
@@ -52,7 +52,7 @@ impl Configure for IsFluxLabel {
 
 fn sync_flux_display_to_phase(
     phase: NextRef<Phase>,
-    mut label_query: Query<&ChildOf, With<IsFluxLabel>>,
+    mut label_query: Query<&ChildOf, With<FluxLabel>>,
     mut border_query: Query<&mut ThemeColorFor<BorderColor>>,
 ) {
     for child_of in &mut label_query {
@@ -70,7 +70,7 @@ fn sync_flux_label(
     player_deck: Res<PlayerDeck>,
     mut label_query: Query<
         (&mut RichText, &mut ThemeColorForText, &mut NodeShake),
-        With<IsFluxLabel>,
+        With<FluxLabel>,
     >,
 ) {
     let hud_config = r!(hud_config.get());

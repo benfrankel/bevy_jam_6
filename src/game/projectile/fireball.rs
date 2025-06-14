@@ -12,14 +12,14 @@ use crate::game::projectile::projectile;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<IsFireball>();
+    app.configure::<Fireball>();
 }
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-pub struct IsFireball;
+pub struct Fireball;
 
-impl Configure for IsFireball {
+impl Configure for Fireball {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
     }
@@ -57,7 +57,7 @@ pub fn fireball(
 
     (
         Name::new("Fireball"),
-        IsFireball,
+        Fireball,
         projectile(faction, transform),
         Sprite::from_image(game_assets.fireball.clone()),
         Damage(projectile_config.fireball_damage * flux),

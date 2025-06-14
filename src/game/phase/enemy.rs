@@ -2,7 +2,7 @@ use crate::animation::oscillate::Oscillate;
 use crate::core::audio::AudioSettings;
 use crate::core::audio::sfx_audio;
 use crate::game::GameAssets;
-use crate::game::combat::death::IsDead;
+use crate::game::combat::death::Dead;
 use crate::game::deck::EnemyDeck;
 use crate::game::level::Level;
 use crate::game::module::OnModuleAction;
@@ -12,8 +12,8 @@ use crate::game::phase::Round;
 use crate::game::phase::Step;
 use crate::game::phase::StepTimer;
 use crate::game::phase::on_step_timer;
-use crate::game::ship::IsEnemyShip;
-use crate::game::ship::IsPlayerShip;
+use crate::game::ship::EnemyShip;
+use crate::game::ship::PlayerShip;
 use crate::menu::Menu;
 use crate::prelude::*;
 
@@ -37,7 +37,7 @@ fn reset_step_timer_for_enemy(
     phase_config: ConfigRef<PhaseConfig>,
     mut step_timer: ResMut<StepTimer>,
     enemy_deck: Res<EnemyDeck>,
-    enemy_is_dead: Single<Has<IsDead>, With<IsEnemyShip>>,
+    enemy_is_dead: Single<Has<Dead>, With<EnemyShip>>,
 ) {
     if *enemy_is_dead || enemy_deck.is_done(round.0) {
         step_timer.0 = Timer::from_seconds(0.0, TimerMode::Once);
@@ -57,10 +57,10 @@ fn step_enemy_phase(
     mut step_timer: ResMut<StepTimer>,
     mut enemy_deck: ResMut<EnemyDeck>,
     mut enemy_ship: Single<
-        (Entity, Has<IsDead>, &mut ExternalForce, &mut Oscillate),
-        With<IsEnemyShip>,
+        (Entity, Has<Dead>, &mut ExternalForce, &mut Oscillate),
+        With<EnemyShip>,
     >,
-    player_ship: Single<Entity, With<IsPlayerShip>>,
+    player_ship: Single<Entity, With<PlayerShip>>,
     audio_settings: Res<AudioSettings>,
     game_assets: Res<GameAssets>,
     mut menu: ResMut<NextStateStack<Menu>>,

@@ -32,7 +32,7 @@ impl Configure for AudioSettings {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.init_resource::<Self>();
-        app.configure::<(IsMusicAudio, IsSfxAudio, IsUiAudio)>();
+        app.configure::<(MusicAudio, SfxAudio, UiAudio)>();
         app.add_systems(
             Update,
             apply_audio_settings
@@ -58,9 +58,9 @@ impl AudioSettings {
 
 fn apply_audio_settings(
     audio_settings: Res<AudioSettings>,
-    music_audio_query: Query<Entity, With<IsMusicAudio>>,
-    sfx_audio_query: Query<Entity, With<IsSfxAudio>>,
-    ui_audio_query: Query<Entity, With<IsUiAudio>>,
+    music_audio_query: Query<Entity, With<MusicAudio>>,
+    sfx_audio_query: Query<Entity, With<SfxAudio>>,
+    ui_audio_query: Query<Entity, With<UiAudio>>,
     mut volume_query: Query<(Option<&mut PlaybackSettings>, Option<&mut AudioSink>)>,
 ) {
     // Apply music volume.
@@ -102,9 +102,9 @@ fn apply_audio_settings(
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-pub struct IsMusicAudio;
+pub struct MusicAudio;
 
-impl Configure for IsMusicAudio {
+impl Configure for MusicAudio {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
     }
@@ -113,17 +113,17 @@ impl Configure for IsMusicAudio {
 pub fn music_audio(audio_settings: &AudioSettings, handle: Handle<AudioSource>) -> impl Bundle {
     (
         Name::new("MusicAudio"),
+        MusicAudio,
         AudioPlayer(handle),
         PlaybackSettings::LOOP.with_volume(audio_settings.music_volume()),
-        IsMusicAudio,
     )
 }
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-pub struct IsSfxAudio;
+pub struct SfxAudio;
 
-impl Configure for IsSfxAudio {
+impl Configure for SfxAudio {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
     }
@@ -136,19 +136,19 @@ pub fn sfx_audio(
 ) -> impl Bundle {
     (
         Name::new("SfxAudio"),
+        SfxAudio,
         AudioPlayer(handle),
         PlaybackSettings::DESPAWN
             .with_volume(audio_settings.sfx_volume())
             .with_speed(speed),
-        IsSfxAudio,
     )
 }
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-pub struct IsUiAudio;
+pub struct UiAudio;
 
-impl Configure for IsUiAudio {
+impl Configure for UiAudio {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
     }
@@ -157,10 +157,10 @@ impl Configure for IsUiAudio {
 pub fn ui_audio(audio_settings: &AudioSettings, handle: Handle<AudioSource>) -> impl Bundle {
     (
         Name::new("UiAudio"),
+        UiAudio,
         AudioPlayer(handle),
         PlaybackSettings::DESPAWN
             .with_volume(audio_settings.ui_volume())
             .with_speed(thread_rng().gen_range(0.9..1.5)),
-        IsUiAudio,
     )
 }

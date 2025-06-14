@@ -9,7 +9,7 @@ use crate::prelude::*;
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(
         ConfigHandle<ProjectileConfig>,
-        IsProjectile,
+        Projectile,
         Thruster,
         Homing,
         RotateWithVelocity,
@@ -115,9 +115,9 @@ impl Default for ProjectileConfig {
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-struct IsProjectile;
+struct Projectile;
 
-impl Configure for IsProjectile {
+impl Configure for Projectile {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
     }
@@ -125,7 +125,7 @@ impl Configure for IsProjectile {
 
 fn projectile(faction: Faction, transform: Transform) -> impl Bundle {
     (
-        IsProjectile,
+        Projectile,
         faction,
         RigidBody::Dynamic,
         Mass(1.0),

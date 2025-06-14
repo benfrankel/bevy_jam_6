@@ -2,7 +2,7 @@ use crate::animation::oscillate::Oscillate;
 use crate::core::audio::AudioSettings;
 use crate::core::audio::sfx_audio;
 use crate::game::GameAssets;
-use crate::game::combat::death::IsDead;
+use crate::game::combat::death::Dead;
 use crate::game::deck::PlayerDeck;
 use crate::game::level::Level;
 use crate::game::phase::Phase;
@@ -10,7 +10,7 @@ use crate::game::phase::PhaseConfig;
 use crate::game::phase::Step;
 use crate::game::phase::StepTimer;
 use crate::game::phase::on_step_timer;
-use crate::game::ship::IsPlayerShip;
+use crate::game::ship::PlayerShip;
 use crate::menu::Menu;
 use crate::prelude::*;
 
@@ -49,7 +49,7 @@ fn step_setup_phase(
     step: Res<Step>,
     mut step_timer: ResMut<StepTimer>,
     mut player_deck: ResMut<PlayerDeck>,
-    mut player_ship: Single<(Entity, Has<IsDead>, &mut Oscillate), With<IsPlayerShip>>,
+    mut player_ship: Single<(Entity, Has<Dead>, &mut Oscillate), With<PlayerShip>>,
     audio_settings: Res<AudioSettings>,
     game_assets: Res<GameAssets>,
     mut menu: ResMut<NextStateStack<Menu>>,

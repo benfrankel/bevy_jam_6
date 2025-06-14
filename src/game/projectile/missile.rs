@@ -13,14 +13,14 @@ use crate::game::projectile::projectile;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<IsMissile>();
+    app.configure::<Missile>();
 }
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-pub struct IsMissile;
+pub struct Missile;
 
-impl Configure for IsMissile {
+impl Configure for Missile {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
     }
@@ -57,7 +57,7 @@ pub fn missile(
 
     (
         Name::new("Missile"),
-        IsMissile,
+        Missile,
         projectile(faction, transform),
         Sprite::from_image(game_assets.missile.clone()),
         Damage(projectile_config.missile_damage * flux),

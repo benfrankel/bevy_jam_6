@@ -361,20 +361,18 @@ pub fn loading_bar<S: State + Clone + PartialEq + Eq + Hash + Debug>() -> impl B
             Name::new("LoadingBarFill"),
             Node::DEFAULT.full_height(),
             ThemeColor::Primary.set::<BackgroundColor>(),
-            IsLoadingBarFill::<S>(PhantomData),
+            LoadingBarFill::<S>(PhantomData),
         )],
     )
 }
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
-pub struct IsLoadingBarFill<S: State + Clone + PartialEq + Eq + Hash + Debug>(
+pub struct LoadingBarFill<S: State + Clone + PartialEq + Eq + Hash + Debug>(
     #[reflect(ignore)] PhantomData<S>,
 );
 
-impl<S: State + Clone + PartialEq + Eq + Hash + Debug + TypePath> Configure
-    for IsLoadingBarFill<S>
-{
+impl<S: State + Clone + PartialEq + Eq + Hash + Debug + TypePath> Configure for LoadingBarFill<S> {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.add_systems(
@@ -386,7 +384,7 @@ impl<S: State + Clone + PartialEq + Eq + Hash + Debug + TypePath> Configure
 
 fn update_loading_bar_fill<S: State + Clone + PartialEq + Eq + Hash + Debug>(
     progress: Res<ProgressTracker<BevyState<S>>>,
-    mut fill_query: Query<&mut Node, With<IsLoadingBarFill<S>>>,
+    mut fill_query: Query<&mut Node, With<LoadingBarFill<S>>>,
 ) {
     let Progress { done, total } = progress.get_global_combined_progress();
     for mut node in &mut fill_query {

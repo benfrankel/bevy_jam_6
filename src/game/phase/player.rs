@@ -5,8 +5,8 @@ use crate::game::phase::PhaseConfig;
 use crate::game::phase::Step;
 use crate::game::phase::StepTimer;
 use crate::game::phase::on_step_timer;
-use crate::game::ship::IsEnemyShip;
-use crate::game::ship::IsPlayerShip;
+use crate::game::ship::EnemyShip;
+use crate::game::ship::PlayerShip;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -44,8 +44,8 @@ fn step_player_phase(
     step: Res<Step>,
     mut step_timer: ResMut<StepTimer>,
     mut player_deck: ResMut<PlayerDeck>,
-    player_ship: Single<Entity, With<IsPlayerShip>>,
-    enemy_ship: Single<Entity, With<IsEnemyShip>>,
+    player_ship: Single<Entity, With<PlayerShip>>,
+    enemy_ship: Single<Entity, With<EnemyShip>>,
 ) {
     let phase_config = r!(phase_config.get());
 

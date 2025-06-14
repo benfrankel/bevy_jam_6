@@ -16,7 +16,13 @@ use crate::prelude::*;
 use crate::screen::gameplay::GameplayAction;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<(IsPhaseDisplay, IsHand, HandIndex, IsStorage, IsStorageLabel)>();
+    app.configure::<(
+        PhaseDisplay,
+        HandDisplay,
+        HandIndex,
+        StorageDisplay,
+        StorageLabel,
+    )>();
 }
 
 pub fn helm(game_assets: &GameAssets) -> impl Bundle {
@@ -27,7 +33,7 @@ pub fn helm(game_assets: &GameAssets) -> impl Bundle {
             aspect_ratio: Some(356.0 / 58.0),
             ..Node::ROW.full_width()
         },
-        children![left_helm(), hand(), right_helm(game_assets)],
+        children![left_helm(), hand_display(), right_helm(game_assets)],
     )
 }
 
@@ -46,7 +52,7 @@ fn left_helm() -> impl Bundle {
 fn phase_display() -> impl Bundle {
     (
         Name::new("PhaseDisplay"),
-        IsPhaseDisplay,
+        PhaseDisplay,
         ImageNode::default(),
         Node {
             width: Vw(9.1666),
@@ -57,8 +63,12 @@ fn phase_display() -> impl Bundle {
     )
 }
 
-fn hand() -> impl Bundle {
-    (Name::new("Hand"), IsHand, Node::ROW_CENTER.grow())
+fn hand_display() -> impl Bundle {
+    (
+        Name::new("HandDisplay"),
+        HandDisplay,
+        Node::ROW_CENTER.grow(),
+    )
 }
 
 fn right_helm(game_assets: &GameAssets) -> impl Bundle {
@@ -70,14 +80,14 @@ fn right_helm(game_assets: &GameAssets) -> impl Bundle {
             row_gap: Vw(0.41666),
             ..Node::COLUMN_CENTER.full_height()
         },
-        children![mini_buttons(game_assets), storage(game_assets)],
+        children![mini_buttons(game_assets), storage_display(game_assets)],
     )
 }
 
-fn storage(game_assets: &GameAssets) -> impl Bundle {
+fn storage_display(game_assets: &GameAssets) -> impl Bundle {
     (
-        Name::new("Storage"),
-        IsStorage,
+        Name::new("StorageDisplay"),
+        StorageDisplay,
         ImageNode::from(game_assets.module_face_down.clone()),
         Node {
             width: Vw(6.6666),
@@ -89,7 +99,7 @@ fn storage(game_assets: &GameAssets) -> impl Bundle {
         NodeShake::default(),
         children![(
             widget::small_colored_label(ThemeColor::IconText, ""),
-            IsStorageLabel,
+            StorageLabel,
         )],
     )
 }
@@ -199,9 +209,9 @@ where
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-struct IsPhaseDisplay;
+struct PhaseDisplay;
 
-impl Configure for IsPhaseDisplay {
+impl Configure for PhaseDisplay {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.add_systems(StateFlush, Phase::ANY.on_enter(sync_phase_display));
@@ -211,7 +221,7 @@ impl Configure for IsPhaseDisplay {
 fn sync_phase_display(
     phase: NextRef<Phase>,
     game_assets: Res<GameAssets>,
-    mut phase_display_query: Query<(&mut ImageNode, &mut Tooltip), With<IsPhaseDisplay>>,
+    mut phase_display_query: Query<(&mut ImageNode, &mut Tooltip), With<PhaseDisplay>>,
 ) {
     let phase = r!(phase.get());
     for (mut image_node, mut tooltip) in &mut phase_display_query {
@@ -240,25 +250,25 @@ fn sync_phase_display(
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-struct IsHand;
+struct HandDisplay;
 
-impl Configure for IsHand {
+impl Configure for HandDisplay {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.add_systems(
             Update,
-            sync_hand
+            sync_hand_display
                 .in_set(UpdateSystems::SyncLate)
                 .run_if(resource_changed::<PlayerDeck>.or(any_match_filter::<Added<Self>>)),
         );
     }
 }
 
-fn sync_hand(
+fn sync_hand_display(
     mut commands: Commands,
     game_assets: Res<GameAssets>,
     player_deck: Res<PlayerDeck>,
-    hand: Single<Entity, With<IsHand>>,
+    hand: Single<Entity, With<HandDisplay>>,
 ) {
     let selected_idx = player_deck.selected_idx;
     commands
@@ -356,18 +366,18 @@ fn play_or_discard_module_on_click(
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-struct IsStorage;
+struct StorageDisplay;
 
-impl Configure for IsStorage {
+impl Configure for StorageDisplay {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.add_systems(
             Update,
             (
-                sync_storage_tooltip
+                sync_storage_display_tooltip
                     .in_set(UpdateSystems::SyncLate)
                     .run_if(resource_changed::<PlayerDeck>.or(any_match_filter::<Added<Self>>)),
-                sync_storage_shake
+                sync_storage_display_shake
                     .in_set(UpdateSystems::SyncLate)
                     .run_if(resource_changed::<PlayerDeck>),
             ),
@@ -375,9 +385,9 @@ impl Configure for IsStorage {
     }
 }
 
-fn sync_storage_tooltip(
+fn sync_storage_display_tooltip(
     player_deck: Res<PlayerDeck>,
-    mut storage_query: Query<&mut Tooltip, With<IsStorage>>,
+    mut storage_query: Query<&mut Tooltip, With<StorageDisplay>>,
 ) {
     for mut tooltip in &mut storage_query {
         let total = player_deck.storage.len();
@@ -440,10 +450,10 @@ fn are(num: usize) -> &'static str {
     if num == 1 { "is" } else { "are" }
 }
 
-fn sync_storage_shake(
+fn sync_storage_display_shake(
     mut player_deck: ResMut<PlayerDeck>,
     hud_config: ConfigRef<HudConfig>,
-    mut shake: Single<&mut NodeShake, With<IsStorage>>,
+    mut shake: Single<&mut NodeShake, With<StorageDisplay>>,
 ) {
     let hud_config = r!(hud_config.get());
     rq!(player_deck.just_used_storage);
@@ -460,9 +470,9 @@ fn sync_storage_shake(
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-struct IsStorageLabel;
+struct StorageLabel;
 
-impl Configure for IsStorageLabel {
+impl Configure for StorageLabel {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.add_systems(
@@ -476,7 +486,7 @@ impl Configure for IsStorageLabel {
 
 fn sync_storage_label(
     player_deck: Res<PlayerDeck>,
-    mut storage_label_query: Query<&mut RichText, With<IsStorageLabel>>,
+    mut storage_label_query: Query<&mut RichText, With<StorageLabel>>,
 ) {
     for mut text in &mut storage_label_query {
         *text = RichText::from_sections(parse_rich(player_deck.storage.len().to_string()));

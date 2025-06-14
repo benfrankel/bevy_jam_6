@@ -9,7 +9,7 @@ use crate::game::combat::damage::OnDamage;
 use crate::game::combat::death::OnDeath;
 use crate::game::combat::faction::Faction;
 use crate::game::combat::health::Health;
-use crate::game::combat::health::IsHealthBar;
+use crate::game::combat::health::HealthBar;
 use crate::game::combat::health::health_bar;
 use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudConfig;
@@ -20,10 +20,10 @@ use crate::prelude::*;
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(
         ConfigHandle<ShipConfig>,
-        IsPlayerShip,
-        IsPlayerShipBody,
-        IsEnemyShip,
-        IsWeapon,
+        PlayerShip,
+        PlayerShipBody,
+        EnemyShip,
+        Weapon,
     )>();
 
     app.add_systems(
@@ -43,7 +43,7 @@ pub fn player_ship(ship_config: &ShipConfig, game_assets: &GameAssets, health: f
 
     (
         Name::new("PlayerShip"),
-        IsPlayerShip,
+        PlayerShip,
         Faction::Player,
         Health::new(health),
         Visibility::default(),
@@ -59,7 +59,7 @@ pub fn player_ship(ship_config: &ShipConfig, game_assets: &GameAssets, health: f
             ),
             (
                 Name::new("Body"),
-                IsPlayerShipBody,
+                PlayerShipBody,
                 Transform::default(),
                 Sprite::from_image(image),
                 Collider::rectangle(80.0, 10.0),
@@ -108,7 +108,7 @@ pub fn enemy_ship(ship_config: &ShipConfig, game_assets: &GameAssets, health: f3
 
     (
         Name::new("EnemyShip"),
-        IsEnemyShip,
+        EnemyShip,
         Faction::Enemy,
         Health::new(health),
         Sprite::from_image(game_assets.enemy_ship.clone()),
@@ -174,7 +174,7 @@ fn shake_enemy_ship_on_damage(
 fn weapon() -> impl Bundle {
     (
         Name::new("Weapon"),
-        IsWeapon,
+        Weapon,
         #[cfg(feature = "dev")]
         Collider::triangle(vec2(0.0, -2.0), vec2(0.0, 2.0), vec2(8.0, 0.0)),
     )
@@ -207,9 +207,9 @@ impl Config for ShipConfig {
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-pub struct IsPlayerShip;
+pub struct PlayerShip;
 
-impl Configure for IsPlayerShip {
+impl Configure for PlayerShip {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
     }
@@ -217,9 +217,9 @@ impl Configure for IsPlayerShip {
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-pub struct IsPlayerShipBody;
+pub struct PlayerShipBody;
 
-impl Configure for IsPlayerShipBody {
+impl Configure for PlayerShipBody {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
     }
@@ -227,9 +227,9 @@ impl Configure for IsPlayerShipBody {
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-pub struct IsEnemyShip;
+pub struct EnemyShip;
 
-impl Configure for IsEnemyShip {
+impl Configure for EnemyShip {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
     }
@@ -237,9 +237,9 @@ impl Configure for IsEnemyShip {
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-pub struct IsWeapon;
+pub struct Weapon;
 
-impl Configure for IsWeapon {
+impl Configure for Weapon {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
     }
@@ -251,7 +251,7 @@ fn navigate_player_ship_toward_selected_module(
     camera_query: Query<(&Camera, &GlobalTransform)>,
     hand_index_query: Query<(&HandIndex, &GlobalTransform, &ComputedNode)>,
     ship_config: ConfigRef<ShipConfig>,
-    player_ship: Single<(&mut LinearVelocity, &GlobalTransform), With<IsPlayerShip>>,
+    player_ship: Single<(&mut LinearVelocity, &GlobalTransform), With<PlayerShip>>,
     player_deck: Res<PlayerDeck>,
 ) {
     let ship_config = r!(ship_config.get());
@@ -283,8 +283,8 @@ fn navigate_player_ship_toward_selected_module(
 
 fn tilt_player_ship_with_velocity(
     ship_config: ConfigRef<ShipConfig>,
-    player_ship: Single<(&Children, &LinearVelocity, &MaxLinearSpeed), With<IsPlayerShip>>,
-    mut transform_query: Query<&mut Transform, Without<IsHealthBar>>,
+    player_ship: Single<(&Children, &LinearVelocity, &MaxLinearSpeed), With<PlayerShip>>,
+    mut transform_query: Query<&mut Transform, Without<HealthBar>>,
 ) {
     let ship_config = r!(ship_config.get());
     let (children, velocity, max_speed) = player_ship.into_inner();

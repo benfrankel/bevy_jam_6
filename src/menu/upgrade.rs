@@ -13,7 +13,7 @@ use crate::menu::MenuRoot;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<(UpgradeHistory, IsNextLevelButton, UpgradeSelector)>();
+    app.configure::<(UpgradeHistory, NextLevelButton, UpgradeSelector)>();
 
     app.add_systems(StateFlush, Menu::Upgrade.on_enter(spawn_upgrade_menu));
 }
@@ -52,7 +52,7 @@ fn spawn_upgrade_menu(
             widget::label("Choose 3 upgrades:"),
             offered_upgrades(&game_assets, upgrades),
             widget::row_of_buttons(children![(
-                IsNextLevelButton,
+                NextLevelButton,
                 widget::button("Pursue", enter_next_level),
                 Patch(|entity| {
                     r!(entity.get_mut::<InteractionDisabled>()).0 = true;
@@ -245,7 +245,7 @@ fn toggle_upgrade_selector(
     trigger: Trigger<Pointer<Click>>,
     mut selector_query: Query<(Entity, &mut UpgradeSelector, &mut Node)>,
     mut disabled_query: Query<&mut InteractionDisabled>,
-    button_query: Query<Entity, With<IsNextLevelButton>>,
+    button_query: Query<Entity, With<NextLevelButton>>,
 ) {
     rq!(matches!(trigger.event.button, PointerButton::Primary));
     let target = r!(trigger.get_target());
@@ -321,9 +321,9 @@ fn reset_upgrade_history(mut upgrade_history: ResMut<UpgradeHistory>) {
 
 #[derive(Component, Reflect, Debug, Copy, Clone)]
 #[reflect(Component)]
-struct IsNextLevelButton;
+struct NextLevelButton;
 
-impl Configure for IsNextLevelButton {
+impl Configure for NextLevelButton {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
     }

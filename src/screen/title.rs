@@ -1,5 +1,5 @@
 use crate::core::audio::AudioSettings;
-use crate::core::audio::IsMusicAudio;
+use crate::core::audio::MusicAudio;
 use crate::core::audio::music_audio;
 use crate::game::GameAssets;
 use crate::menu::Menu;
@@ -23,7 +23,7 @@ fn spawn_title_screen(
     mut commands: Commands,
     audio_settings: Res<AudioSettings>,
     title_assets: Res<TitleAssets>,
-    music_query: Query<(), With<IsMusicAudio>>,
+    music_query: Query<(), With<MusicAudio>>,
 ) {
     commands.spawn(background(&title_assets));
     if music_query.is_empty() {

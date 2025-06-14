@@ -11,14 +11,14 @@ use crate::game::projectile::projectile;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<IsLaser>();
+    app.configure::<Laser>();
 }
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-pub struct IsLaser;
+pub struct Laser;
 
-impl Configure for IsLaser {
+impl Configure for Laser {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
     }
@@ -53,7 +53,7 @@ pub fn laser(
 
     (
         Name::new("Laser"),
-        IsLaser,
+        Laser,
         projectile(faction, transform),
         Sprite::from_image(game_assets.laser.clone()),
         Damage(projectile_config.laser_damage * flux),

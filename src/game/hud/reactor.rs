@@ -12,7 +12,7 @@ use crate::game::phase::Phase;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<(IsModuleGrid, ReactorIndex)>();
+    app.configure::<(ReactorGrid, ReactorIndex)>();
 }
 
 pub fn reactor(game_assets: &GameAssets) -> impl Bundle {
@@ -25,13 +25,13 @@ pub fn reactor(game_assets: &GameAssets) -> impl Bundle {
             row_gap: Vw(1.69),
             ..Node::COLUMN_MID.full_height()
         },
-        children![flux_display(), module_grid()],
+        children![flux_display(), reactor_grid()],
     )
 }
 
-fn module_grid() -> impl Bundle {
+fn reactor_grid() -> impl Bundle {
     (
-        Name::new("ModuleGrid"),
+        Name::new("ReactorGrid"),
         Node {
             display: Display::Grid,
             row_gap: Vw(1.25),
@@ -39,43 +39,32 @@ fn module_grid() -> impl Bundle {
             grid_template_columns: RepeatedGridTrack::flex(3, 1.0),
             ..Node::default().full_width()
         },
-        IsModuleGrid,
+        ReactorGrid,
     )
 }
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-struct IsModuleGrid;
+struct ReactorGrid;
 
-impl Configure for IsModuleGrid {
+impl Configure for ReactorGrid {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.add_systems(
             Update,
-            sync_module_grid
+            sync_reactor_grid
                 .in_set(UpdateSystems::SyncLate)
                 .run_if(resource_changed::<PlayerDeck>.or(any_match_filter::<Added<Self>>)),
         );
     }
 }
 
-#[derive(Component, Reflect)]
-#[reflect(Component)]
-pub struct ReactorIndex(pub usize);
-
-impl Configure for ReactorIndex {
-    fn configure(app: &mut App) {
-        app.register_type::<Self>();
-        app.add_observer(discard_module_on_right_click);
-    }
-}
-
-fn sync_module_grid(
+fn sync_reactor_grid(
     mut commands: Commands,
     game_assets: Res<GameAssets>,
     hud_config: ConfigRef<HudConfig>,
     player_deck: Res<PlayerDeck>,
-    grid_query: Query<Entity, With<IsModuleGrid>>,
+    grid_query: Query<Entity, With<ReactorGrid>>,
 ) {
     let hud_config = r!(hud_config.get());
     for entity in &grid_query {
@@ -134,6 +123,17 @@ fn play_hover_sfx_on_hover(
         sfx_audio(&audio_settings, game_assets.module_hover_sfx.clone(), 1.0),
         DespawnOnExitState::<Level>::default(),
     ));
+}
+
+#[derive(Component, Reflect)]
+#[reflect(Component)]
+pub struct ReactorIndex(pub usize);
+
+impl Configure for ReactorIndex {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+        app.add_observer(discard_module_on_right_click);
+    }
 }
 
 fn discard_module_on_right_click(

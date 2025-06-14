@@ -10,7 +10,7 @@ use crate::game::projectile::ProjectileConfig;
 use crate::game::projectile::fireball::fireball;
 use crate::game::projectile::laser::laser;
 use crate::game::projectile::missile::missile;
-use crate::game::ship::IsWeapon;
+use crate::game::ship::Weapon;
 use crate::game::stats::Stats;
 use crate::prelude::*;
 
@@ -159,7 +159,7 @@ fn on_module_action(
     audio_settings: Res<AudioSettings>,
     ship_query: Query<(&Children, &Faction)>,
     children_query: Query<&Children>,
-    weapon_query: Query<&GlobalTransform, With<IsWeapon>>,
+    weapon_query: Query<&GlobalTransform, With<Weapon>>,
     mut stats: ResMut<Stats>,
 ) {
     let projectile_config = r!(projectile_config.get());
