@@ -48,7 +48,7 @@ impl Configure for Level {
         app.add_systems(
             StateFlush,
             Level::ANY.on_edge(
-                (reset_decks, reset_camera),
+                (reset_player_deck, reset_camera),
                 (
                     (set_up_decks, spawn_level).chain(),
                     (
@@ -68,19 +68,8 @@ fn reset_camera(camera_root: Res<CameraRoot>, mut camera_query: Query<&mut Shake
     *shake = default();
 }
 
-fn reset_decks(
-    deck_config: ConfigRef<DeckConfig>,
-    level: NextRef<Level>,
-    mut player_deck: ResMut<PlayerDeck>,
-    mut enemy_deck: ResMut<EnemyDeck>,
-) {
-    enemy_deck.reset();
-    if level.will_be_in(&Level(0)) {
-        let deck_config = r!(deck_config.get());
-        *player_deck = deck_config.initial_player_deck.clone();
-    } else {
-        player_deck.reset(&mut thread_rng());
-    }
+fn reset_player_deck(mut player_deck: ResMut<PlayerDeck>) {
+    player_deck.reset(&mut thread_rng());
 }
 
 fn set_up_decks(
@@ -96,7 +85,7 @@ fn set_up_decks(
     let deck_config = r!(deck_config.get());
 
     if level == 0 {
-        *player_deck = deck_config.initial_player_deck.clone();
+        *player_deck = deck_config.player_decks[0].clone();
     }
     *enemy_deck = level_setup.enemy_deck.clone();
 }

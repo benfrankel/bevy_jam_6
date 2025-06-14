@@ -12,7 +12,7 @@ pub(super) fn plugin(app: &mut App) {
 #[derive(Asset, Reflect, Serialize, Deserialize, Default, Debug)]
 #[serde(deny_unknown_fields, default)]
 pub struct DeckConfig {
-    pub initial_player_deck: PlayerDeck,
+    pub player_decks: Vec<PlayerDeck>,
 }
 
 impl Config for DeckConfig {
@@ -24,6 +24,7 @@ impl Config for DeckConfig {
 #[serde(deny_unknown_fields, default)]
 pub struct PlayerDeck {
     // Ship:
+    pub name: String,
     pub max_health: f32,
     pub heat_capacity: f32,
     pub weapons: Vec<Module>,
