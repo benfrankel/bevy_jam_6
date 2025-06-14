@@ -29,8 +29,8 @@ pub struct Module {
 
 impl Module {
     pub const EMPTY: Self = Self {
-        condition: Action::Blank,
-        effect: Action::Blank,
+        condition: Action::Start,
+        effect: Action::Start,
         status: ModuleStatus::SlotEmpty,
         heat: 0.0,
     };
@@ -46,14 +46,14 @@ impl Module {
 
     pub fn short_description(&self) -> String {
         let condition = match self.condition {
-            Action::Blank => "[b]Start[r] -> ",
+            Action::Start => "[b]Start[r] -> ",
             Action::Missile => "[b]Missile[r] -> ",
             Action::Laser => "[b]Laser[r] -> ",
             Action::Fireball => "[b]Fireball[r] -> ",
             Action::Repair => "[b]Repair[r] -> ",
         };
         let effect = match self.effect {
-            Action::Blank => "[b]Nothing[r]",
+            Action::Start => "[b]Nothing[r]",
             Action::Missile => "[b]Missile[r]",
             Action::Laser => "[b]Laser[r]",
             Action::Fireball => "[b]Fireball[r]",
@@ -74,14 +74,14 @@ impl Module {
             ModuleStatus::SlotEmpty => format!("{header}\n\nEmpty slot"),
             _ => {
                 let condition = match self.condition {
-                    Action::Blank => "at the start of a new chain, ",
+                    Action::Start => "at the start of a new chain, ",
                     Action::Missile => "after launching a missile, ",
                     Action::Laser => "after firing a laser, ",
                     Action::Fireball => "after unleashing a fireball, ",
                     Action::Repair => "after repairing the hull, ",
                 };
                 let effect = match (&self.condition, &self.effect) {
-                    (_, Action::Blank) => "end the chain",
+                    (_, Action::Start) => "end the chain",
                     (Action::Missile, Action::Missile) => "launch another missile",
                     (_, Action::Missile) => "launch a missile",
                     (Action::Laser, Action::Laser) => "fire another laser",
@@ -101,7 +101,7 @@ impl Module {
                 };
 
                 let stats = match self.effect {
-                    Action::Blank => "",
+                    Action::Start => "",
                     Action::Missile => "\n\n[b]Damage:[r] 1 times flux",
                     Action::Laser => "\n\n[b]Damage:[r] 2 times flux",
                     Action::Fireball => "\n\n[b]Damage:[r] 8 times flux",
@@ -117,7 +117,7 @@ impl Module {
 #[derive(Reflect, Serialize, Deserialize, Copy, Clone, Default, Eq, PartialEq, Debug)]
 pub enum Action {
     #[default]
-    Blank,
+    Start,
     Missile,
     Laser,
     Fireball,

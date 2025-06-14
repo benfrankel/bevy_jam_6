@@ -395,7 +395,7 @@ fn sync_storage_display_tooltip(
         let starts = player_deck
             .storage
             .iter()
-            .filter(|x| x.condition == Action::Blank || x.effect == Action::Blank)
+            .filter(|x| x.condition == Action::Start || x.effect == Action::Start)
             .count();
         let repairs = player_deck
             .storage

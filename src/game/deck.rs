@@ -68,7 +68,7 @@ impl PlayerDeck {
         self.flux = 0.0;
         self.chain = 0.0;
         self.action_queue.clear();
-        self.last_action = Action::Blank;
+        self.last_action = Action::Start;
         self.last_touched_idx = None;
 
         // Perform setup phase and select the middle module.
@@ -179,7 +179,7 @@ impl PlayerDeck {
             .or_else(|| {
                 self.reactor.iter().position(|slot| {
                     matches!(slot.status, ModuleStatus::SlotInactive)
-                        && slot.condition == Action::Blank
+                        && slot.condition == Action::Start
                 })
             })
     }
@@ -196,7 +196,7 @@ impl PlayerDeck {
             let slot = &mut self.reactor[idx];
 
             slot.status = ModuleStatus::SlotActive;
-            if slot.condition == Action::Blank {
+            if slot.condition == Action::Start {
                 self.chain = 0.0;
             }
             self.chain += 1.0;
@@ -208,7 +208,7 @@ impl PlayerDeck {
 
             true
         } else {
-            self.last_action = Action::Blank;
+            self.last_action = Action::Start;
             self.last_touched_idx = None;
             false
         }

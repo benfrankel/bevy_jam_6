@@ -1,6 +1,6 @@
 use crate::game::GameAssets;
-use crate::game::module::Module;
 use crate::game::module::Action;
+use crate::game::module::Module;
 use crate::game::module::ModuleStatus;
 use crate::prelude::*;
 
@@ -20,7 +20,7 @@ pub fn module(game_assets: &GameAssets, module: Module, heat_capacity: f32) -> i
     .clone();
 
     let condition_icon = match (&module.status, &module.condition) {
-        (ModuleStatus::FaceDown | ModuleStatus::SlotEmpty, _) | (_, Action::Blank) => {
+        (ModuleStatus::FaceDown | ModuleStatus::SlotEmpty, _) | (_, Action::Start) => {
             &game_assets.nothing_condition_icon
         },
         (_, Action::Missile) => &game_assets.missile_condition_icon,
@@ -31,7 +31,7 @@ pub fn module(game_assets: &GameAssets, module: Module, heat_capacity: f32) -> i
     .clone();
 
     let effect_icon = match (&module.status, &module.effect) {
-        (ModuleStatus::FaceDown | ModuleStatus::SlotEmpty, _) | (_, Action::Blank) => {
+        (ModuleStatus::FaceDown | ModuleStatus::SlotEmpty, _) | (_, Action::Start) => {
             &game_assets.nothing_effect_icon
         },
         (_, Action::Missile) => &game_assets.missile_effect_icon,

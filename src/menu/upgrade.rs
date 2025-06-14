@@ -23,7 +23,7 @@ pub enum Upgrade {
     FluxCapacitor(usize),
     QuantumCooler(f32),
     AlienAlloy(f32),
-    NothingPack(Vec<Module>),
+    StarterPack(Vec<Module>),
     RepairPack(Vec<Module>),
     MissilePack(Vec<Module>),
     LaserPack(Vec<Module>),
@@ -35,7 +35,7 @@ fn spawn_upgrade_menu(
     menu_root: Res<MenuRoot>,
     game_assets: Res<GameAssets>,
     level_config: ConfigRef<LevelConfig>,
-    level: NextRef<Level>,
+    level: CurrentRef<Level>,
     player_deck: Res<PlayerDeck>,
     upgrade_history: Res<UpgradeHistory>,
 ) {
@@ -79,7 +79,7 @@ fn enter_next_level(
 
         // Record upgrade history.
         match selector.upgrade {
-            Upgrade::NothingPack(_) => upgrade_history.took_nothing_packs += 1,
+            Upgrade::StarterPack(_) => upgrade_history.took_starter_packs += 1,
             Upgrade::FireballPack(_) => upgrade_history.took_fireball_packs += 1,
             _ => {},
         }
@@ -91,7 +91,7 @@ fn enter_next_level(
                 .extend(std::iter::repeat_n(Module::EMPTY, *slots)),
             Upgrade::QuantumCooler(heat_capacity) => player_deck.heat_capacity += *heat_capacity,
             Upgrade::AlienAlloy(max_health) => player_deck.max_health += *max_health,
-            Upgrade::NothingPack(modules)
+            Upgrade::StarterPack(modules)
             | Upgrade::RepairPack(modules)
             | Upgrade::MissilePack(modules)
             | Upgrade::LaserPack(modules)
@@ -127,7 +127,7 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
         Upgrade::FluxCapacitor(_) => &game_assets.upgrade_capacitor,
         Upgrade::QuantumCooler(_) => &game_assets.upgrade_cooler,
         Upgrade::AlienAlloy(_) => &game_assets.upgrade_alloy,
-        Upgrade::NothingPack(_) => &game_assets.upgrade_pack_nothing,
+        Upgrade::StarterPack(_) => &game_assets.upgrade_pack_nothing,
         Upgrade::RepairPack(_) => &game_assets.upgrade_pack_repair,
         Upgrade::MissilePack(_) => &game_assets.upgrade_pack_missile,
         Upgrade::LaserPack(_) => &game_assets.upgrade_pack_laser,
@@ -154,7 +154,7 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
             [b]Ship max health:[r] +{}",
             max_health,
         ),
-        Upgrade::NothingPack(modules) => {
+        Upgrade::StarterPack(modules) => {
             format!(
                 "[b]Starter Pack[r]\n\nUnpack three helpful new Starter modules.\n\n{}",
                 modules
@@ -303,7 +303,7 @@ impl UpgradeSelector {
 #[derive(Resource, Reflect, Default, Debug)]
 #[reflect(Resource)]
 struct UpgradeHistory {
-    took_nothing_packs: usize,
+    took_starter_packs: usize,
     took_fireball_packs: usize,
 }
 
@@ -339,36 +339,37 @@ fn generate_upgrades(
 
     // Offer primary upgrades.
     if player_deck.heat_capacity
-        < 0.25 * (player_deck.reactor.len() * player_deck.reactor.len()) as f32
+        < 0.2 * (player_deck.reactor.len() * player_deck.reactor.len()) as f32
     {
-        upgrades.push(Upgrade::QuantumCooler(10.0));
+        upgrades.push(Upgrade::QuantumCooler(8.0));
     } else if player_deck.reactor.len() < 18 {
         upgrades.push(Upgrade::FluxCapacitor(3));
     } else {
         upgrades.push(if rng.gen_bool(0.8) {
-            Upgrade::AlienAlloy(80.0)
+            Upgrade::AlienAlloy(50.0)
         } else {
-            Upgrade::QuantumCooler(10.0)
+            Upgrade::QuantumCooler(8.0)
         });
     }
     upgrades.push(if rng.gen_bool(0.8) {
-        Upgrade::AlienAlloy(80.0)
+        Upgrade::AlienAlloy(50.0)
     } else {
-        Upgrade::QuantumCooler(10.0)
+        Upgrade::QuantumCooler(8.0)
     });
 
     // Offer module packs.
     // TODO: Get weight from level / level config.
     if rng.gen_bool(
-        (0.2 * level as f64 / (upgrade_history.took_fireball_packs + 1) as f64).clamp(0.0, 1.0),
+        (0.15 * level as f64 / (upgrade_history.took_fireball_packs + 1) as f64).clamp(0.0, 1.0),
     ) {
         upgrades.push(Upgrade::FireballPack(vec![]));
     }
     // TODO: Get weight from level / level config.
     if rng.gen_bool(
-        (0.2 * level as f64 / (upgrade_history.took_nothing_packs + 1) as f64).clamp(0.0, 1.0),
+        (0.2 * (level + 1) as f64 / (upgrade_history.took_starter_packs + 1) as f64)
+            .clamp(0.0, 1.0),
     ) {
-        upgrades.push(Upgrade::NothingPack(vec![]));
+        upgrades.push(Upgrade::StarterPack(vec![]));
     }
     for _ in upgrades.len()..6 {
         // TODO: Get weights from level / level config.
@@ -383,7 +384,7 @@ fn generate_upgrades(
             0 => Upgrade::MissilePack(vec![]),
             1 => Upgrade::RepairPack(vec![]),
             2 => Upgrade::LaserPack(vec![]),
-            3 => Upgrade::NothingPack(vec![]),
+            3 => Upgrade::StarterPack(vec![]),
             4 => Upgrade::FireballPack(vec![]),
             _ => unreachable!(),
         });
@@ -393,7 +394,7 @@ fn generate_upgrades(
     // Populate module packs.
     for upgrade in &mut upgrades {
         let (action, modules) = match upgrade {
-            Upgrade::NothingPack(modules) => (Action::Blank, modules),
+            Upgrade::StarterPack(modules) => (Action::Start, modules),
             Upgrade::RepairPack(modules) => (Action::Repair, modules),
             Upgrade::MissilePack(modules) => (Action::Missile, modules),
             Upgrade::LaserPack(modules) => (Action::Laser, modules),
@@ -405,7 +406,7 @@ fn generate_upgrades(
             Action::Missile,
             Action::Repair,
             Action::Laser,
-            Action::Blank,
+            Action::Start,
             Action::Fireball,
         ];
         let mut other_actions = vec![];
@@ -415,15 +416,15 @@ fn generate_upgrades(
                 Action::Missile => 1.0,
                 Action::Repair => 0.6,
                 Action::Laser => 0.7,
-                x @ Action::Blank if x == action => 0.0,
-                Action::Blank => 0.1,
+                x @ Action::Start if x == action => 0.0,
+                Action::Start => 0.1,
                 x @ Action::Fireball if x == action => 0.0,
                 Action::Fireball => 0.08,
             })));
         }
 
         match action {
-            Action::Blank => {
+            Action::Start => {
                 for other in other_actions {
                     modules.push(Module::new(action, other));
                 }
@@ -434,7 +435,7 @@ fn generate_upgrades(
                 }
             },
             _ => {
-                if matches!(other_actions[0], Action::Blank) {
+                if matches!(other_actions[0], Action::Start) {
                     modules.push(Module::new(other_actions[0], action));
                 } else {
                     modules.push(Module::new(action, other_actions[0]));
@@ -447,7 +448,7 @@ fn generate_upgrades(
                 }
 
                 if matches!(other_actions[2], Action::Fireball)
-                    || (!matches!(other_actions[2], Action::Blank) && rng.r#gen())
+                    || (!matches!(other_actions[2], Action::Start) && rng.r#gen())
                 {
                     modules.push(Module::new(action, other_actions[2]));
                 } else {
