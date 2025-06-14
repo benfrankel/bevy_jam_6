@@ -6,8 +6,8 @@ use crate::game::GameAssets;
 use crate::game::deck::PlayerDeck;
 use crate::game::level::Level;
 use crate::game::level::LevelConfig;
+use crate::game::module::Action;
 use crate::game::module::Module;
-use crate::game::module::ModuleAction;
 use crate::menu::Menu;
 use crate::menu::MenuRoot;
 use crate::prelude::*;
@@ -393,61 +393,61 @@ fn generate_upgrades(
     // Populate module packs.
     for upgrade in &mut upgrades {
         let (action, modules) = match upgrade {
-            Upgrade::NothingPack(modules) => (ModuleAction::Nothing, modules),
-            Upgrade::RepairPack(modules) => (ModuleAction::Repair, modules),
-            Upgrade::MissilePack(modules) => (ModuleAction::Missile, modules),
-            Upgrade::LaserPack(modules) => (ModuleAction::Laser, modules),
-            Upgrade::FireballPack(modules) => (ModuleAction::Fireball, modules),
+            Upgrade::NothingPack(modules) => (Action::Blank, modules),
+            Upgrade::RepairPack(modules) => (Action::Repair, modules),
+            Upgrade::MissilePack(modules) => (Action::Missile, modules),
+            Upgrade::LaserPack(modules) => (Action::Laser, modules),
+            Upgrade::FireballPack(modules) => (Action::Fireball, modules),
             _ => continue,
         };
 
         let all_actions = [
-            ModuleAction::Missile,
-            ModuleAction::Repair,
-            ModuleAction::Laser,
-            ModuleAction::Nothing,
-            ModuleAction::Fireball,
+            Action::Missile,
+            Action::Repair,
+            Action::Laser,
+            Action::Blank,
+            Action::Fireball,
         ];
         let mut other_actions = vec![];
         for _ in 0..3 {
             // TODO: Get weights from level / level config.
             other_actions.push(*c!(all_actions.choose_weighted(rng, |&x| match x {
-                ModuleAction::Missile => 1.0,
-                ModuleAction::Repair => 0.6,
-                ModuleAction::Laser => 0.7,
-                x @ ModuleAction::Nothing if x == action => 0.0,
-                ModuleAction::Nothing => 0.1,
-                x @ ModuleAction::Fireball if x == action => 0.0,
-                ModuleAction::Fireball => 0.08,
+                Action::Missile => 1.0,
+                Action::Repair => 0.6,
+                Action::Laser => 0.7,
+                x @ Action::Blank if x == action => 0.0,
+                Action::Blank => 0.1,
+                x @ Action::Fireball if x == action => 0.0,
+                Action::Fireball => 0.08,
             })));
         }
 
         match action {
-            ModuleAction::Nothing => {
+            Action::Blank => {
                 for other in other_actions {
                     modules.push(Module::new(action, other));
                 }
             },
-            ModuleAction::Fireball => {
+            Action::Fireball => {
                 for other in other_actions {
                     modules.push(Module::new(other, action));
                 }
             },
             _ => {
-                if matches!(other_actions[0], ModuleAction::Nothing) {
+                if matches!(other_actions[0], Action::Blank) {
                     modules.push(Module::new(other_actions[0], action));
                 } else {
                     modules.push(Module::new(action, other_actions[0]));
                 }
 
-                if matches!(other_actions[1], ModuleAction::Fireball) {
+                if matches!(other_actions[1], Action::Fireball) {
                     modules.push(Module::new(action, other_actions[1]));
                 } else {
                     modules.push(Module::new(other_actions[1], action));
                 }
 
-                if matches!(other_actions[2], ModuleAction::Fireball)
-                    || (!matches!(other_actions[2], ModuleAction::Nothing) && rng.r#gen())
+                if matches!(other_actions[2], Action::Fireball)
+                    || (!matches!(other_actions[2], Action::Blank) && rng.r#gen())
                 {
                     modules.push(Module::new(action, other_actions[2]));
                 } else {

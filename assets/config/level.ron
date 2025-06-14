@@ -4,7 +4,7 @@
         LevelSetup(
             name: "Alpha Centauri",
             enemy_deck: EnemyDeck(actions: [Missile, Missile, Missile]),
-            enemy_health: 23,
+            enemy_health: 20,
         ),
 
         // Level 1:

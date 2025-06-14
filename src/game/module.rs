@@ -15,27 +15,27 @@ use crate::game::stats::Stats;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<OnModuleAction>();
+    app.configure::<OnAction>();
 }
 
 #[derive(Reflect, Copy, Clone, Default, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields, default)]
 pub struct Module {
-    pub condition: ModuleAction,
-    pub effect: ModuleAction,
+    pub condition: Action,
+    pub effect: Action,
     pub status: ModuleStatus,
     pub heat: f32,
 }
 
 impl Module {
     pub const EMPTY: Self = Self {
-        condition: ModuleAction::Nothing,
-        effect: ModuleAction::Nothing,
+        condition: Action::Blank,
+        effect: Action::Blank,
         status: ModuleStatus::SlotEmpty,
         heat: 0.0,
     };
 
-    pub fn new(condition: ModuleAction, effect: ModuleAction) -> Self {
+    pub fn new(condition: Action, effect: Action) -> Self {
         Self {
             condition,
             effect,
@@ -46,18 +46,18 @@ impl Module {
 
     pub fn short_description(&self) -> String {
         let condition = match self.condition {
-            ModuleAction::Nothing => "[b]Start[r] -> ",
-            ModuleAction::Missile => "[b]Missile[r] -> ",
-            ModuleAction::Laser => "[b]Laser[r] -> ",
-            ModuleAction::Fireball => "[b]Fireball[r] -> ",
-            ModuleAction::Repair => "[b]Repair[r] -> ",
+            Action::Blank => "[b]Start[r] -> ",
+            Action::Missile => "[b]Missile[r] -> ",
+            Action::Laser => "[b]Laser[r] -> ",
+            Action::Fireball => "[b]Fireball[r] -> ",
+            Action::Repair => "[b]Repair[r] -> ",
         };
         let effect = match self.effect {
-            ModuleAction::Nothing => "[b]Nothing[r]",
-            ModuleAction::Missile => "[b]Missile[r]",
-            ModuleAction::Laser => "[b]Laser[r]",
-            ModuleAction::Fireball => "[b]Fireball[r]",
-            ModuleAction::Repair => "[b]Repair[r]",
+            Action::Blank => "[b]Nothing[r]",
+            Action::Missile => "[b]Missile[r]",
+            Action::Laser => "[b]Laser[r]",
+            Action::Fireball => "[b]Fireball[r]",
+            Action::Repair => "[b]Repair[r]",
         };
         format!("{condition}{effect}")
     }
@@ -74,24 +74,24 @@ impl Module {
             ModuleStatus::SlotEmpty => format!("{header}\n\nEmpty slot"),
             _ => {
                 let condition = match self.condition {
-                    ModuleAction::Nothing => "at the start of a new chain, ",
-                    ModuleAction::Missile => "after launching a missile, ",
-                    ModuleAction::Laser => "after firing a laser, ",
-                    ModuleAction::Fireball => "after unleashing a fireball, ",
-                    ModuleAction::Repair => "after repairing the hull, ",
+                    Action::Blank => "at the start of a new chain, ",
+                    Action::Missile => "after launching a missile, ",
+                    Action::Laser => "after firing a laser, ",
+                    Action::Fireball => "after unleashing a fireball, ",
+                    Action::Repair => "after repairing the hull, ",
                 };
                 let effect = match (&self.condition, &self.effect) {
-                    (_, ModuleAction::Nothing) => "end the chain",
-                    (ModuleAction::Missile, ModuleAction::Missile) => "launch another missile",
-                    (_, ModuleAction::Missile) => "launch a missile",
-                    (ModuleAction::Laser, ModuleAction::Laser) => "fire another laser",
-                    (_, ModuleAction::Laser) => "fire a laser",
-                    (ModuleAction::Fireball, ModuleAction::Fireball) => {
+                    (_, Action::Blank) => "end the chain",
+                    (Action::Missile, Action::Missile) => "launch another missile",
+                    (_, Action::Missile) => "launch a missile",
+                    (Action::Laser, Action::Laser) => "fire another laser",
+                    (_, Action::Laser) => "fire a laser",
+                    (Action::Fireball, Action::Fireball) => {
                         "unleash another fireball and end the chain"
                     },
-                    (_, ModuleAction::Fireball) => "unleash a fireball and end the chain",
-                    (ModuleAction::Repair, ModuleAction::Repair) => "repair the hull again",
-                    (_, ModuleAction::Repair) => "repair the hull",
+                    (_, Action::Fireball) => "unleash a fireball and end the chain",
+                    (Action::Repair, Action::Repair) => "repair the hull again",
+                    (_, Action::Repair) => "repair the hull",
                 };
                 let body = format!("{condition}{effect}.");
                 let mut chars = body.chars();
@@ -101,11 +101,11 @@ impl Module {
                 };
 
                 let stats = match self.effect {
-                    ModuleAction::Nothing => "",
-                    ModuleAction::Missile => "\n\n[b]Damage:[r] 1 times flux",
-                    ModuleAction::Laser => "\n\n[b]Damage:[r] 2 times flux",
-                    ModuleAction::Fireball => "\n\n[b]Damage:[r] 8 times flux",
-                    ModuleAction::Repair => "\n\n[b]Heal:[r] 2 times flux",
+                    Action::Blank => "",
+                    Action::Missile => "\n\n[b]Damage:[r] 1 times flux",
+                    Action::Laser => "\n\n[b]Damage:[r] 2 times flux",
+                    Action::Fireball => "\n\n[b]Damage:[r] 8 times flux",
+                    Action::Repair => "\n\n[b]Heal:[r] 2 times flux",
                 };
 
                 format!("{header}{heat} - Right click to remove\n\n> {body}{stats}")
@@ -115,9 +115,9 @@ impl Module {
 }
 
 #[derive(Reflect, Serialize, Deserialize, Copy, Clone, Default, Eq, PartialEq, Debug)]
-pub enum ModuleAction {
+pub enum Action {
     #[default]
-    Nothing,
+    Blank,
     Missile,
     Laser,
     Fireball,
@@ -136,13 +136,13 @@ pub enum ModuleStatus {
 }
 
 #[derive(Event, Reflect, Debug)]
-pub struct OnModuleAction {
-    pub action: ModuleAction,
+pub struct OnAction {
+    pub action: Action,
     pub source: Entity,
     pub target: Entity,
 }
 
-impl Configure for OnModuleAction {
+impl Configure for OnAction {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.add_observer(on_module_action);
@@ -150,7 +150,7 @@ impl Configure for OnModuleAction {
 }
 
 fn on_module_action(
-    trigger: Trigger<OnModuleAction>,
+    trigger: Trigger<OnAction>,
     mut commands: Commands,
     player_deck: Res<PlayerDeck>,
     enemy_deck: Res<EnemyDeck>,
@@ -186,7 +186,7 @@ fn on_module_action(
 
     // Perform action.
     match trigger.action {
-        ModuleAction::Missile => {
+        Action::Missile => {
             commands.spawn((
                 missile(
                     rng,
@@ -209,7 +209,7 @@ fn on_module_action(
             }
         },
 
-        ModuleAction::Laser => {
+        Action::Laser => {
             commands.spawn((
                 laser(
                     rng,
@@ -232,7 +232,7 @@ fn on_module_action(
             }
         },
 
-        ModuleAction::Fireball => {
+        Action::Fireball => {
             commands.spawn((
                 fireball(
                     rng,
@@ -255,7 +255,7 @@ fn on_module_action(
             }
         },
 
-        ModuleAction::Repair => {
+        Action::Repair => {
             commands.entity(trigger.source).trigger(OnHeal(2.0 * flux));
             commands.spawn((
                 sfx_audio(
@@ -267,7 +267,7 @@ fn on_module_action(
             ));
 
             if is_player {
-                stats.repairs += flux;
+                stats.repairs += 1;
             }
         },
 

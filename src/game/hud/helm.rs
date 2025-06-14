@@ -9,7 +9,7 @@ use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudConfig;
 use crate::game::hud::module::module;
 use crate::game::level::Level;
-use crate::game::module::ModuleAction;
+use crate::game::module::Action;
 use crate::game::phase::Phase;
 use crate::game::phase::helm::HelmActions;
 use crate::prelude::*;
@@ -394,27 +394,27 @@ fn sync_storage_display_tooltip(
         let starts = player_deck
             .storage
             .iter()
-            .filter(|x| x.condition == ModuleAction::Nothing || x.effect == ModuleAction::Nothing)
+            .filter(|x| x.condition == Action::Blank || x.effect == Action::Blank)
             .count();
         let repairs = player_deck
             .storage
             .iter()
-            .filter(|x| x.condition == ModuleAction::Repair || x.effect == ModuleAction::Repair)
+            .filter(|x| x.condition == Action::Repair || x.effect == Action::Repair)
             .count();
         let missiles = player_deck
             .storage
             .iter()
-            .filter(|x| x.condition == ModuleAction::Missile || x.effect == ModuleAction::Missile)
+            .filter(|x| x.condition == Action::Missile || x.effect == Action::Missile)
             .count();
         let lasers = player_deck
             .storage
             .iter()
-            .filter(|x| x.condition == ModuleAction::Laser || x.effect == ModuleAction::Laser)
+            .filter(|x| x.condition == Action::Laser || x.effect == Action::Laser)
             .count();
         let fireballs = player_deck
             .storage
             .iter()
-            .filter(|x| x.condition == ModuleAction::Fireball || x.effect == ModuleAction::Fireball)
+            .filter(|x| x.condition == Action::Fireball || x.effect == Action::Fireball)
             .count();
 
         tooltip.content = TooltipContent::Primary(RichText::from_sections(parse_rich(format!(

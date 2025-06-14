@@ -12,7 +12,7 @@ pub struct Stats {
     pub missiles: usize,
     pub lasers: usize,
     pub fireballs: usize,
-    pub repairs: f32,
+    pub repairs: usize,
     pub highest_flux: f32,
     pub longest_chain: f32,
     pub damage_given: f32,

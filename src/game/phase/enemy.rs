@@ -5,7 +5,7 @@ use crate::game::GameAssets;
 use crate::game::combat::death::Dead;
 use crate::game::deck::EnemyDeck;
 use crate::game::level::Level;
-use crate::game::module::OnModuleAction;
+use crate::game::module::OnAction;
 use crate::game::phase::Phase;
 use crate::game::phase::PhaseConfig;
 use crate::game::phase::Round;
@@ -103,7 +103,7 @@ fn step_enemy_phase(
         phase.enter(Phase::Setup);
         return;
     };
-    commands.trigger(OnModuleAction {
+    commands.trigger(OnAction {
         action,
         source: enemy_ship.0,
         target: *player_ship,

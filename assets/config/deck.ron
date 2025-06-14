@@ -2,9 +2,13 @@
     initial_player_deck: PlayerDeck(
         max_health: 40,
         heat_capacity: 4,
+        weapons: [
+            Module(condition: Blank, effect: Missile),
+            Module(condition: Blank, effect: Missile),
+        ],
 
         storage: [
-            Module(condition: Nothing, effect: Missile),
+            Module(condition: Blank, effect: Missile),
             Module(condition: Repair, effect: Repair),
             Module(condition: Repair, effect: Missile),
             Module(condition: Missile, effect: Repair),
@@ -12,7 +16,7 @@
             Module(condition: Missile, effect: Missile),
         ],
         hand: [
-            Module(condition: Nothing, effect: Missile),
+            Module(condition: Blank, effect: Missile),
         ],
         reactor: [
             Module(status: SlotEmpty),

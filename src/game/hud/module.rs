@@ -1,6 +1,6 @@
 use crate::game::GameAssets;
 use crate::game::module::Module;
-use crate::game::module::ModuleAction;
+use crate::game::module::Action;
 use crate::game::module::ModuleStatus;
 use crate::prelude::*;
 
@@ -20,24 +20,24 @@ pub fn module(game_assets: &GameAssets, module: Module, heat_capacity: f32) -> i
     .clone();
 
     let condition_icon = match (&module.status, &module.condition) {
-        (ModuleStatus::FaceDown | ModuleStatus::SlotEmpty, _) | (_, ModuleAction::Nothing) => {
+        (ModuleStatus::FaceDown | ModuleStatus::SlotEmpty, _) | (_, Action::Blank) => {
             &game_assets.nothing_condition_icon
         },
-        (_, ModuleAction::Missile) => &game_assets.missile_condition_icon,
-        (_, ModuleAction::Laser) => &game_assets.laser_condition_icon,
-        (_, ModuleAction::Fireball) => &game_assets.fireball_condition_icon,
-        (_, ModuleAction::Repair) => &game_assets.repair_condition_icon,
+        (_, Action::Missile) => &game_assets.missile_condition_icon,
+        (_, Action::Laser) => &game_assets.laser_condition_icon,
+        (_, Action::Fireball) => &game_assets.fireball_condition_icon,
+        (_, Action::Repair) => &game_assets.repair_condition_icon,
     }
     .clone();
 
     let effect_icon = match (&module.status, &module.effect) {
-        (ModuleStatus::FaceDown | ModuleStatus::SlotEmpty, _) | (_, ModuleAction::Nothing) => {
+        (ModuleStatus::FaceDown | ModuleStatus::SlotEmpty, _) | (_, Action::Blank) => {
             &game_assets.nothing_effect_icon
         },
-        (_, ModuleAction::Missile) => &game_assets.missile_effect_icon,
-        (_, ModuleAction::Laser) => &game_assets.laser_effect_icon,
-        (_, ModuleAction::Fireball) => &game_assets.fireball_effect_icon,
-        (_, ModuleAction::Repair) => &game_assets.repair_effect_icon,
+        (_, Action::Missile) => &game_assets.missile_effect_icon,
+        (_, Action::Laser) => &game_assets.laser_effect_icon,
+        (_, Action::Fireball) => &game_assets.fireball_effect_icon,
+        (_, Action::Repair) => &game_assets.repair_effect_icon,
     }
     .clone();
 

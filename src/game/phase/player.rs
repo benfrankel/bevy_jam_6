@@ -1,5 +1,5 @@
 use crate::game::deck::PlayerDeck;
-use crate::game::module::OnModuleAction;
+use crate::game::module::OnAction;
 use crate::game::phase::Phase;
 use crate::game::phase::PhaseConfig;
 use crate::game::phase::Step;
@@ -54,7 +54,7 @@ fn step_player_phase(
         phase.enter(Phase::Enemy);
         return;
     };
-    commands.trigger(OnModuleAction {
+    commands.trigger(OnAction {
         action,
         source: *player_ship,
         target: *enemy_ship,

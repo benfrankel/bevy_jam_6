@@ -1,7 +1,7 @@
 use std::collections::VecDeque;
 
+use crate::game::module::Action;
 use crate::game::module::Module;
-use crate::game::module::ModuleAction;
 use crate::game::module::ModuleStatus;
 use crate::prelude::*;
 
@@ -26,6 +26,7 @@ pub struct PlayerDeck {
     // Ship:
     pub max_health: f32,
     pub heat_capacity: f32,
+    pub weapons: Vec<Module>,
 
     // Modules:
     pub storage: Vec<Module>,
@@ -40,7 +41,7 @@ pub struct PlayerDeck {
     pub flux: f32,
     pub chain: f32,
     pub action_queue: VecDeque<usize>,
-    pub last_effect: ModuleAction,
+    pub last_effect: Action,
     pub last_touched_idx: Option<usize>,
 }
 
@@ -63,13 +64,22 @@ impl PlayerDeck {
         // Create a new deck, carrying over a few things.
         *self = Self {
             max_health: self.max_health,
+            heat_capacity: self.heat_capacity,
+            weapons: core::mem::take(&mut self.weapons),
             storage: core::mem::take(&mut self.storage),
             reactor: core::mem::take(&mut self.reactor),
-            heat_capacity: self.heat_capacity,
             ..default()
         };
 
         // Perform setup and select the module in the middle.
+        let weapons = self.weapons.clone();
+        for weapon in weapons {
+            let draw_idx = cq!(self
+                .storage
+                .iter()
+                .position(|&x| x.condition == weapon.condition && x.effect == weapon.effect));
+            self.draw_from_idx(draw_idx);
+        }
         while self.step_setup(rng) {}
         self.hand_idx = self.hand.len() / 2;
     }
@@ -83,10 +93,15 @@ impl PlayerDeck {
     }
 
     /// Draw the next module from storage to hand.
-    pub fn draw_module(&mut self, rng: &mut impl Rng) {
+    pub fn draw_random(&mut self, rng: &mut impl Rng) {
         rq!(!self.storage.is_empty());
         let draw_idx = rng.gen_range(0..self.storage.len());
-        let draw = self.storage.remove(draw_idx);
+        self.draw_from_idx(draw_idx);
+    }
+
+    /// Draw the specified module from storage to hand.
+    fn draw_from_idx(&mut self, idx: usize) {
+        let draw = self.storage.swap_remove(idx);
         self.hand.push(draw);
         self.just_used_storage = true;
     }
@@ -164,7 +179,7 @@ impl PlayerDeck {
             .or_else(|| {
                 self.reactor.iter().position(|slot| {
                     matches!(slot.status, ModuleStatus::SlotInactive)
-                        && slot.condition == ModuleAction::Nothing
+                        && slot.condition == Action::Blank
                 })
             })
     }
@@ -184,7 +199,7 @@ impl PlayerDeck {
             self.last_effect = slot.effect;
             self.flux += 1.0;
             slot.heat += self.flux;
-            if slot.condition == ModuleAction::Nothing {
+            if slot.condition == Action::Blank {
                 self.chain = 0.0;
             }
             self.chain += 1.0;
@@ -193,7 +208,7 @@ impl PlayerDeck {
 
             true
         } else {
-            self.last_effect = ModuleAction::Nothing;
+            self.last_effect = Action::Blank;
             self.last_touched_idx = None;
             false
         }
@@ -205,7 +220,7 @@ impl PlayerDeck {
     }
 
     /// Take one step through the player's attack, returning the action or `None` if done.
-    pub fn step_player(&mut self) -> Option<ModuleAction> {
+    pub fn step_player(&mut self) -> Option<Action> {
         self.last_touched_idx = self.action_queue.pop_front();
 
         if let Some(idx) = self.last_touched_idx {
@@ -242,7 +257,7 @@ impl PlayerDeck {
     /// Steps setting up the helm, returning false if setup was already complete.
     pub fn step_setup(&mut self, rng: &mut impl Rng) -> bool {
         if !self.storage.is_empty() && self.hand.len() < 5 {
-            self.draw_module(rng);
+            self.draw_random(rng);
         } else {
             return false;
         }
@@ -256,7 +271,7 @@ impl PlayerDeck {
 #[serde(deny_unknown_fields, default)]
 pub struct EnemyDeck {
     pub flux: f32,
-    pub actions: Vec<ModuleAction>,
+    pub actions: Vec<Action>,
     pub action_idx: usize,
     /// The maximum number of actions to be performed on the first round.
     pub action_limit: usize,
@@ -295,7 +310,7 @@ impl EnemyDeck {
     }
 
     /// Simulate one step and get the next action.
-    pub fn step(&mut self, round: usize) -> Option<ModuleAction> {
+    pub fn step(&mut self, round: usize) -> Option<Action> {
         if self.is_done(round) {
             self.action_idx = 0;
             self.flux = 0.0;
