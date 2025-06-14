@@ -154,7 +154,7 @@ fn discard_module_on_right_click(
         ModuleStatus::SlotEmpty,
     ));
 
-    player_deck.discard_module(idx.0, &mut thread_rng());
+    player_deck.discard_module(idx.0);
     commands.spawn((
         sfx_audio(&audio_settings, game_assets.module_insert_sfx.clone(), 1.0),
         DespawnOnExitState::<Level>::default(),

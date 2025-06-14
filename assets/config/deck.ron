@@ -1,6 +1,7 @@
 (
     initial_player_deck: PlayerDeck(
-        max_health: 80,
+        max_health: 40,
+        heat_capacity: 4,
 
         storage: [
             Module(condition: Nothing, effect: Missile),
@@ -13,9 +14,6 @@
         hand: [
             Module(condition: Nothing, effect: Missile),
         ],
-        selected_idx: 0,
-
-        heat_capacity: 4,
         reactor: [
             Module(status: SlotEmpty),
             Module(status: SlotEmpty),

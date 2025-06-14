@@ -84,7 +84,7 @@ fn step_setup_phase(
     }
 
     // Step the setup.
-    if !player_deck.step_setup() {
+    if !player_deck.step_setup(&mut thread_rng()) {
         phase.enter(Phase::Helm);
         return;
     }

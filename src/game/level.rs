@@ -79,8 +79,7 @@ fn reset_decks(
         let deck_config = r!(deck_config.get());
         *player_deck = deck_config.initial_player_deck.clone();
     } else {
-        player_deck.reset();
-        player_deck.shuffle(&mut thread_rng());
+        player_deck.reset(&mut thread_rng());
     }
 }
 

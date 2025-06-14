@@ -258,7 +258,7 @@ fn navigate_player_ship_toward_selected_module(
     let (camera, camera_gt) = r!(camera_query.get(camera_root.primary));
     let target_pos = if let Some((_, target_gt, target_computed_node)) = hand_index_query
         .iter()
-        .find(|(index, ..)| index.0 == player_deck.selected_idx)
+        .find(|(index, ..)| index.0 == player_deck.hand_idx)
     {
         let viewport_pos = target_gt.translation().xy() * target_computed_node.inverse_scale_factor;
         r!(camera.viewport_to_world_2d(camera_gt, viewport_pos))

@@ -270,7 +270,7 @@ fn sync_hand_display(
     player_deck: Res<PlayerDeck>,
     hand: Single<Entity, With<HandDisplay>>,
 ) {
-    let selected_idx = player_deck.selected_idx;
+    let selected_idx = player_deck.hand_idx;
     commands
         .entity(*hand)
         .despawn_related::<Children>()
@@ -322,7 +322,7 @@ fn apply_offset_to_selected_module(
 ) {
     for (mut node, child_of) in &mut module_query {
         let idx = cq!(container_query.get(child_of.parent()));
-        node.top = if idx.0 == player_deck.selected_idx {
+        node.top = if idx.0 == player_deck.hand_idx {
             Vw(-2.0)
         } else {
             Val::ZERO
@@ -340,9 +340,9 @@ fn select_module_on_hover(
 ) {
     let target = rq!(trigger.get_target());
     let (_, idx) = rq!(module_query.get_mut(target));
-    rq!(idx.0 != player_deck.selected_idx);
+    rq!(idx.0 != player_deck.hand_idx);
 
-    player_deck.bypass_change_detection().selected_idx = idx.0;
+    player_deck.bypass_change_detection().hand_idx = idx.0;
     commands.spawn((
         sfx_audio(&audio_settings, game_assets.module_hover_sfx.clone(), 1.0),
         DespawnOnExitState::<Level>::default(),

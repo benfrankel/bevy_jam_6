@@ -138,7 +138,7 @@ fn helm_play_module(
     mut player_deck: ResMut<PlayerDeck>,
     mut phase: NextMut<Phase>,
 ) {
-    rq!(player_deck.play_selected(&mut thread_rng()));
+    rq!(player_deck.play_selected());
 
     phase.enter(Phase::Reactor);
     commands.spawn((

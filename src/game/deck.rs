@@ -25,19 +25,21 @@ impl Config for DeckConfig {
 pub struct PlayerDeck {
     // Ship:
     pub max_health: f32,
+    pub heat_capacity: f32,
 
-    // Helm:
+    // Modules:
     pub storage: Vec<Module>,
     pub hand: Vec<Module>,
-    pub selected_idx: usize,
+    pub reactor: Vec<Module>,
+
+    // Helm:
+    pub hand_idx: usize,
     pub just_used_storage: bool,
 
     // Reactor:
     pub flux: f32,
     pub chain: f32,
-    pub heat_capacity: f32,
-    pub reactor: Vec<Module>,
-    pub reactor_chain: VecDeque<usize>,
+    pub action_queue: VecDeque<usize>,
     pub last_effect: ModuleAction,
     pub last_touched_idx: Option<usize>,
 }
@@ -51,76 +53,69 @@ impl Configure for PlayerDeck {
 
 impl PlayerDeck {
     /// Reset deck.
-    pub fn reset(&mut self) {
+    pub fn reset(&mut self, rng: &mut impl Rng) {
         // Discard modules from reactor / hand to storage.
-        let rng = &mut thread_rng();
         for idx in 0..self.reactor.len() {
-            self.discard_module(idx, rng);
+            self.discard_module(idx);
         }
         self.storage.append(&mut self.hand);
 
-        // Create a new deck from storage and number of reactor slots.
+        // Create a new deck, carrying over a few things.
         *self = Self {
             max_health: self.max_health,
-            heat_capacity: self.heat_capacity,
             storage: core::mem::take(&mut self.storage),
-            reactor: vec![Module::EMPTY; self.reactor.len()],
+            reactor: core::mem::take(&mut self.reactor),
+            heat_capacity: self.heat_capacity,
             ..default()
         };
 
         // Perform setup and select the module in the middle.
-        while self.step_setup() {}
-        self.selected_idx = 2;
-    }
-
-    /// Shuffle storage.
-    pub fn shuffle(&mut self, rng: &mut impl Rng) {
-        self.storage.shuffle(rng);
+        while self.step_setup(rng) {}
+        self.hand_idx = self.hand.len() / 2;
     }
 
     /// Advance the selected module index by the given step.
     pub fn advance_selected(&mut self, step: isize) {
-        self.selected_idx = self
-            .selected_idx
+        self.hand_idx = self
+            .hand_idx
             .saturating_add_signed(step)
             .min(self.hand.len().saturating_sub(1));
     }
 
     /// Draw the next module from storage to hand.
-    pub fn draw_module(&mut self) {
-        let draw = rq!(self.storage.pop());
+    pub fn draw_module(&mut self, rng: &mut impl Rng) {
+        rq!(!self.storage.is_empty());
+        let draw_idx = rng.gen_range(0..self.storage.len());
+        let draw = self.storage.remove(draw_idx);
         self.hand.push(draw);
         self.just_used_storage = true;
     }
 
     /// Discard a module from the reactor to storage.
-    pub fn discard_module(&mut self, idx: usize, rng: &mut impl Rng) {
+    pub fn discard_module(&mut self, idx: usize) {
         let mut slot = self.reactor[idx];
         rq!(!matches!(slot.status, ModuleStatus::SlotEmpty));
         self.reactor[idx].status = ModuleStatus::SlotEmpty;
 
         slot.status = ModuleStatus::FaceUp;
         slot.heat = 0.0;
-        let storage_idx = rng.gen_range(0..=self.storage.len() / 2);
-        self.storage.insert(storage_idx, slot);
+        self.storage.push(slot);
         self.just_used_storage = true;
     }
 
     /// Try to play the currently selected module from hand to reactor,
     /// returning false if it's not possible.
-    pub fn play_selected(&mut self, rng: &mut impl Rng) -> bool {
+    pub fn play_selected(&mut self) -> bool {
         rq!(!self.hand.is_empty() && !self.reactor.is_empty());
         let slot_idx = rq!(self.next_available_slot());
 
         // Remove the selected module from hand.
-        let idx = self.selected_idx;
+        let idx = self.hand_idx;
         let mut selected = self.hand.remove(idx);
-        self.selected_idx = self
-            .selected_idx
-            .clamp(0, self.hand.len().saturating_sub(1));
+        self.hand_idx = self.hand_idx.clamp(0, self.hand.len().saturating_sub(1));
 
         // Place it in the next available reactor slot.
-        self.discard_module(slot_idx, rng);
+        self.discard_module(slot_idx);
         selected.status = ModuleStatus::SlotInactive;
         self.reactor[slot_idx] = selected;
         self.last_touched_idx = Some(slot_idx);
@@ -134,11 +129,9 @@ impl PlayerDeck {
         rq!(!self.hand.is_empty());
 
         // Remove selected module from hand.
-        let idx = self.selected_idx;
+        let idx = self.hand_idx;
         let selected = self.hand.remove(idx);
-        self.selected_idx = self
-            .selected_idx
-            .clamp(0, self.hand.len().saturating_sub(1));
+        self.hand_idx = self.hand_idx.clamp(0, self.hand.len().saturating_sub(1));
 
         // Insert it into storage.
         let storage_idx = rng.gen_range(0..=self.storage.len() / 2);
@@ -195,7 +188,7 @@ impl PlayerDeck {
                 self.chain = 0.0;
             }
             self.chain += 1.0;
-            self.reactor_chain.push_back(idx);
+            self.action_queue.push_back(idx);
             self.last_touched_idx = Some(idx);
 
             true
@@ -208,12 +201,12 @@ impl PlayerDeck {
 
     /// Determine whether the player is done attacking.
     pub fn is_player_done(&self) -> bool {
-        self.reactor_chain.is_empty()
+        self.action_queue.is_empty()
     }
 
     /// Take one step through the player's attack, returning the action or `None` if done.
     pub fn step_player(&mut self) -> Option<ModuleAction> {
-        self.last_touched_idx = self.reactor_chain.pop_front();
+        self.last_touched_idx = self.action_queue.pop_front();
 
         if let Some(idx) = self.last_touched_idx {
             // Deactivate the reactor module and return its action.
@@ -247,9 +240,9 @@ impl PlayerDeck {
     }
 
     /// Steps setting up the helm, returning false if setup was already complete.
-    pub fn step_setup(&mut self) -> bool {
+    pub fn step_setup(&mut self, rng: &mut impl Rng) -> bool {
         if !self.storage.is_empty() && self.hand.len() < 5 {
-            self.draw_module();
+            self.draw_module(rng);
         } else {
             return false;
         }
