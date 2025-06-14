@@ -136,7 +136,11 @@ pub enum ModuleStatus {
 }
 
 #[derive(Event, Reflect, Debug)]
-pub struct OnModuleAction(pub ModuleAction);
+pub struct OnModuleAction {
+    pub action: ModuleAction,
+    pub source: Entity,
+    pub target: Entity,
+}
 
 impl Configure for OnModuleAction {
     fn configure(app: &mut App) {
@@ -162,8 +166,7 @@ fn on_module_action(
 
     // Choose a weapon on the ship.
     let rng = &mut thread_rng();
-    let ship = r!(trigger.get_target());
-    let (children, &faction) = r!(ship_query.get(ship));
+    let (children, &faction) = r!(ship_query.get(trigger.source));
     let mut weapons = Vec::<&_>::new();
     for &child in children {
         weapons.extend(weapon_query.get(child));
@@ -182,7 +185,7 @@ fn on_module_action(
     };
 
     // Perform action.
-    match trigger.0 {
+    match trigger.action {
         ModuleAction::Missile => {
             commands.spawn((
                 missile(
@@ -192,6 +195,7 @@ fn on_module_action(
                     faction,
                     flux,
                     weapon_transform,
+                    trigger.target,
                 ),
                 DespawnOnExitState::<Level>::default(),
             ));
@@ -214,6 +218,7 @@ fn on_module_action(
                     faction,
                     flux,
                     weapon_transform,
+                    trigger.target,
                 ),
                 DespawnOnExitState::<Level>::default(),
             ));
@@ -236,6 +241,7 @@ fn on_module_action(
                     faction,
                     flux,
                     weapon_transform,
+                    trigger.target,
                 ),
                 DespawnOnExitState::<Level>::default(),
             ));
@@ -250,7 +256,7 @@ fn on_module_action(
         },
 
         ModuleAction::Repair => {
-            commands.entity(ship).trigger(OnHeal(2.0 * flux));
+            commands.entity(trigger.source).trigger(OnHeal(2.0 * flux));
             commands.spawn((
                 sfx_audio(
                     &audio_settings,

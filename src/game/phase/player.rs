@@ -5,6 +5,7 @@ use crate::game::phase::PhaseConfig;
 use crate::game::phase::Step;
 use crate::game::phase::StepTimer;
 use crate::game::phase::on_step_timer;
+use crate::game::ship::IsEnemyShip;
 use crate::game::ship::IsPlayerShip;
 use crate::prelude::*;
 
@@ -44,6 +45,7 @@ fn step_player_phase(
     mut step_timer: ResMut<StepTimer>,
     mut player_deck: ResMut<PlayerDeck>,
     player_ship: Single<Entity, With<IsPlayerShip>>,
+    enemy_ship: Single<Entity, With<IsEnemyShip>>,
 ) {
     let phase_config = r!(phase_config.get());
 
@@ -52,9 +54,11 @@ fn step_player_phase(
         phase.enter(Phase::Enemy);
         return;
     };
-    commands
-        .entity(*player_ship)
-        .trigger(OnModuleAction(action));
+    commands.trigger(OnModuleAction {
+        action,
+        source: *player_ship,
+        target: *enemy_ship,
+    });
 
     // Set the next cooldown.
     let cooldown = Duration::from_secs_f32(if player_deck.is_player_done() {

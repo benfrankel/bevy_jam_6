@@ -13,6 +13,7 @@ use crate::game::phase::Step;
 use crate::game::phase::StepTimer;
 use crate::game::phase::on_step_timer;
 use crate::game::ship::IsEnemyShip;
+use crate::game::ship::IsPlayerShip;
 use crate::menu::Menu;
 use crate::prelude::*;
 
@@ -59,6 +60,7 @@ fn step_enemy_phase(
         (Entity, Has<IsDead>, &mut ExternalForce, &mut Oscillate),
         With<IsEnemyShip>,
     >,
+    player_ship: Single<Entity, With<IsPlayerShip>>,
     audio_settings: Res<AudioSettings>,
     game_assets: Res<GameAssets>,
     mut menu: ResMut<NextStateStack<Menu>>,
@@ -101,9 +103,11 @@ fn step_enemy_phase(
         phase.enter(Phase::Setup);
         return;
     };
-    commands
-        .entity(enemy_ship.0)
-        .trigger(OnModuleAction(action));
+    commands.trigger(OnModuleAction {
+        action,
+        source: enemy_ship.0,
+        target: *player_ship,
+    });
 
     // Set the next cooldown.
     let cooldown = Duration::from_secs_f32(if enemy_deck.is_done(round.0) {

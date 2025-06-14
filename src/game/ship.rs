@@ -290,7 +290,7 @@ fn tilt_player_ship_with_velocity(
     let (children, velocity, max_speed) = player_ship.into_inner();
     let angle = (-ship_config.player_tilt_sensitivity * velocity.x / max_speed.0)
         .clamp(-ship_config.player_tilt_max, ship_config.player_tilt_max);
-    let rotation = Quat::from_rotation_z(angle.to_radians());
+    let rotation = Quat::degrees(angle);
 
     for &child in children {
         let mut transform = cq!(transform_query.get_mut(child));
