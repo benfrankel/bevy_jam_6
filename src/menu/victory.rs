@@ -34,6 +34,7 @@ fn spawn_victory_menu(
 
 fn restart_game(_: Trigger<Pointer<Click>>, mut level: NextMut<Level>) {
     level.enter(Level(0));
+    level.trigger();
 }
 
 fn quit_to_title(
