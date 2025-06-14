@@ -14,7 +14,6 @@ pub struct Stats {
     pub fireballs: usize,
     pub repairs: usize,
     pub highest_flux: f32,
-    pub longest_chain: f32,
     pub damage_given: f32,
     pub damage_taken: f32,
     pub highest_damage: f32,

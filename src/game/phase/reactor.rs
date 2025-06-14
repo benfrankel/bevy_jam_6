@@ -50,10 +50,6 @@ fn step_power_up_phase(
         phase.enter(Phase::Player);
         return;
     }
-
-    // Record max flux
-    stats.highest_flux = stats.highest_flux.max(player_deck.flux);
-    stats.longest_chain = stats.longest_chain.max(player_deck.chain);
     commands.spawn((
         sfx_audio(
             &audio_settings,
@@ -62,6 +58,9 @@ fn step_power_up_phase(
         ),
         DespawnOnExitState::<Level>::default(),
     ));
+
+    // Record max flux.
+    stats.highest_flux = stats.highest_flux.max(player_deck.flux);
 
     // Set the next cooldown.
     let cooldown = Duration::from_secs_f32(if player_deck.is_reactor_done() {

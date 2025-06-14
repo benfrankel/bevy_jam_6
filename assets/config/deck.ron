@@ -2,8 +2,9 @@
     player_decks: [
         PlayerDeck(
             name: "The Weber",
-            max_health: 40,
+            max_health: 50,
             heat_capacity: 4,
+            hand_size: 5,
             weapons: [
                 Module(condition: Blank, effect: Missile),
                 Module(condition: Blank, effect: Missile),

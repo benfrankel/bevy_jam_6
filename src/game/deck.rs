@@ -27,6 +27,7 @@ pub struct PlayerDeck {
     pub name: String,
     pub max_health: f32,
     pub heat_capacity: f32,
+    pub hand_size: usize,
     pub weapons: Vec<Module>,
 
     // Modules:
@@ -42,7 +43,7 @@ pub struct PlayerDeck {
     pub flux: f32,
     pub chain: f32,
     pub action_queue: VecDeque<usize>,
-    pub last_effect: Action,
+    pub last_action: Action,
     pub last_touched_idx: Option<usize>,
 }
 
@@ -62,17 +63,15 @@ impl PlayerDeck {
         }
         self.storage.append(&mut self.hand);
 
-        // Create a new deck, carrying over a few things.
-        *self = Self {
-            max_health: self.max_health,
-            heat_capacity: self.heat_capacity,
-            weapons: core::mem::take(&mut self.weapons),
-            storage: core::mem::take(&mut self.storage),
-            reactor: core::mem::take(&mut self.reactor),
-            ..default()
-        };
+        // Reset turn-based state.
+        self.just_used_storage = false;
+        self.flux = 0.0;
+        self.chain = 0.0;
+        self.action_queue.clear();
+        self.last_action = Action::Blank;
+        self.last_touched_idx = None;
 
-        // Perform setup and select the module in the middle.
+        // Perform setup phase and select the middle module.
         let weapons = self.weapons.clone();
         for weapon in weapons {
             let draw_idx = cq!(self
@@ -175,7 +174,7 @@ impl PlayerDeck {
             .iter()
             .position(|slot| {
                 matches!(slot.status, ModuleStatus::SlotInactive)
-                    && slot.condition == self.last_effect
+                    && slot.condition == self.last_action
             })
             .or_else(|| {
                 self.reactor.iter().position(|slot| {
@@ -197,19 +196,19 @@ impl PlayerDeck {
             let slot = &mut self.reactor[idx];
 
             slot.status = ModuleStatus::SlotActive;
-            self.last_effect = slot.effect;
-            self.flux += 1.0;
-            slot.heat += self.flux;
             if slot.condition == Action::Blank {
                 self.chain = 0.0;
             }
             self.chain += 1.0;
+            slot.heat += self.chain;
+            self.flux = self.flux.max(self.chain);
             self.action_queue.push_back(idx);
+            self.last_action = slot.effect;
             self.last_touched_idx = Some(idx);
 
             true
         } else {
-            self.last_effect = Action::Blank;
+            self.last_action = Action::Blank;
             self.last_touched_idx = None;
             false
         }
@@ -223,7 +222,6 @@ impl PlayerDeck {
     /// Take one step through the player's attack, returning the action or `None` if done.
     pub fn step_player(&mut self) -> Option<Action> {
         self.last_touched_idx = self.action_queue.pop_front();
-
         if let Some(idx) = self.last_touched_idx {
             // Deactivate the reactor module and return its action.
             self.reactor[idx].status = if self.reactor[idx].heat > self.heat_capacity {
@@ -233,7 +231,8 @@ impl PlayerDeck {
             };
             Some(self.reactor[idx].effect)
         } else {
-            // Reactor chain is over, so reset flux to 0.
+            // Action queue is done, so reset chain and flux.
+            self.chain = 0.0;
             self.flux = 0.0;
 
             // If there are no available slots remaining, artificially mark the hottest slot as overheated.
@@ -252,12 +251,12 @@ impl PlayerDeck {
 
     /// Determine whether setting up the helm is done.
     pub fn is_setup_done(&self) -> bool {
-        self.storage.is_empty() || self.hand.len() >= 5
+        self.storage.is_empty() || self.hand.len() >= self.hand_size
     }
 
     /// Steps setting up the helm, returning false if setup was already complete.
     pub fn step_setup(&mut self, rng: &mut impl Rng) -> bool {
-        if !self.storage.is_empty() && self.hand.len() < 5 {
+        if !self.storage.is_empty() && self.hand.len() < self.hand_size {
             self.draw_random(rng);
         } else {
             return false;

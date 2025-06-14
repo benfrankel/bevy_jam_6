@@ -115,7 +115,6 @@ pub fn enemy_ship(ship_config: &ShipConfig, game_assets: &GameAssets, health: f3
         RigidBody::Dynamic,
         Dominance(1),
         Mass(1.0),
-        ExternalForce::ZERO.with_persistence(false),
         Collider::rectangle(167.0, 15.0),
         CollisionLayers::new(GameLayer::Enemy, LayerMask::ALL),
         Shake::default(),

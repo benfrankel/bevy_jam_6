@@ -94,6 +94,7 @@ fn step_enemy_phase(
             }
         } else {
             enemy_ship.2.apply_force(phase_config.enemy_escape_force);
+            step_timer.0.set_duration(Duration::from_secs_f32(30.0));
         }
         return;
     }
