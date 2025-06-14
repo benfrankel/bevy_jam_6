@@ -27,7 +27,7 @@ impl Configure for Damage {
 
 #[derive(Asset, Reflect, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields, default)]
-struct DamageConfig {
+pub struct DamageConfig {
     damage_popup_font_size: f32,
     damage_popup_font_color: Color,
     damage_popup_offset: Vec2,

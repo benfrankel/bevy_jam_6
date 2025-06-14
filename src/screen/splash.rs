@@ -2,6 +2,7 @@ use bevy::diagnostic::FrameCount;
 use bevy::image::ImageLoaderSettings;
 use bevy::image::ImageSampler;
 
+use crate::core::camera::CameraConfig;
 use crate::prelude::*;
 use crate::screen::Screen;
 use crate::screen::ScreenRoot;
@@ -10,13 +11,21 @@ use crate::screen::fade::FADE_IN_SECS;
 use crate::screen::fade::FadeOut;
 use crate::screen::fade::fade_out;
 use crate::screen::title::TitleAssets;
+use crate::theme::color::ThemeConfig;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_loading_state(
         LoadingState::new(Screen::Splash.bevy()).load_collection::<TitleAssets>(),
     );
     app.add_systems(StateFlush, Screen::Splash.on_enter(spawn_splash_screen));
-    app.add_systems(Update, Screen::Splash.on_update(update_splash));
+    app.add_systems(
+        Update,
+        Screen::Splash.on_update((
+            update_splash,
+            CameraConfig::progress.track_progress::<BevyState<Screen>>(),
+            ThemeConfig::progress.track_progress::<BevyState<Screen>>(),
+        )),
+    );
 }
 
 const SPLASH_SCREEN_MIN_SECS: f32 = 0.8;

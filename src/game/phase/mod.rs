@@ -16,7 +16,7 @@ pub(super) fn plugin(app: &mut App) {
 
 #[derive(Asset, Reflect, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields, default)]
-struct PhaseConfig {
+pub struct PhaseConfig {
     setup_cooldown: f32,
     setup_cooldown_decay: f32,
     setup_first_cooldown: f32,

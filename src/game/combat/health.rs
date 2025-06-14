@@ -19,7 +19,7 @@ pub fn health_bar() -> impl Bundle {
 
 #[derive(Asset, Reflect, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields, default)]
-struct HealthConfig {
+pub struct HealthConfig {
     health_bar_color_ramp: Vec<Color>,
     heal_popup_font_size: f32,
     heal_popup_font_color: Color,

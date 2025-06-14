@@ -2,6 +2,14 @@ use crate::core::audio::AudioSettings;
 use crate::core::audio::MusicAudio;
 use crate::core::audio::music_audio;
 use crate::game::GameAssets;
+use crate::game::combat::damage::DamageConfig;
+use crate::game::combat::health::HealthConfig;
+use crate::game::deck::DeckConfig;
+use crate::game::hud::HudConfig;
+use crate::game::level::LevelConfig;
+use crate::game::phase::PhaseConfig;
+use crate::game::projectile::ProjectileConfig;
+use crate::game::ship::ShipConfig;
 use crate::menu::Menu;
 use crate::prelude::*;
 use crate::screen::Screen;
@@ -13,6 +21,19 @@ pub(super) fn plugin(app: &mut App) {
         Screen::Title.on_enter((
             (Menu::Main.enter(), Menu::acquire).chain(),
             spawn_title_screen,
+        )),
+    );
+    app.add_systems(
+        Update,
+        Screen::Title.on_update((
+            DamageConfig::progress.track_progress::<BevyState<Screen>>(),
+            DeckConfig::progress.track_progress::<BevyState<Screen>>(),
+            HealthConfig::progress.track_progress::<BevyState<Screen>>(),
+            HudConfig::progress.track_progress::<BevyState<Screen>>(),
+            LevelConfig::progress.track_progress::<BevyState<Screen>>(),
+            PhaseConfig::progress.track_progress::<BevyState<Screen>>(),
+            ProjectileConfig::progress.track_progress::<BevyState<Screen>>(),
+            ShipConfig::progress.track_progress::<BevyState<Screen>>(),
         )),
     );
 

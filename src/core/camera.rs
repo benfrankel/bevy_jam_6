@@ -20,7 +20,7 @@ pub(super) fn plugin(app: &mut App) {
 
 #[derive(Asset, Reflect, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-struct CameraConfig {
+pub struct CameraConfig {
     scaling_mode: ScalingMode,
     zoom: f32,
 }
