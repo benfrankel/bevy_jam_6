@@ -2,8 +2,8 @@ name: Release
 
 on:
   # Build for web on any push to main.
-  push:
-    branches: [main]
+  #push:
+    #branches: [main]
   # Build for the desired platforms on a manual workflow dispatch.
   workflow_dispatch:
     inputs:
