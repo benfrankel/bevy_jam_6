@@ -16,6 +16,8 @@ pub(super) fn plugin(app: &mut App) {
         InteractionTheme<NodeOffset>,
         TargetInteractionTheme<ThemeColorForText>,
         TargetInteractionTheme<NodeOffset>,
+        ParentInteractionTheme<ThemeColorForText>,
+        ParentInteractionTheme<NodeOffset>,
         InteractionSfx,
     )>();
 }
@@ -130,6 +132,65 @@ fn apply_target_interaction_theme<C: Component<Mutability = Mutable> + Clone>(
 ) {
     for (table, mut value) in &mut table_query {
         let (is_disabled, previous, current) = cq!(interaction_query.get(table.target));
+        // Add 1 frame of delay when going from pressed -> hovered.
+        cq!(!matches!(
+            (previous.0, current),
+            (Interaction::Pressed, Interaction::Hovered),
+        ));
+
+        // Clone the field corresponding to the current interaction state.
+        *value = if matches!(is_disabled, Some(InteractionDisabled(true))) {
+            &table.disabled
+        } else {
+            match current {
+                Interaction::None => &table.none,
+                Interaction::Hovered => &table.hovered,
+                Interaction::Pressed => &table.pressed,
+            }
+        }
+        .clone();
+    }
+}
+
+/// Values to set a component to by a target entity's interaction state.
+#[derive(Component, Reflect, Default)]
+#[reflect(Component)]
+pub struct ParentInteractionTheme<C: Component<Mutability = Mutable> + Clone> {
+    pub none: C,
+    pub hovered: C,
+    pub pressed: C,
+    pub disabled: C,
+}
+
+impl<C: Component<Mutability = Mutable> + Clone + Typed + FromReflect + GetTypeRegistration>
+    Configure for ParentInteractionTheme<C>
+{
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+        app.add_systems(
+            Update,
+            apply_parent_interaction_theme::<C>.in_set(UpdateSystems::RecordInput),
+        );
+    }
+}
+
+fn apply_parent_interaction_theme<C: Component<Mutability = Mutable> + Clone>(
+    mut table_query: Query<(&ParentInteractionTheme<C>, &ChildOf, &mut C)>,
+    interaction_query: Query<
+        (
+            Option<&InteractionDisabled>,
+            &Previous<Interaction>,
+            &Interaction,
+        ),
+        Or<(
+            Changed<InteractionDisabled>,
+            Changed<Previous<Interaction>>,
+            Changed<Interaction>,
+        )>,
+    >,
+) {
+    for (table, child_of, mut value) in &mut table_query {
+        let (is_disabled, previous, current) = cq!(interaction_query.get(child_of.parent()));
         // Add 1 frame of delay when going from pressed -> hovered.
         cq!(!matches!(
             (previous.0, current),

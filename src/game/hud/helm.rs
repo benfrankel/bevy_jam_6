@@ -76,8 +76,8 @@ fn right_helm(game_assets: &GameAssets) -> impl Bundle {
         Name::new("RightHelm"),
         Node {
             width: Vw(12.0833),
-            padding: UiRect::vertical(Vw(1.25)),
-            row_gap: Vw(0.41666),
+            padding: UiRect::bottom(Vw(1.25)).with_top(Vw(0.88541666)),
+            row_gap: Vw(0.05208333),
             ..Node::COLUMN_CENTER.full_height()
         },
         children![mini_buttons(game_assets), storage_display(game_assets)],
@@ -108,7 +108,7 @@ fn mini_buttons(game_assets: &GameAssets) -> impl Bundle {
     (
         Name::new("MiniButtons"),
         Node {
-            column_gap: Vw(0.625),
+            column_gap: Vw(-0.1041666),
             ..Node::ROW
         },
         children![
@@ -120,35 +120,26 @@ fn mini_buttons(game_assets: &GameAssets) -> impl Bundle {
 }
 
 fn info_button(game_assets: &GameAssets) -> impl Bundle {
-    (
-        Name::new("InfoButton"),
-        mini_button_base(
-            game_assets.info_button.clone(),
-            parse_rich("[b]Instruction Manual (I)"),
-            open_help_menu,
-        ),
+    mini_button_base(
+        game_assets.info_button.clone(),
+        parse_rich("[b]Instruction Manual (I)"),
+        open_help_menu,
     )
 }
 
 fn pause_button(game_assets: &GameAssets) -> impl Bundle {
-    (
-        Name::new("PauseButton"),
-        mini_button_base(
-            game_assets.pause_button.clone(),
-            parse_rich("[b]Pause (P)"),
-            open_pause_menu,
-        ),
+    mini_button_base(
+        game_assets.pause_button.clone(),
+        parse_rich("[b]Pause (P)"),
+        open_pause_menu,
     )
 }
 
 fn skip_button(game_assets: &GameAssets) -> impl Bundle {
-    (
-        Name::new("SkipButton"),
-        mini_button_base(
-            game_assets.skip_button.clone(),
-            parse_rich("[b]End turn (E)"),
-            player_end_turn,
-        ),
+    mini_button_base(
+        game_assets.skip_button.clone(),
+        parse_rich("[b]End turn (E)"),
+        player_end_turn,
     )
 }
 
@@ -187,23 +178,33 @@ where
     I: Sync + IntoObserverSystem<E, B, M>,
 {
     (
+        Name::new("MiniButtonInteractionRegion"),
         Button,
-        ImageNode::from(image),
         Node {
-            width: Vw(2.5),
-            aspect_ratio: Some(1.0),
-            ..default()
-        },
-        NodeOffset::default(),
-        InteractionTheme {
-            hovered: NodeOffset::new(Val::ZERO, Vw(-0.2083)),
-            pressed: NodeOffset::new(Val::ZERO, Vw(0.2083)),
+            padding: UiRect::all(Vw(0.36458333)),
             ..default()
         },
         Tooltip::fixed(Anchor::TopCenter, description),
+        Previous::<Interaction>::default(),
         Patch(|entity| {
             entity.observe(action);
         }),
+        children![(
+            Name::new("MiniButton"),
+            ImageNode::from(image),
+            Node {
+                width: Vw(2.5),
+                aspect_ratio: Some(1.0),
+                ..default()
+            },
+            NodeOffset::default(),
+            ParentInteractionTheme {
+                hovered: NodeOffset::new(Val::ZERO, Vw(-0.2083)),
+                pressed: NodeOffset::new(Val::ZERO, Vw(0.2083)),
+                ..default()
+            },
+            Pickable::IGNORE,
+        )],
     )
 }
 

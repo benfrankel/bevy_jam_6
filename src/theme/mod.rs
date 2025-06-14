@@ -18,6 +18,8 @@ pub mod prelude {
     pub use super::interaction::InteractionDisabled;
     pub use super::interaction::InteractionSfx;
     pub use super::interaction::InteractionTheme;
+    pub use super::interaction::ParentInteractionTheme;
+    pub use super::interaction::TargetInteractionTheme;
     pub use super::text::BOLD_FONT_HANDLE;
     pub use super::text::DynamicFontSize;
     pub use super::text::FONT_HANDLE;
