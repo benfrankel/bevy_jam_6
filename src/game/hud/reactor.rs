@@ -93,19 +93,14 @@ fn sync_reactor_grid(
                     }
 
                     parent.spawn((
-                        module(
-                            &game_assets,
-                            &module_config,
-                            &slot,
-                            player_deck.heat_capacity,
-                        ),
+                        module(&game_assets, module_config, slot, player_deck.heat_capacity),
                         shake,
                         ReactorIndex(i),
                         Tooltip::fixed(
                             Anchor::CenterRight,
                             parse_rich(slot.description(
-                                &module_config,
-                                &projectile_config,
+                                module_config,
+                                projectile_config,
                                 player_deck.heat_capacity,
                             )),
                         ),

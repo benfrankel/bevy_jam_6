@@ -52,7 +52,7 @@ fn spawn_upgrade_menu(
         .with_child(widget::popup(children![
             widget::header("[b]They got away!"),
             widget::label("Choose 3 upgrades:"),
-            offered_upgrades(&game_assets, &module_config, upgrades),
+            offered_upgrades(&game_assets, module_config, upgrades),
             widget::row_of_buttons(children![(
                 NextLevelButton,
                 widget::button("Pursue", enter_next_level),

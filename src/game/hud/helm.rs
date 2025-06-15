@@ -76,8 +76,8 @@ fn right_helm(game_assets: &GameAssets) -> impl Bundle {
         Name::new("RightHelm"),
         Node {
             width: Vw(12.0833),
-            padding: UiRect::bottom(Vw(1.25)).with_top(Vw(0.88541666)),
-            row_gap: Vw(0.05208333),
+            padding: UiRect::bottom(Vw(1.25)).with_top(Vw(0.885417)),
+            row_gap: Vw(0.052083),
             ..Node::COLUMN_CENTER.full_height()
         },
         children![mini_buttons(game_assets), storage_display(game_assets)],
@@ -287,16 +287,11 @@ fn sync_hand_display(
                     },
                     Tooltip::fixed(
                         Anchor::BottomCenter,
-                        parse_rich(item.short_description(&module_config)),
+                        parse_rich(item.short_description(module_config)),
                     ),
                     HandIndex(i),
                     children![(
-                        module(
-                            &game_assets,
-                            &module_config,
-                            &item,
-                            player_deck.heat_capacity
-                        ),
+                        module(&game_assets, module_config, item, player_deck.heat_capacity),
                         Pickable::IGNORE,
                         NodeShake::default(),
                         Patch(move |entity| {

@@ -26,7 +26,7 @@ impl Config for ProjectileConfig {
     fn on_load(&mut self, world: &mut World) {
         let asset_server = world.resource::<AssetServer>();
         for projectile in self.projectiles.values_mut() {
-            projectile.load(&asset_server);
+            projectile.load(asset_server);
         }
     }
 

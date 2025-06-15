@@ -27,7 +27,7 @@ impl Config for ModuleConfig {
     fn on_load(&mut self, world: &mut World) {
         let asset_server = world.resource::<AssetServer>();
         for action in self.actions.values_mut() {
-            action.load(&asset_server);
+            action.load(asset_server);
         }
     }
 
