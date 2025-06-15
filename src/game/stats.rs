@@ -9,10 +9,7 @@ pub(super) fn plugin(app: &mut App) {
 #[derive(Resource, Reflect, Debug, Default, Clone)]
 #[reflect(Resource)]
 pub struct Stats {
-    pub missiles: usize,
-    pub lasers: usize,
-    pub fireballs: usize,
-    pub repairs: usize,
+    pub actions: HashMap<String, usize>,
     pub highest_flux: f32,
     pub damage_given: f32,
     pub damage_taken: f32,
@@ -96,25 +93,25 @@ pub fn stats_grid(stats: &Stats, level: usize) -> impl Bundle {
                 },
                 GridAlignment::columns([JustifySelf::End, JustifySelf::Start]),
                 Children::spawn(SpawnWith(move |parent: &mut ChildSpawner| {
-                    parent.spawn(widget::small_label(stats.missiles.to_string()));
+                    parent.spawn(widget::small_label(stats.actions["missile"].to_string()));
                     parent.spawn(widget::small_label(format!(
                         "[b]missile{} launched",
-                        plural(stats.missiles),
+                        plural(stats.actions["missile"]),
                     )));
-                    parent.spawn(widget::small_label(stats.lasers.to_string()));
+                    parent.spawn(widget::small_label(stats.actions["laser"].to_string()));
                     parent.spawn(widget::small_label(format!(
                         "[b]laser{} fired",
-                        plural(stats.lasers),
+                        plural(stats.actions["laser"]),
                     )));
-                    parent.spawn(widget::small_label(stats.fireballs.to_string()));
+                    parent.spawn(widget::small_label(stats.actions["fireball"].to_string()));
                     parent.spawn(widget::small_label(format!(
                         "[b]fireball{} unleashed",
-                        plural(stats.fireballs),
+                        plural(stats.actions["fireball"]),
                     )));
-                    parent.spawn(widget::small_label(stats.repairs.to_string()));
+                    parent.spawn(widget::small_label(stats.actions["repair"].to_string()));
                     parent.spawn(widget::small_label(format!(
                         "[b]repair{}",
-                        plural(stats.repairs),
+                        plural(stats.actions["repair"]),
                     )));
                 })),
             ),

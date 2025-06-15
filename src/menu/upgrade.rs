@@ -6,8 +6,8 @@ use crate::game::GameAssets;
 use crate::game::deck::PlayerDeck;
 use crate::game::level::Level;
 use crate::game::level::LevelConfig;
-use crate::game::module::Action;
 use crate::game::module::Module;
+use crate::game::module::ModuleConfig;
 use crate::menu::Menu;
 use crate::menu::MenuRoot;
 use crate::prelude::*;
@@ -34,11 +34,13 @@ fn spawn_upgrade_menu(
     mut commands: Commands,
     menu_root: Res<MenuRoot>,
     game_assets: Res<GameAssets>,
+    module_config: ConfigRef<ModuleConfig>,
     level_config: ConfigRef<LevelConfig>,
     level: CurrentRef<Level>,
     player_deck: Res<PlayerDeck>,
     upgrade_history: Res<UpgradeHistory>,
 ) {
+    let module_config = r!(module_config.get());
     let level = r!(level.get()).0;
     let _level_config = r!(level_config.get());
 
@@ -50,7 +52,7 @@ fn spawn_upgrade_menu(
         .with_child(widget::popup(children![
             widget::header("[b]They got away!"),
             widget::label("Choose 3 upgrades:"),
-            offered_upgrades(&game_assets, upgrades),
+            offered_upgrades(&game_assets, &module_config, upgrades),
             widget::row_of_buttons(children![(
                 NextLevelButton,
                 widget::button("Pursue", enter_next_level),
@@ -103,7 +105,11 @@ fn enter_next_level(
     r!(level.get_mut()).0 += 1;
 }
 
-fn offered_upgrades(game_assets: &GameAssets, mut upgrades: Vec<Upgrade>) -> impl Bundle {
+fn offered_upgrades(
+    game_assets: &GameAssets,
+    module_config: &ModuleConfig,
+    mut upgrades: Vec<Upgrade>,
+) -> impl Bundle {
     (
         Name::new("OfferedUpgrades"),
         Node {
@@ -112,17 +118,21 @@ fn offered_upgrades(game_assets: &GameAssets, mut upgrades: Vec<Upgrade>) -> imp
             ..Node::ROW_CENTER
         },
         children![
-            upgrade_selector(game_assets, upgrades.remove(0)),
-            upgrade_selector(game_assets, upgrades.remove(0)),
-            upgrade_selector(game_assets, upgrades.remove(0)),
-            upgrade_selector(game_assets, upgrades.remove(0)),
-            upgrade_selector(game_assets, upgrades.remove(0)),
-            upgrade_selector(game_assets, upgrades.remove(0)),
+            upgrade_selector(game_assets, module_config, upgrades.remove(0)),
+            upgrade_selector(game_assets, module_config, upgrades.remove(0)),
+            upgrade_selector(game_assets, module_config, upgrades.remove(0)),
+            upgrade_selector(game_assets, module_config, upgrades.remove(0)),
+            upgrade_selector(game_assets, module_config, upgrades.remove(0)),
+            upgrade_selector(game_assets, module_config, upgrades.remove(0)),
         ],
     )
 }
 
-fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
+fn upgrade_selector(
+    game_assets: &GameAssets,
+    module_config: &ModuleConfig,
+    upgrade: Upgrade,
+) -> impl Bundle {
     let image = match upgrade {
         Upgrade::FluxCapacitor(_) => &game_assets.upgrade_capacitor,
         Upgrade::QuantumCooler(_) => &game_assets.upgrade_cooler,
@@ -159,7 +169,7 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
                 "[b]Starter Pack[r]\n\nUnpack three helpful new Starter modules.\n\n{}",
                 modules
                     .iter()
-                    .map(|x| x.short_description())
+                    .map(|x| x.short_description(module_config))
                     .collect::<Vec<_>>()
                     .join("\n"),
             )
@@ -169,7 +179,7 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
                 "[b]Repair Pack[r]\n\nUnpack three new Repair modules.\n\n{}",
                 modules
                     .iter()
-                    .map(|x| x.short_description())
+                    .map(|x| x.short_description(module_config))
                     .collect::<Vec<_>>()
                     .join("\n"),
             )
@@ -179,7 +189,7 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
                 "[b]Missile Pack[r]\n\nUnpack three new Missile modules.\n\n{}",
                 modules
                     .iter()
-                    .map(|x| x.short_description())
+                    .map(|x| x.short_description(module_config))
                     .collect::<Vec<_>>()
                     .join("\n"),
             )
@@ -189,7 +199,7 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
                 "[b]Laser Pack[r]\n\nUnpack three new Laser modules.\n\n{}",
                 modules
                     .iter()
-                    .map(|x| x.short_description())
+                    .map(|x| x.short_description(module_config))
                     .collect::<Vec<_>>()
                     .join("\n"),
             )
@@ -199,7 +209,7 @@ fn upgrade_selector(game_assets: &GameAssets, upgrade: Upgrade) -> impl Bundle {
                 "[b]Fireball Pack[r]\n\nUnpack three powerful new Fireball modules.\n\n{}",
                 modules
                     .iter()
-                    .map(|x| x.short_description())
+                    .map(|x| x.short_description(module_config))
                     .collect::<Vec<_>>()
                     .join("\n"),
             )
@@ -394,61 +404,56 @@ fn generate_upgrades(
     // Populate module packs.
     for upgrade in &mut upgrades {
         let (action, modules) = match upgrade {
-            Upgrade::StarterPack(modules) => (Action::Start, modules),
-            Upgrade::RepairPack(modules) => (Action::Repair, modules),
-            Upgrade::MissilePack(modules) => (Action::Missile, modules),
-            Upgrade::LaserPack(modules) => (Action::Laser, modules),
-            Upgrade::FireballPack(modules) => (Action::Fireball, modules),
+            Upgrade::StarterPack(modules) => ("", modules),
+            Upgrade::RepairPack(modules) => ("repair", modules),
+            Upgrade::MissilePack(modules) => ("missile", modules),
+            Upgrade::LaserPack(modules) => ("laser", modules),
+            Upgrade::FireballPack(modules) => ("fireball", modules),
             _ => continue,
         };
 
-        let all_actions = [
-            Action::Missile,
-            Action::Repair,
-            Action::Laser,
-            Action::Start,
-            Action::Fireball,
-        ];
+        let all_actions = ["missile", "repair", "laser", "", "fireball"];
         let mut other_actions = vec![];
         for _ in 0..3 {
             // TODO: Get weights from level / level config.
             other_actions.push(*c!(all_actions.choose_weighted(rng, |&x| match x {
-                Action::Missile => 1.0,
-                Action::Repair => 0.6,
-                Action::Laser => 0.7,
-                x @ Action::Start if x == action => 0.0,
-                Action::Start => 0.1,
-                x @ Action::Fireball if x == action => 0.0,
-                Action::Fireball => 0.08,
+                "missile" => 1.0,
+                "repair" => 0.6,
+                "laser" => 0.7,
+                x @ "" if x == action => 0.0,
+                "" => 0.1,
+                x @ "fireball" if x == action => 0.0,
+                "fireball" => 0.08,
+                _ => 0.0,
             })));
         }
 
         match action {
-            Action::Start => {
+            "" => {
                 for other in other_actions {
                     modules.push(Module::new(action, other));
                 }
             },
-            Action::Fireball => {
+            "fireball" => {
                 for other in other_actions {
                     modules.push(Module::new(other, action));
                 }
             },
             _ => {
-                if matches!(other_actions[0], Action::Start) {
+                if matches!(other_actions[0], "") {
                     modules.push(Module::new(other_actions[0], action));
                 } else {
                     modules.push(Module::new(action, other_actions[0]));
                 }
 
-                if matches!(other_actions[1], Action::Fireball) {
+                if matches!(other_actions[1], "fireball") {
                     modules.push(Module::new(action, other_actions[1]));
                 } else {
                     modules.push(Module::new(other_actions[1], action));
                 }
 
-                if matches!(other_actions[2], Action::Fireball)
-                    || (!matches!(other_actions[2], Action::Start) && rng.r#gen())
+                if matches!(other_actions[2], "fireball")
+                    || (!matches!(other_actions[2], "") && rng.r#gen())
                 {
                     modules.push(Module::new(action, other_actions[2]));
                 } else {

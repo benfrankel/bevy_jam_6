@@ -17,7 +17,7 @@ pub(super) fn plugin(app: &mut App) {
 #[derive(Asset, Reflect, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields, default)]
 pub struct ProjectileConfig {
-    pub projectiles: HashMap<String, Projectile>,
+    pub projectiles: HashMap<String, ProjectileInfo>,
 }
 
 impl Config for ProjectileConfig {
@@ -41,7 +41,7 @@ impl Config for ProjectileConfig {
 
 #[derive(Reflect, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct Projectile {
+pub struct ProjectileInfo {
     pub name: String,
     #[serde(rename = "sprite")]
     pub sprite_path: String,
@@ -80,10 +80,10 @@ fn one() -> f64 {
     1.0
 }
 
-impl Projectile {
+impl ProjectileInfo {
     pub fn generate(
         &self,
-        mut rng: impl Rng,
+        rng: &mut impl Rng,
         faction: Faction,
         flux: f32,
         mut transform: Transform,

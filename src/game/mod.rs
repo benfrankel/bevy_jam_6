@@ -83,28 +83,6 @@ pub struct GameAssets {
     #[asset(path = "image/module/full_glow.png")]
     pub module_slot_full_glow: Handle<Image>,
 
-    // Reactor module icons.
-    #[asset(path = "image/module/icon/nothing_condition.png")]
-    pub nothing_condition_icon: Handle<Image>,
-    #[asset(path = "image/module/icon/nothing_effect.png")]
-    pub nothing_effect_icon: Handle<Image>,
-    #[asset(path = "image/module/icon/missile_condition.png")]
-    pub missile_condition_icon: Handle<Image>,
-    #[asset(path = "image/module/icon/missile_effect.png")]
-    pub missile_effect_icon: Handle<Image>,
-    #[asset(path = "image/module/icon/laser_condition.png")]
-    pub laser_condition_icon: Handle<Image>,
-    #[asset(path = "image/module/icon/laser_effect.png")]
-    pub laser_effect_icon: Handle<Image>,
-    #[asset(path = "image/module/icon/fireball_condition.png")]
-    pub fireball_condition_icon: Handle<Image>,
-    #[asset(path = "image/module/icon/fireball_effect.png")]
-    pub fireball_effect_icon: Handle<Image>,
-    #[asset(path = "image/module/icon/repair_condition.png")]
-    pub repair_condition_icon: Handle<Image>,
-    #[asset(path = "image/module/icon/repair_effect.png")]
-    pub repair_effect_icon: Handle<Image>,
-
     // Phase display.
     #[asset(path = "image/ui/phase_setup.png")]
     pub phase_setup: Handle<Image>,
@@ -147,25 +125,11 @@ pub struct GameAssets {
     #[asset(path = "image/ship/enemy.png")]
     pub enemy_ship: Handle<Image>,
 
-    // Projectiles.
-    #[asset(path = "image/projectile/missile.png")]
-    pub missile: Handle<Image>,
-    #[asset(path = "image/projectile/laser.png")]
-    pub laser: Handle<Image>,
-    #[asset(path = "image/projectile/fireball.png")]
-    pub fireball: Handle<Image>,
-
     // VFX.
     #[asset(path = "image/vfx/heal_popup.png")]
     pub heal_popup: Handle<Image>,
 
     // SFX.
-    #[asset(path = "audio/sfx/Missile SFX 1.ogg")]
-    pub missile_spawn_sfx: Handle<AudioSource>,
-    #[asset(path = "audio/sfx/Firing Laser SFX.ogg")]
-    pub laser_spawn_sfx: Handle<AudioSource>,
-    #[asset(path = "audio/sfx/Fireball SFX.ogg")]
-    pub fireball_spawn_sfx: Handle<AudioSource>,
     #[asset(path = "audio/sfx/Spaceship SFX 1.ogg")]
     pub repair_sfx: Handle<AudioSource>,
     #[asset(path = "audio/sfx/Metal Hit SFX 1.ogg")]

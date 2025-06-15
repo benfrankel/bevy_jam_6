@@ -1,4 +1,12 @@
 (
+    storage_summary_actions: [
+        "",
+        "repair",
+        "missile",
+        "laser",
+        "fireball",
+    ],
+
     flux_shake_flux_factor: 1.15,
     flux_shake_flux_min: 4,
     flux_shake_amplitude: Vec2(6, 0),

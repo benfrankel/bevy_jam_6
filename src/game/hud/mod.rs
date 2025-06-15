@@ -36,6 +36,8 @@ pub fn hud(game_assets: &GameAssets) -> impl Bundle {
 #[derive(Asset, Reflect, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields, default)]
 pub struct HudConfig {
+    storage_summary_actions: Vec<String>,
+
     flux_shake_flux_factor: f32,
     flux_shake_flux_min: f32,
     flux_shake_amplitude: Vec2,

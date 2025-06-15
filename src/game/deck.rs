@@ -1,6 +1,5 @@
 use std::collections::VecDeque;
 
-use crate::game::module::Action;
 use crate::game::module::Module;
 use crate::game::module::ModuleStatus;
 use crate::prelude::*;
@@ -43,7 +42,7 @@ pub struct PlayerDeck {
     pub flux: f32,
     pub chain: f32,
     pub action_queue: VecDeque<usize>,
-    pub last_action: Action,
+    pub last_action: String,
     pub last_touched_idx: Option<usize>,
 }
 
@@ -68,7 +67,7 @@ impl PlayerDeck {
         self.flux = 0.0;
         self.chain = 0.0;
         self.action_queue.clear();
-        self.last_action = Action::Start;
+        self.last_action.clear();
         self.last_touched_idx = None;
 
         // Perform setup phase and select the middle module.
@@ -77,7 +76,7 @@ impl PlayerDeck {
             let draw_idx = cq!(self
                 .storage
                 .iter()
-                .position(|&x| x.condition == weapon.condition && x.effect == weapon.effect));
+                .position(|x| x.condition == weapon.condition && x.effect == weapon.effect));
             self.draw_from_idx(draw_idx);
         }
         while self.step_setup(rng) {}
@@ -108,10 +107,10 @@ impl PlayerDeck {
 
     /// Discard a module from the reactor to storage.
     pub fn discard_module(&mut self, idx: usize) {
-        let mut slot = self.reactor[idx];
-        rq!(!matches!(slot.status, ModuleStatus::SlotEmpty));
+        rq!(!matches!(self.reactor[idx].status, ModuleStatus::SlotEmpty));
         self.reactor[idx].status = ModuleStatus::SlotEmpty;
 
+        let mut slot = self.reactor[idx].clone();
         slot.status = ModuleStatus::FaceUp;
         slot.heat = 0.0;
         self.storage.push(slot);
@@ -178,8 +177,7 @@ impl PlayerDeck {
             })
             .or_else(|| {
                 self.reactor.iter().position(|slot| {
-                    matches!(slot.status, ModuleStatus::SlotInactive)
-                        && slot.condition == Action::Start
+                    matches!(slot.status, ModuleStatus::SlotInactive) && slot.condition.is_empty()
                 })
             })
     }
@@ -196,19 +194,19 @@ impl PlayerDeck {
             let slot = &mut self.reactor[idx];
 
             slot.status = ModuleStatus::SlotActive;
-            if slot.condition == Action::Start {
+            if slot.condition.is_empty() {
                 self.chain = 0.0;
             }
             self.chain += 1.0;
             slot.heat += self.chain;
             self.flux = self.flux.max(self.chain);
             self.action_queue.push_back(idx);
-            self.last_action = slot.effect;
+            self.last_action = slot.effect.clone();
             self.last_touched_idx = Some(idx);
 
             true
         } else {
-            self.last_action = Action::Start;
+            self.last_action.clear();
             self.last_touched_idx = None;
             false
         }
@@ -220,7 +218,7 @@ impl PlayerDeck {
     }
 
     /// Take one step through the player's attack, returning the action or `None` if done.
-    pub fn step_player(&mut self) -> Option<Action> {
+    pub fn step_player(&mut self) -> Option<String> {
         self.last_touched_idx = self.action_queue.pop_front();
         if let Some(idx) = self.last_touched_idx {
             // Deactivate the reactor module and return its action.
@@ -229,7 +227,7 @@ impl PlayerDeck {
             } else {
                 ModuleStatus::SlotInactive
             };
-            Some(self.reactor[idx].effect)
+            Some(self.reactor[idx].effect.clone())
         } else {
             // Action queue is done, so reset chain and flux.
             self.chain = 0.0;
@@ -271,7 +269,7 @@ impl PlayerDeck {
 #[serde(deny_unknown_fields, default)]
 pub struct EnemyDeck {
     pub flux: f32,
-    pub actions: Vec<Action>,
+    pub actions: Vec<String>,
     pub action_idx: usize,
     /// The maximum number of actions to be performed on the first round.
     pub action_limit: usize,
@@ -310,7 +308,7 @@ impl EnemyDeck {
     }
 
     /// Simulate one step and get the next action.
-    pub fn step(&mut self, round: usize) -> Option<Action> {
+    pub fn step(&mut self, round: usize) -> Option<String> {
         if self.is_done(round) {
             self.action_idx = 0;
             self.flux = 0.0;
@@ -318,7 +316,7 @@ impl EnemyDeck {
         } else {
             self.action_idx += 1;
             self.flux += 1.0;
-            Some(self.actions[self.action_idx - 1])
+            Some(self.actions[self.action_idx - 1].clone())
         }
     }
 }

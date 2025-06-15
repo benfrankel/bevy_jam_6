@@ -12,54 +12,115 @@ use crate::game::stats::Stats;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<OnAction>();
+    app.configure::<(ConfigHandle<ModuleConfig>, OnAction)>();
 }
 
-#[derive(Reflect, Copy, Clone, Default, Debug, Serialize, Deserialize)]
+#[derive(Asset, Reflect, Serialize, Deserialize, Default)]
+#[serde(deny_unknown_fields, default)]
+pub struct ModuleConfig {
+    pub actions: HashMap<String, ActionInfo>,
+}
+
+impl Config for ModuleConfig {
+    const FILE: &'static str = "module.ron";
+
+    fn on_load(&mut self, world: &mut World) {
+        let asset_server = world.resource::<AssetServer>();
+        for action in self.actions.values_mut() {
+            action.load(&asset_server);
+        }
+    }
+
+    fn count_progress(&self, asset_server: &AssetServer) -> Progress {
+        let mut progress = true.into();
+        for action in self.actions.values() {
+            progress += action.count_progress(asset_server);
+        }
+        progress
+    }
+}
+
+#[derive(Reflect, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ActionInfo {
+    pub condition_name: String,
+    pub condition_description: String,
+    #[serde(rename = "condition_icon")]
+    pub condition_icon_path: String,
+    #[serde(skip)]
+    pub condition_icon: Handle<Image>,
+
+    pub effect_name: String,
+    pub effect_description: String,
+    pub effect_repeat_description: String,
+    #[serde(rename = "effect_icon")]
+    pub effect_icon_path: String,
+    #[serde(skip)]
+    pub effect_icon: Handle<Image>,
+    #[serde(default)]
+    pub effect_projectile: String,
+    #[serde(default)]
+    pub effect_heal: f32,
+}
+
+impl ActionInfo {
+    fn load(&mut self, asset_server: &AssetServer) {
+        self.condition_icon = asset_server.load(&self.condition_icon_path);
+        self.effect_icon = asset_server.load(&self.effect_icon_path);
+    }
+
+    fn count_progress(&self, asset_server: &AssetServer) -> Progress {
+        let mut progress = Progress::default();
+        progress += asset_server
+            .is_loaded_with_dependencies(&self.condition_icon)
+            .into();
+        progress += asset_server
+            .is_loaded_with_dependencies(&self.effect_icon)
+            .into();
+        progress
+    }
+}
+
+#[derive(Reflect, Clone, Default, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields, default)]
 pub struct Module {
-    pub condition: Action,
-    pub effect: Action,
+    pub condition: String,
+    pub effect: String,
     pub status: ModuleStatus,
     pub heat: f32,
 }
 
 impl Module {
     pub const EMPTY: Self = Self {
-        condition: Action::Start,
-        effect: Action::Start,
+        condition: String::new(),
+        effect: String::new(),
         status: ModuleStatus::SlotEmpty,
         heat: 0.0,
     };
 
-    pub fn new(condition: Action, effect: Action) -> Self {
+    pub fn new(condition: impl Into<String>, effect: impl Into<String>) -> Self {
         Self {
-            condition,
-            effect,
+            condition: condition.into(),
+            effect: effect.into(),
             status: ModuleStatus::FaceUp,
             heat: 0.0,
         }
     }
 
-    pub fn short_description(&self) -> String {
-        let condition = match self.condition {
-            Action::Start => "[b]Start[r] -> ",
-            Action::Missile => "[b]Missile[r] -> ",
-            Action::Laser => "[b]Laser[r] -> ",
-            Action::Fireball => "[b]Fireball[r] -> ",
-            Action::Repair => "[b]Repair[r] -> ",
-        };
-        let effect = match self.effect {
-            Action::Start => "[b]Nothing[r]",
-            Action::Missile => "[b]Missile[r]",
-            Action::Laser => "[b]Laser[r]",
-            Action::Fireball => "[b]Fireball[r]",
-            Action::Repair => "[b]Repair[r]",
-        };
-        format!("{condition}{effect}")
+    pub fn short_description(&self, module_config: &ModuleConfig) -> String {
+        format!(
+            "[b]{}[r] -> [b]{}[r]",
+            module_config.actions[&self.condition].condition_name,
+            module_config.actions[&self.effect].effect_name,
+        )
     }
 
-    pub fn description(&self, heat_capacity: f32) -> String {
+    pub fn description(
+        &self,
+        module_config: &ModuleConfig,
+        projectile_config: &ProjectileConfig,
+        heat_capacity: f32,
+    ) -> String {
         let header = "[b]Reactor module[r]";
         let heat = if matches!(self.status, ModuleStatus::SlotOverheated) {
             " (OVERHEATED)".to_string()
@@ -70,55 +131,35 @@ impl Module {
             ModuleStatus::FaceDown => header.to_string(),
             ModuleStatus::SlotEmpty => format!("{header}\n\nEmpty slot"),
             _ => {
-                let condition = match self.condition {
-                    Action::Start => "at the start of a new chain, ",
-                    Action::Missile => "after launching a missile, ",
-                    Action::Laser => "after firing a laser, ",
-                    Action::Fireball => "after unleashing a fireball, ",
-                    Action::Repair => "after repairing the hull, ",
-                };
-                let effect = match (&self.condition, &self.effect) {
-                    (_, Action::Start) => "end the chain",
-                    (Action::Missile, Action::Missile) => "launch another missile",
-                    (_, Action::Missile) => "launch a missile",
-                    (Action::Laser, Action::Laser) => "fire another laser",
-                    (_, Action::Laser) => "fire a laser",
-                    (Action::Fireball, Action::Fireball) => {
-                        "unleash another fireball and end the chain"
+                let condition = &module_config.actions[&self.condition];
+                let effect = &module_config.actions[&self.effect];
+                let body = format!(
+                    "{}{}.",
+                    condition.condition_description,
+                    if self.condition == self.effect {
+                        &effect.effect_repeat_description
+                    } else {
+                        &effect.effect_description
                     },
-                    (_, Action::Fireball) => "unleash a fireball and end the chain",
-                    (Action::Repair, Action::Repair) => "repair the hull again",
-                    (_, Action::Repair) => "repair the hull",
-                };
-                let body = format!("{condition}{effect}.");
-                let mut chars = body.chars();
-                let body = match chars.next() {
-                    Some(c) => c.to_uppercase().to_string() + chars.as_str(),
-                    None => String::new(),
-                };
+                );
 
-                let stats = match self.effect {
-                    Action::Start => "",
-                    Action::Missile => "\n\n[b]Damage:[r] 1 times flux",
-                    Action::Laser => "\n\n[b]Damage:[r] 2 times flux",
-                    Action::Fireball => "\n\n[b]Damage:[r] 8 times flux",
-                    Action::Repair => "\n\n[b]Heal:[r] 2 times flux",
-                };
+                let mut stats = String::new();
+                if let Some(projectile) =
+                    projectile_config.projectiles.get(&effect.effect_projectile)
+                {
+                    stats += &format!("\n[b]Damage:[r] {} times flux", projectile.damage);
+                }
+                if effect.effect_heal > f32::EPSILON {
+                    stats += &format!("\n[b]Heal:[r] {} times flux", effect.effect_heal);
+                }
+                if !stats.is_empty() {
+                    stats = format!("\n{stats}");
+                }
 
                 format!("{header}{heat} - Right click to remove\n\n> {body}{stats}")
             },
         }
     }
-}
-
-#[derive(Reflect, Serialize, Deserialize, Copy, Clone, Default, Eq, PartialEq, Debug)]
-pub enum Action {
-    #[default]
-    Start,
-    Missile,
-    Laser,
-    Fireball,
-    Repair,
 }
 
 #[derive(Reflect, Copy, Clone, Default, Debug, Serialize, Deserialize)]
@@ -134,7 +175,7 @@ pub enum ModuleStatus {
 
 #[derive(Event, Reflect, Debug)]
 pub struct OnAction {
-    pub action: Action,
+    pub action: String,
     pub source: Entity,
     pub target: Entity,
 }
@@ -142,16 +183,17 @@ pub struct OnAction {
 impl Configure for OnAction {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
-        app.add_observer(on_module_action);
+        app.add_observer(perform_action);
     }
 }
 
-fn on_module_action(
+fn perform_action(
     trigger: Trigger<OnAction>,
     mut commands: Commands,
+    module_config: ConfigRef<ModuleConfig>,
+    projectile_config: ConfigRef<ProjectileConfig>,
     player_deck: Res<PlayerDeck>,
     enemy_deck: Res<EnemyDeck>,
-    projectile_config: ConfigRef<ProjectileConfig>,
     game_assets: Res<GameAssets>,
     audio_settings: Res<AudioSettings>,
     ship_query: Query<(&Children, &Faction)>,
@@ -160,6 +202,8 @@ fn on_module_action(
     mut stats: ResMut<Stats>,
 ) {
     let projectile_config = r!(projectile_config.get());
+    let module_config = r!(module_config.get());
+    let action = r!(module_config.actions.get(&trigger.action));
 
     // Choose a weapon on the ship.
     let rng = &mut thread_rng();
@@ -171,7 +215,7 @@ fn on_module_action(
             weapons.extend(weapon_query.get(child));
         }
     }
-    let weapon_gt = r!(weapons.choose(&mut thread_rng()));
+    let weapon_gt = r!(weapons.choose(rng));
     let weapon_transform = weapon_gt.compute_transform();
 
     // Determine flux.
@@ -181,78 +225,32 @@ fn on_module_action(
         false => enemy_deck.flux,
     };
 
-    // Perform action.
-    match trigger.action {
-        Action::Missile => {
-            let projectile = &projectile_config.projectiles["missile"];
+    // Spawn projectile.
+    if let Some(projectile) = projectile_config.projectiles.get(&action.effect_projectile) {
+        commands.spawn((
+            projectile.generate(rng, faction, flux, weapon_transform, trigger.target),
+            DespawnOnExitState::<Level>::default(),
+        ));
+        if let Some(spawn_sfx) = &projectile.spawn_sfx {
             commands.spawn((
-                projectile.generate(rng, faction, flux, weapon_transform, trigger.target),
+                sfx_audio(&audio_settings, spawn_sfx.clone(), 1.0),
                 DespawnOnExitState::<Level>::default(),
             ));
-            if let Some(spawn_sfx) = &projectile.spawn_sfx {
-                commands.spawn((
-                    sfx_audio(&audio_settings, spawn_sfx.clone(), 1.0),
-                    DespawnOnExitState::<Level>::default(),
-                ));
-            }
-
-            if is_player {
-                stats.missiles += 1;
-            }
-        },
-
-        Action::Laser => {
-            let projectile = &projectile_config.projectiles["laser"];
-            commands.spawn((
-                projectile.generate(rng, faction, flux, weapon_transform, trigger.target),
-                DespawnOnExitState::<Level>::default(),
-            ));
-            if let Some(spawn_sfx) = &projectile.spawn_sfx {
-                commands.spawn((
-                    sfx_audio(&audio_settings, spawn_sfx.clone(), 1.0),
-                    DespawnOnExitState::<Level>::default(),
-                ));
-            }
-
-            if is_player {
-                stats.lasers += 1;
-            }
-        },
-
-        Action::Fireball => {
-            let projectile = &projectile_config.projectiles["fireball"];
-            commands.spawn((
-                projectile.generate(rng, faction, flux, weapon_transform, trigger.target),
-                DespawnOnExitState::<Level>::default(),
-            ));
-            if let Some(spawn_sfx) = &projectile.spawn_sfx {
-                commands.spawn((
-                    sfx_audio(&audio_settings, spawn_sfx.clone(), 1.0),
-                    DespawnOnExitState::<Level>::default(),
-                ));
-            }
-
-            if is_player {
-                stats.fireballs += 1;
-            }
-        },
-
-        Action::Repair => {
-            commands.entity(trigger.source).trigger(OnHeal(2.0 * flux));
-            commands.spawn((
-                sfx_audio(
-                    &audio_settings,
-                    game_assets.repair_sfx.clone(),
-                    2f32.powf(1.0 / 12.0 * thread_rng().gen_range(0..12) as f32),
-                ),
-                DespawnOnExitState::<Level>::default(),
-            ));
-
-            if is_player {
-                stats.repairs += 1;
-            }
-        },
-
-        _ => {},
+        }
     }
+
+    // Heal.
+    if action.effect_heal > f32::EPSILON {
+        commands.entity(trigger.source).trigger(OnHeal(2.0 * flux));
+        commands.spawn((
+            sfx_audio(
+                &audio_settings,
+                game_assets.repair_sfx.clone(),
+                2f32.powf(1.0 / 12.0 * rng.gen_range(0..12) as f32),
+            ),
+            DespawnOnExitState::<Level>::default(),
+        ));
+    }
+
+    *stats.actions.entry_ref(&trigger.action).or_default() += 1;
 }

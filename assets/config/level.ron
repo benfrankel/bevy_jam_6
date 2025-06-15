@@ -3,70 +3,70 @@
         // Level 0:
         LevelSetup(
             name: "Alpha Centauri",
-            enemy_deck: EnemyDeck(actions: [Missile, Missile, Missile]),
+            enemy_deck: EnemyDeck(actions: ["missile", "missile", "missile"]),
             enemy_health: 20,
         ),
 
         // Level 1:
         LevelSetup(
             name: "Velorum",
-            enemy_deck: EnemyDeck(actions: [Laser, Missile, Missile, Missile]),
+            enemy_deck: EnemyDeck(actions: ["laser", "missile", "missile", "missile"]),
             enemy_health: 40,
         ),
 
         // Level 2:
         LevelSetup(
             name: "Betelgeuse",
-            enemy_deck: EnemyDeck(actions: [Laser, Laser, Missile, Missile, Missile]),
+            enemy_deck: EnemyDeck(actions: ["laser", "laser", "missile", "missile", "missile"]),
             enemy_health: 75,
         ),
 
         // Level 3:
         LevelSetup(
             name: "Epsilon Ursae Majoris",
-            enemy_deck: EnemyDeck(actions: [Laser, Laser, Laser, Missile, Missile, Missile, Missile]),
+            enemy_deck: EnemyDeck(actions: ["laser", "laser", "laser", "missile", "missile", "missile", "missile"]),
             enemy_health: 115,
         ),
 
         // Level 4:
         LevelSetup(
             name: "Hadar",
-            enemy_deck: EnemyDeck(actions: [Laser, Laser, Laser, Laser, Missile, Missile, Missile, Laser]),
+            enemy_deck: EnemyDeck(actions: ["laser", "laser", "laser", "laser", "missile", "missile", "missile", "laser"]),
             enemy_health: 160,
         ),
 
         // Level 5:
         LevelSetup(
             name: "Bellatrix",
-            enemy_deck: EnemyDeck(actions: [Laser, Laser, Laser, Laser, Laser, Laser, Laser]),
+            enemy_deck: EnemyDeck(actions: ["laser", "laser", "laser", "laser", "laser", "laser", "laser"]),
             enemy_health: 220,
         ),
 
         // Level 6:
         LevelSetup(
             name: "Polaris",
-            enemy_deck: EnemyDeck(actions: [Laser, Laser, Laser, Laser, Laser, Laser, Laser, Laser]),
+            enemy_deck: EnemyDeck(actions: ["laser", "laser", "laser", "laser", "laser", "laser", "laser", "laser"]),
             enemy_health: 300,
         ),
 
         // Level 7:
         LevelSetup(
             name: "Fomalhaut",
-            enemy_deck: EnemyDeck(actions: [Laser, Laser, Laser, Laser, Laser, Laser, Laser, Laser, Laser]),
+            enemy_deck: EnemyDeck(actions: ["laser", "laser", "laser", "laser", "laser", "laser", "laser", "laser", "laser"]),
             enemy_health: 400,
         ),
 
         // Level 8:
         LevelSetup(
             name: "Omega Persei",
-            enemy_deck: EnemyDeck(actions: [Laser, Laser, Laser, Laser, Laser, Laser, Laser, Laser, Laser]),
+            enemy_deck: EnemyDeck(actions: ["laser", "laser", "laser", "laser", "laser", "laser", "laser", "laser", "laser"]),
             enemy_health: 500,
         ),
 
         // Level 9:
         LevelSetup(
             name: "???",
-            enemy_deck: EnemyDeck(actions: [Laser, Laser, Laser, Laser, Laser, Laser, Laser, Laser, Laser, Missile, Missile, Missile, Missile, Missile, Missile, Missile, Missile, Laser, Fireball]),
+            enemy_deck: EnemyDeck(actions: ["laser", "laser", "laser", "laser", "laser", "laser", "laser", "laser", "laser", "missile", "missile", "missile", "missile", "missile", "missile", "missile", "missile", "laser", "fireball"]),
             enemy_health: 600,
         ),
     ],

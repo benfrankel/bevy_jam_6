@@ -1,6 +1,6 @@
 (
     projectiles: {
-        "missile": Projectile(
+        "missile": ProjectileInfo(
             name: "Missile",
             sprite: "image/projectile/missile.png",
             spawn_sfx: "audio/sfx/Missile SFX 1.ogg",
@@ -27,7 +27,7 @@
             oscillate_rate: Vec2(30, 0),
         ),
 
-        "laser": Projectile(
+        "laser": ProjectileInfo(
             name: "Laser",
             sprite: "image/projectile/laser.png",
             spawn_sfx: "audio/sfx/Firing Laser SFX.ogg",
@@ -54,7 +54,7 @@
             oscillate_rate: Vec2(0, 0),
         ),
 
-        "fireball": Projectile(
+        "fireball": ProjectileInfo(
             name: "Fireball",
             sprite: "image/projectile/fireball.png",
             spawn_sfx: "audio/sfx/Fireball SFX.ogg",

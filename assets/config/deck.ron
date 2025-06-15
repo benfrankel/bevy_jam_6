@@ -6,20 +6,20 @@
             heat_capacity: 4,
             hand_size: 5,
             weapons: [
-                Module(condition: Start, effect: Missile),
-                Module(condition: Start, effect: Missile),
+                Module(condition: "", effect: "missile"),
+                Module(condition: "", effect: "missile"),
             ],
 
             storage: [
-                Module(condition: Start, effect: Missile),
-                Module(condition: Repair, effect: Repair),
-                Module(condition: Repair, effect: Missile),
-                Module(condition: Missile, effect: Repair),
-                Module(condition: Missile, effect: Missile),
-                Module(condition: Missile, effect: Missile),
+                Module(condition: "", effect: "missile"),
+                Module(condition: "repair", effect: "repair"),
+                Module(condition: "repair", effect: "missile"),
+                Module(condition: "missile", effect: "repair"),
+                Module(condition: "missile", effect: "missile"),
+                Module(condition: "missile", effect: "missile"),
             ],
             hand: [
-                Module(condition: Start, effect: Missile),
+                Module(condition: "", effect: "missile"),
             ],
             reactor: [
                 Module(status: SlotEmpty),

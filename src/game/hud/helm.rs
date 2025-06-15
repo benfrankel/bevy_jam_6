@@ -9,7 +9,7 @@ use crate::game::deck::PlayerDeck;
 use crate::game::hud::HudConfig;
 use crate::game::hud::module::module;
 use crate::game::level::Level;
-use crate::game::module::Action;
+use crate::game::module::ModuleConfig;
 use crate::game::phase::Phase;
 use crate::game::phase::helm::HelmActions;
 use crate::prelude::*;
@@ -267,26 +267,36 @@ impl Configure for HandDisplay {
 
 fn sync_hand_display(
     mut commands: Commands,
+    module_config: ConfigRef<ModuleConfig>,
     game_assets: Res<GameAssets>,
     player_deck: Res<PlayerDeck>,
     hand: Single<Entity, With<HandDisplay>>,
 ) {
+    let module_config = r!(module_config.get());
     let selected_idx = player_deck.hand_idx;
     commands
         .entity(*hand)
         .despawn_related::<Children>()
         .with_children(|parent| {
-            for (i, &item) in player_deck.hand.iter().enumerate() {
+            for (i, item) in player_deck.hand.iter().enumerate() {
                 parent.spawn((
                     Name::new("ModuleInteractionRegion"),
                     Node {
                         padding: UiRect::all(Vw(0.4167)),
                         ..Node::COLUMN_CENTER.full_height()
                     },
-                    Tooltip::fixed(Anchor::BottomCenter, parse_rich(item.short_description())),
+                    Tooltip::fixed(
+                        Anchor::BottomCenter,
+                        parse_rich(item.short_description(&module_config)),
+                    ),
                     HandIndex(i),
                     children![(
-                        module(&game_assets, item, player_deck.heat_capacity),
+                        module(
+                            &game_assets,
+                            &module_config,
+                            &item,
+                            player_deck.heat_capacity
+                        ),
                         Pickable::IGNORE,
                         NodeShake::default(),
                         Patch(move |entity| {
@@ -387,58 +397,35 @@ impl Configure for StorageDisplay {
 }
 
 fn sync_storage_display_tooltip(
+    hud_config: ConfigRef<HudConfig>,
     player_deck: Res<PlayerDeck>,
     mut storage_query: Query<&mut Tooltip, With<StorageDisplay>>,
 ) {
+    let hud_config = r!(hud_config.get());
+
     for mut tooltip in &mut storage_query {
         let total = player_deck.storage.len();
-        let starts = player_deck
-            .storage
-            .iter()
-            .filter(|x| x.condition == Action::Start || x.effect == Action::Start)
-            .count();
-        let repairs = player_deck
-            .storage
-            .iter()
-            .filter(|x| x.condition == Action::Repair || x.effect == Action::Repair)
-            .count();
-        let missiles = player_deck
-            .storage
-            .iter()
-            .filter(|x| x.condition == Action::Missile || x.effect == Action::Missile)
-            .count();
-        let lasers = player_deck
-            .storage
-            .iter()
-            .filter(|x| x.condition == Action::Laser || x.effect == Action::Laser)
-            .count();
-        let fireballs = player_deck
-            .storage
-            .iter()
-            .filter(|x| x.condition == Action::Fireball || x.effect == Action::Fireball)
-            .count();
+        let mut counts = vec![];
+        for action in &hud_config.storage_summary_actions {
+            let count = player_deck
+                .storage
+                .iter()
+                .filter(|x| &x.condition == action || &x.effect == action)
+                .count();
+            counts.push(format!(
+                "- {} [b]{}{}[r]",
+                count,
+                if action.is_empty() { "starter" } else { action },
+                plural(count)
+            ));
+        }
 
         tooltip.content = TooltipContent::Primary(RichText::from_sections(parse_rich(format!(
-            "[b]Storage[r]\n\n\
-            There {} {} reactor module{} remaining to draw:\n\n\
-            - {} [b]starter{}[r]\n\
-            - {} [b]repair{}[r]\n\
-            - {} [b]missile{}[r]\n\
-            - {} [b]laser{}[r]\n\
-            - {} [b]fireball{}[r]",
+            "[b]Storage[r]\n\nThere {} {} reactor module{} remaining to draw:\n\n{}",
             are(total),
             total,
             plural(total),
-            starts,
-            plural(starts),
-            repairs,
-            plural(repairs),
-            missiles,
-            plural(missiles),
-            lasers,
-            plural(lasers),
-            fireballs,
-            plural(fireballs),
+            counts.join("\n"),
         ))));
     }
 }

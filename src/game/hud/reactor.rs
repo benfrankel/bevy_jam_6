@@ -7,8 +7,10 @@ use crate::game::hud::HudConfig;
 use crate::game::hud::flux::flux_display;
 use crate::game::hud::module::module;
 use crate::game::level::Level;
+use crate::game::module::ModuleConfig;
 use crate::game::module::ModuleStatus;
 use crate::game::phase::Phase;
+use crate::game::projectile::ProjectileConfig;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -63,16 +65,20 @@ fn sync_reactor_grid(
     mut commands: Commands,
     game_assets: Res<GameAssets>,
     hud_config: ConfigRef<HudConfig>,
+    module_config: ConfigRef<ModuleConfig>,
+    projectile_config: ConfigRef<ProjectileConfig>,
     player_deck: Res<PlayerDeck>,
     grid_query: Query<Entity, With<ReactorGrid>>,
 ) {
     let hud_config = r!(hud_config.get());
+    let module_config = r!(module_config.get());
+    let projectile_config = r!(projectile_config.get());
     for entity in &grid_query {
         commands
             .entity(entity)
             .despawn_related::<Children>()
             .with_children(|parent| {
-                for (i, &slot) in player_deck.reactor.iter().enumerate() {
+                for (i, slot) in player_deck.reactor.iter().enumerate() {
                     let mut shake = NodeShake::default();
                     if let Some(last_touched) = player_deck.last_touched_idx {
                         if last_touched == i {
@@ -87,12 +93,21 @@ fn sync_reactor_grid(
                     }
 
                     parent.spawn((
-                        module(&game_assets, slot, player_deck.heat_capacity),
+                        module(
+                            &game_assets,
+                            &module_config,
+                            &slot,
+                            player_deck.heat_capacity,
+                        ),
                         shake,
                         ReactorIndex(i),
                         Tooltip::fixed(
                             Anchor::CenterRight,
-                            parse_rich(slot.description(player_deck.heat_capacity)),
+                            parse_rich(slot.description(
+                                &module_config,
+                                &projectile_config,
+                                player_deck.heat_capacity,
+                            )),
                         ),
                         Patch(|entity| {
                             entity.observe(play_hover_sfx_on_hover);
