@@ -67,7 +67,10 @@ fn hand_display() -> impl Bundle {
     (
         Name::new("HandDisplay"),
         HandDisplay,
-        Node::ROW_CENTER.grow(),
+        Node {
+            column_gap: Px(-1.0),
+            ..Node::ROW_CENTER.grow()
+        },
     )
 }
 
@@ -95,7 +98,7 @@ fn storage_display(game_assets: &GameAssets) -> impl Bundle {
             padding: UiRect::bottom(Vw(0.2083)).with_left(Vw(0.2083)),
             ..Node::ROW_CENTER
         },
-        Tooltip::fixed(Anchor::TopCenter, ""),
+        Tooltip::fixed(Anchor::BottomLeft, ""),
         NodeShake::default(),
         children![(
             widget::small_colored_label(ThemeColor::IconText, ""),
