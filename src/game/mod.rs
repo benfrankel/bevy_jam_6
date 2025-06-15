@@ -130,20 +130,20 @@ pub struct GameAssets {
     pub heal_popup: Handle<Image>,
 
     // SFX.
-    #[asset(path = "audio/sfx/Spaceship SFX 1.ogg")]
-    pub repair_sfx: Handle<AudioSource>,
+    #[asset(path = "audio/sfx/Movement SFX 3.ogg")]
+    pub module_hover_sfx: Handle<AudioSource>,
+    #[asset(path = "audio/sfx/Click SFX 1.ogg")]
+    pub module_insert_sfx: Handle<AudioSource>,
+    #[asset(path = "audio/sfx/Reactor Module SFX_3 Base.ogg")]
+    pub module_activate_sfx: Handle<AudioSource>,
+    #[asset(path = "audio/sfx/Deactivating Module SFX.ogg")]
+    pub phase_change_sfx: Handle<AudioSource>,
     #[asset(path = "audio/sfx/Metal Hit SFX 1.ogg")]
     pub ship_hurt_sfx: Handle<AudioSource>,
     #[asset(path = "audio/sfx/Ship Destroyed SFX.ogg")]
     pub ship_death_sfx: Handle<AudioSource>,
-    #[asset(path = "audio/sfx/Reactor Module SFX_3 Base.ogg")]
-    pub module_activate_sfx: Handle<AudioSource>,
-    #[asset(path = "audio/sfx/Click SFX 1.ogg")]
-    pub module_insert_sfx: Handle<AudioSource>,
-    #[asset(path = "audio/sfx/Movement SFX 3.ogg")]
-    pub module_hover_sfx: Handle<AudioSource>,
-    #[asset(path = "audio/sfx/Deactivating Module SFX.ogg")]
-    pub phase_change_sfx: Handle<AudioSource>,
+    #[asset(path = "audio/sfx/Spaceship SFX 1.ogg")]
+    pub repair_sfx: Handle<AudioSource>,
 }
 
 impl Configure for GameAssets {

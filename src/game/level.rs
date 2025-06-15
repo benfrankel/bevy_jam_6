@@ -127,7 +127,7 @@ fn spawn_level(
     commands
         .spawn((
             Name::new("EnemyEscapeSensor"),
-            Transform::from_xyz(59.0, 220.0, 0.0),
+            Transform::from_xyz(59.0, 240.0, 0.0),
             Sensor,
             Collider::rectangle(400.0, 50.0),
             CollisionLayers::new(GameLayer::Default, GameLayer::Enemy),

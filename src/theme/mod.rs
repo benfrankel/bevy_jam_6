@@ -16,6 +16,7 @@ pub mod prelude {
     pub use super::color::ThemeColorForText;
     pub use super::grid::GridAlignment;
     pub use super::interaction::InteractionDisabled;
+    pub use super::interaction::InteractionGlassSfx;
     pub use super::interaction::InteractionSfx;
     pub use super::interaction::InteractionTheme;
     pub use super::interaction::ParentInteractionTheme;
@@ -49,6 +50,10 @@ pub struct ThemeAssets {
     pub sfx_hover: Handle<AudioSource>,
     #[asset(path = "audio/sfx/253168__suntemple__sfx-ui-button-click.ogg")]
     pub sfx_click: Handle<AudioSource>,
+    #[asset(path = "audio/sfx/Movement SFX 3.ogg")]
+    pub sfx_hover_glass: Handle<AudioSource>,
+    #[asset(path = "audio/sfx/Click SFX 1.ogg")]
+    pub sfx_click_glass: Handle<AudioSource>,
 }
 
 impl Configure for ThemeAssets {

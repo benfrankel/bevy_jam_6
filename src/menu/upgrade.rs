@@ -30,6 +30,95 @@ pub enum Upgrade {
     FireballPack(Vec<Module>),
 }
 
+impl Upgrade {
+    fn image(&self, game_assets: &GameAssets) -> Handle<Image> {
+        match self {
+            Upgrade::FluxCapacitor(_) => &game_assets.upgrade_capacitor,
+            Upgrade::QuantumCooler(_) => &game_assets.upgrade_cooler,
+            Upgrade::AlienAlloy(_) => &game_assets.upgrade_alloy,
+            Upgrade::StarterPack(_) => &game_assets.upgrade_pack_nothing,
+            Upgrade::RepairPack(_) => &game_assets.upgrade_pack_repair,
+            Upgrade::MissilePack(_) => &game_assets.upgrade_pack_missile,
+            Upgrade::LaserPack(_) => &game_assets.upgrade_pack_laser,
+            Upgrade::FireballPack(_) => &game_assets.upgrade_pack_fireball,
+        }
+        .clone()
+    }
+
+    fn description(&self, module_config: &ModuleConfig) -> String {
+        match self {
+            Upgrade::FluxCapacitor(slots) => format!(
+                "[b]Flux Capacitor[r]\n\n\
+            Enhance your reactor with a state-of-the-art capacitor.\n\n\
+            [b]Reactor slots:[r] +{}",
+                slots,
+            ),
+            Upgrade::QuantumCooler(heat_capacity) => format!(
+                "[b]Quantum Cooler[r]\n\n\
+            Install a particle-level cooling system to limit overheating.\n\n\
+            [b]Reactor heat capacity:[r] +{}",
+                heat_capacity,
+            ),
+            Upgrade::AlienAlloy(max_health) => format!(
+                "[b]Alien Alloy[r]\n\n\
+            Reinforce your hull with a legendary alloy from another star.\n\n\
+            [b]Ship max health:[r] +{}",
+                max_health,
+            ),
+            Upgrade::StarterPack(modules) => {
+                format!(
+                    "[b]Starter Pack[r]\n\nUnpack three helpful new Starter modules.\n\n{}",
+                    modules
+                        .iter()
+                        .map(|x| x.short_description(module_config))
+                        .collect::<Vec<_>>()
+                        .join("\n"),
+                )
+            },
+            Upgrade::RepairPack(modules) => {
+                format!(
+                    "[b]Repair Pack[r]\n\nUnpack three new Repair modules.\n\n{}",
+                    modules
+                        .iter()
+                        .map(|x| x.short_description(module_config))
+                        .collect::<Vec<_>>()
+                        .join("\n"),
+                )
+            },
+            Upgrade::MissilePack(modules) => {
+                format!(
+                    "[b]Missile Pack[r]\n\nUnpack three new Missile modules.\n\n{}",
+                    modules
+                        .iter()
+                        .map(|x| x.short_description(module_config))
+                        .collect::<Vec<_>>()
+                        .join("\n"),
+                )
+            },
+            Upgrade::LaserPack(modules) => {
+                format!(
+                    "[b]Laser Pack[r]\n\nUnpack three new Laser modules.\n\n{}",
+                    modules
+                        .iter()
+                        .map(|x| x.short_description(module_config))
+                        .collect::<Vec<_>>()
+                        .join("\n"),
+                )
+            },
+            Upgrade::FireballPack(modules) => {
+                format!(
+                    "[b]Fireball Pack[r]\n\nUnpack three powerful new Fireball modules.\n\n{}",
+                    modules
+                        .iter()
+                        .map(|x| x.short_description(module_config))
+                        .collect::<Vec<_>>()
+                        .join("\n"),
+                )
+            },
+        }
+    }
+}
+
 fn spawn_upgrade_menu(
     mut commands: Commands,
     menu_root: Res<MenuRoot>,
@@ -113,8 +202,8 @@ fn offered_upgrades(
     (
         Name::new("OfferedUpgrades"),
         Node {
-            margin: UiRect::top(Vw(4.0)).with_bottom(Vw(5.2)),
-            column_gap: Vw(2.4),
+            margin: UiRect::top(Vw(2.0)).with_bottom(Vw(5.2)),
+            column_gap: Px(-1.0),
             ..Node::ROW_CENTER
         },
         children![
@@ -133,127 +222,58 @@ fn upgrade_selector(
     module_config: &ModuleConfig,
     upgrade: Upgrade,
 ) -> impl Bundle {
-    let image = match upgrade {
-        Upgrade::FluxCapacitor(_) => &game_assets.upgrade_capacitor,
-        Upgrade::QuantumCooler(_) => &game_assets.upgrade_cooler,
-        Upgrade::AlienAlloy(_) => &game_assets.upgrade_alloy,
-        Upgrade::StarterPack(_) => &game_assets.upgrade_pack_nothing,
-        Upgrade::RepairPack(_) => &game_assets.upgrade_pack_repair,
-        Upgrade::MissilePack(_) => &game_assets.upgrade_pack_missile,
-        Upgrade::LaserPack(_) => &game_assets.upgrade_pack_laser,
-        Upgrade::FireballPack(_) => &game_assets.upgrade_pack_fireball,
-    }
-    .clone();
-
-    let description = match &upgrade {
-        Upgrade::FluxCapacitor(slots) => format!(
-            "[b]Flux Capacitor[r]\n\n\
-            Enhance your reactor with a state-of-the-art capacitor.\n\n\
-            [b]Reactor slots:[r] +{}",
-            slots,
-        ),
-        Upgrade::QuantumCooler(heat_capacity) => format!(
-            "[b]Quantum Cooler[r]\n\n\
-            Install a particle-level cooling system to limit overheating.\n\n\
-            [b]Reactor heat capacity:[r] +{}",
-            heat_capacity,
-        ),
-        Upgrade::AlienAlloy(max_health) => format!(
-            "[b]Alien Alloy[r]\n\n\
-            Reinforce your hull with a legendary alloy from another star.\n\n\
-            [b]Ship max health:[r] +{}",
-            max_health,
-        ),
-        Upgrade::StarterPack(modules) => {
-            format!(
-                "[b]Starter Pack[r]\n\nUnpack three helpful new Starter modules.\n\n{}",
-                modules
-                    .iter()
-                    .map(|x| x.short_description(module_config))
-                    .collect::<Vec<_>>()
-                    .join("\n"),
-            )
-        },
-        Upgrade::RepairPack(modules) => {
-            format!(
-                "[b]Repair Pack[r]\n\nUnpack three new Repair modules.\n\n{}",
-                modules
-                    .iter()
-                    .map(|x| x.short_description(module_config))
-                    .collect::<Vec<_>>()
-                    .join("\n"),
-            )
-        },
-        Upgrade::MissilePack(modules) => {
-            format!(
-                "[b]Missile Pack[r]\n\nUnpack three new Missile modules.\n\n{}",
-                modules
-                    .iter()
-                    .map(|x| x.short_description(module_config))
-                    .collect::<Vec<_>>()
-                    .join("\n"),
-            )
-        },
-        Upgrade::LaserPack(modules) => {
-            format!(
-                "[b]Laser Pack[r]\n\nUnpack three new Laser modules.\n\n{}",
-                modules
-                    .iter()
-                    .map(|x| x.short_description(module_config))
-                    .collect::<Vec<_>>()
-                    .join("\n"),
-            )
-        },
-        Upgrade::FireballPack(modules) => {
-            format!(
-                "[b]Fireball Pack[r]\n\nUnpack three powerful new Fireball modules.\n\n{}",
-                modules
-                    .iter()
-                    .map(|x| x.short_description(module_config))
-                    .collect::<Vec<_>>()
-                    .join("\n"),
-            )
-        },
-    };
+    let image = upgrade.image(game_assets);
+    let description = upgrade.description(module_config);
 
     (
-        Name::new("UpgradeSelector"),
+        Name::new("UpgradeSelectorInteractionRegion"),
         UpgradeSelector::new(upgrade),
-        ImageNode::from(image),
+        Button,
         Node {
-            width: Vw(6.0417),
-            aspect_ratio: Some(1.0),
+            padding: UiRect::horizontal(Vw(1.2)).with_top(Vw(2.0)),
             ..default()
         },
-        NodeOffset::default(),
-        InteractionTheme {
-            hovered: NodeOffset::new(Val::ZERO, Vw(-0.5)),
-            pressed: NodeOffset::new(Val::ZERO, Vw(0.5)),
-            ..default()
-        },
-        BoxShadow::from(ShadowStyle {
-            color: Color::BLACK.with_alpha(0.5),
-            x_offset: Val::ZERO,
-            y_offset: Vw(0.7),
-            spread_radius: Vw(0.5),
-            blur_radius: Vw(0.5),
-        }),
-        Backup::<BoxShadow>::default(),
-        InteractionSfx,
-        InteractionDisabled(false),
         Tooltip::fixed(
             Anchor::BottomCenter,
             RichText::from_sections(parse_rich(description)).with_justify(JustifyText::Center),
         ),
+        Previous::<Interaction>::default(),
+        InteractionGlassSfx,
+        InteractionDisabled(false),
         Patch(|entity| {
             entity.observe(toggle_upgrade_selector);
         }),
+        children![(
+            Name::new("UpgradeSelector"),
+            ImageNode::from(image),
+            Node {
+                width: Vw(6.0417),
+                aspect_ratio: Some(1.0),
+                ..default()
+            },
+            NodeOffset::default(),
+            ParentInteractionTheme {
+                hovered: NodeOffset::new(Val::ZERO, Vw(-0.5)),
+                pressed: NodeOffset::new(Val::ZERO, Vw(0.5)),
+                ..default()
+            },
+            Pickable::IGNORE,
+            BoxShadow::from(ShadowStyle {
+                color: Color::BLACK.with_alpha(0.5),
+                x_offset: Val::ZERO,
+                y_offset: Vw(0.7),
+                spread_radius: Vw(0.5),
+                blur_radius: Vw(0.5),
+            }),
+            Backup::<BoxShadow>::default(),
+        )],
     )
 }
 
 fn toggle_upgrade_selector(
     trigger: Trigger<Pointer<Click>>,
-    mut selector_query: Query<(Entity, &mut UpgradeSelector, &mut Node)>,
+    mut selector_query: Query<(Entity, &mut UpgradeSelector, &Children)>,
+    mut node_query: Query<&mut Node>,
     mut disabled_query: Query<&mut InteractionDisabled>,
     button_query: Query<Entity, With<NextLevelButton>>,
 ) {
@@ -263,13 +283,16 @@ fn toggle_upgrade_selector(
     // Toggle the selector.
     let disabled = r!(disabled_query.get(target));
     rq!(!disabled.0);
-    let (_, mut selector, mut node) = rq!(selector_query.get_mut(target));
+    let (_, mut selector, children) = rq!(selector_query.get_mut(target));
     selector.selected ^= true;
-    node.top = if selector.selected {
-        Vw(-2.0)
-    } else {
-        Val::ZERO
-    };
+    for &child in children {
+        let mut node = cq!(node_query.get_mut(child));
+        node.top = if selector.selected {
+            Vw(-2.0)
+        } else {
+            Val::ZERO
+        };
+    }
 
     // Update interaction disabling of selectors based on total selected.
     let total_selected = selector_query.iter().filter(|(_, x, _)| x.selected).count();

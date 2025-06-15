@@ -19,6 +19,7 @@ pub(super) fn plugin(app: &mut App) {
         ParentInteractionTheme<ThemeColorForText>,
         ParentInteractionTheme<NodeOffset>,
         InteractionSfx,
+        InteractionGlassSfx,
     )>();
 }
 
@@ -213,7 +214,6 @@ fn apply_parent_interaction_theme<C: Component<Mutability = Mutable> + Clone>(
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
-#[require(Previous<Interaction>)]
 pub struct InteractionSfx;
 
 impl Configure for InteractionSfx {
@@ -227,7 +227,7 @@ impl Configure for InteractionSfx {
 fn play_hover_sfx(
     trigger: Trigger<Pointer<Over>>,
     audio_settings: Res<AudioSettings>,
-    assets: Res<ThemeAssets>,
+    theme_assets: Res<ThemeAssets>,
     sfx_query: Query<Option<&InteractionDisabled>, With<InteractionSfx>>,
     mut commands: Commands,
 ) {
@@ -235,13 +235,17 @@ fn play_hover_sfx(
     let disabled = rq!(sfx_query.get(target));
     rq!(!matches!(disabled, Some(InteractionDisabled(true))));
 
-    commands.spawn(ui_audio(&audio_settings, assets.sfx_hover.clone()));
+    commands.spawn(ui_audio(
+        &audio_settings,
+        theme_assets.sfx_hover.clone(),
+        thread_rng().gen_range(0.9..1.5),
+    ));
 }
 
 fn play_click_sfx(
     trigger: Trigger<Pointer<Click>>,
     audio_settings: Res<AudioSettings>,
-    assets: Res<ThemeAssets>,
+    theme_assets: Res<ThemeAssets>,
     sfx_query: Query<Option<&InteractionDisabled>, With<InteractionSfx>>,
     mut commands: Commands,
 ) {
@@ -249,5 +253,57 @@ fn play_click_sfx(
     let disabled = rq!(sfx_query.get(target));
     rq!(!matches!(disabled, Some(InteractionDisabled(true))));
 
-    commands.spawn(ui_audio(&audio_settings, assets.sfx_click.clone()));
+    commands.spawn(ui_audio(
+        &audio_settings,
+        theme_assets.sfx_click.clone(),
+        thread_rng().gen_range(0.9..1.5),
+    ));
+}
+
+#[derive(Component, Reflect)]
+#[reflect(Component)]
+pub struct InteractionGlassSfx;
+
+impl Configure for InteractionGlassSfx {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+        app.add_observer(play_hover_glass_sfx);
+        app.add_observer(play_click_glass_sfx);
+    }
+}
+
+fn play_hover_glass_sfx(
+    trigger: Trigger<Pointer<Over>>,
+    audio_settings: Res<AudioSettings>,
+    theme_assets: Res<ThemeAssets>,
+    sfx_query: Query<Option<&InteractionDisabled>, With<InteractionGlassSfx>>,
+    mut commands: Commands,
+) {
+    let target = r!(trigger.get_target());
+    let disabled = rq!(sfx_query.get(target));
+    rq!(!matches!(disabled, Some(InteractionDisabled(true))));
+
+    commands.spawn(ui_audio(
+        &audio_settings,
+        theme_assets.sfx_hover_glass.clone(),
+        1.0,
+    ));
+}
+
+fn play_click_glass_sfx(
+    trigger: Trigger<Pointer<Click>>,
+    audio_settings: Res<AudioSettings>,
+    theme_assets: Res<ThemeAssets>,
+    sfx_query: Query<Option<&InteractionDisabled>, With<InteractionGlassSfx>>,
+    mut commands: Commands,
+) {
+    let target = r!(trigger.get_target());
+    let disabled = rq!(sfx_query.get(target));
+    rq!(!matches!(disabled, Some(InteractionDisabled(true))));
+
+    commands.spawn(ui_audio(
+        &audio_settings,
+        theme_assets.sfx_click_glass.clone(),
+        1.0,
+    ));
 }
