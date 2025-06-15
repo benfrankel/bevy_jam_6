@@ -156,7 +156,7 @@ fn upgrade_selector(
             "[b]Quantum Cooler[r]\n\n\
             Install a particle-level cooling system to limit overheating.\n\n\
             [b]Reactor heat capacity:[r] +{}",
-            heat_capacity
+            heat_capacity,
         ),
         Upgrade::AlienAlloy(max_health) => format!(
             "[b]Alien Alloy[r]\n\n\
@@ -349,22 +349,22 @@ fn generate_upgrades(
 
     // Offer primary upgrades.
     if player_deck.heat_capacity
-        < 0.2 * (player_deck.reactor.len() * player_deck.reactor.len()) as f32
+        < 0.18 * (player_deck.reactor.len() * player_deck.reactor.len()) as f32
     {
-        upgrades.push(Upgrade::QuantumCooler(8.0));
+        upgrades.push(Upgrade::QuantumCooler(5.0));
     } else if player_deck.reactor.len() < 18 {
         upgrades.push(Upgrade::FluxCapacitor(3));
     } else {
         upgrades.push(if rng.gen_bool(0.8) {
             Upgrade::AlienAlloy(50.0)
         } else {
-            Upgrade::QuantumCooler(8.0)
+            Upgrade::QuantumCooler(5.0)
         });
     }
     upgrades.push(if rng.gen_bool(0.8) {
         Upgrade::AlienAlloy(50.0)
     } else {
-        Upgrade::QuantumCooler(8.0)
+        Upgrade::QuantumCooler(5.0)
     });
 
     // Offer module packs.

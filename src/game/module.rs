@@ -49,6 +49,8 @@ pub struct ActionInfo {
     pub condition_icon_path: String,
     #[serde(skip)]
     pub condition_icon: Handle<Image>,
+    #[serde(default)]
+    pub condition_heat: f32,
 
     pub effect_name: String,
     pub effect_description: String,
@@ -61,6 +63,8 @@ pub struct ActionInfo {
     pub effect_projectile: String,
     #[serde(default)]
     pub effect_heal: f32,
+    #[serde(default)]
+    pub effect_heat: f32,
 }
 
 impl ActionInfo {
@@ -147,10 +151,22 @@ impl Module {
                 if let Some(projectile) =
                     projectile_config.projectiles.get(&effect.effect_projectile)
                 {
-                    stats += &format!("\n[b]Damage:[r] {} times flux", projectile.damage);
+                    stats += &format!(
+                        "\n[b]Damage:[r] {} times flux",
+                        (10.0 * projectile.damage).round() / 10.0,
+                    );
                 }
-                if effect.effect_heal > f32::EPSILON {
-                    stats += &format!("\n[b]Heal:[r] {} times flux", effect.effect_heal);
+                if effect.effect_heal != 0.0 {
+                    stats += &format!(
+                        "\n[b]Heal:[r] {} times flux",
+                        (10.0 * effect.effect_heal).round() / 10.0,
+                    );
+                }
+                if condition.condition_heat + effect.effect_heat != 0.0 {
+                    stats += &format!(
+                        "\n[b]Excess heat:[r] {:+}",
+                        (10.0 * (condition.condition_heat + effect.effect_heat)).round() / 10.0,
+                    )
                 }
                 if !stats.is_empty() {
                     stats = format!("\n{stats}");

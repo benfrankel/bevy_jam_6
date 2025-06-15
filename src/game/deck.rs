@@ -1,6 +1,7 @@
 use std::collections::VecDeque;
 
 use crate::game::module::Module;
+use crate::game::module::ModuleConfig;
 use crate::game::module::ModuleStatus;
 use crate::prelude::*;
 
@@ -188,17 +189,19 @@ impl PlayerDeck {
     }
 
     /// Simulate one step powering up the reactor and return false if done.
-    pub fn step_reactor(&mut self) -> bool {
+    pub fn step_reactor(&mut self, module_config: &ModuleConfig) -> bool {
         // Activate the first matching module.
         if let Some(idx) = self.next_matching_module() {
             let slot = &mut self.reactor[idx];
+            let condition = &module_config.actions[&slot.condition];
+            let effect = &module_config.actions[&slot.effect];
 
             slot.status = ModuleStatus::SlotActive;
             if slot.condition.is_empty() {
                 self.chain = 0.0;
             }
             self.chain += 1.0;
-            slot.heat += self.chain;
+            slot.heat += self.chain + condition.condition_heat + effect.effect_heat;
             self.flux = self.flux.max(self.chain);
             self.action_queue.push_back(idx);
             self.last_action = slot.effect.clone();

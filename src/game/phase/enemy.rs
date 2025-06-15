@@ -49,9 +49,9 @@ fn reset_step_timer_for_enemy(
 
 fn step_enemy_phase(
     mut commands: Commands,
+    phase_config: ConfigRef<PhaseConfig>,
     level: CurrentRef<Level>,
     round: Res<Round>,
-    phase_config: ConfigRef<PhaseConfig>,
     mut phase: NextMut<Phase>,
     step: Res<Step>,
     mut step_timer: ResMut<StepTimer>,

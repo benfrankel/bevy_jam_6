@@ -3,6 +3,7 @@ use crate::core::audio::sfx_audio;
 use crate::game::GameAssets;
 use crate::game::deck::PlayerDeck;
 use crate::game::level::Level;
+use crate::game::module::ModuleConfig;
 use crate::game::phase::Phase;
 use crate::game::phase::PhaseConfig;
 use crate::game::phase::StepTimer;
@@ -35,18 +36,20 @@ fn reset_step_timer_for_power_up(
 
 fn step_power_up_phase(
     mut commands: Commands,
+    phase_config: ConfigRef<PhaseConfig>,
+    module_config: ConfigRef<ModuleConfig>,
     game_assets: Res<GameAssets>,
     audio_settings: Res<AudioSettings>,
-    phase_config: ConfigRef<PhaseConfig>,
     mut phase: NextMut<Phase>,
     mut step_timer: ResMut<StepTimer>,
     mut player_deck: ResMut<PlayerDeck>,
     mut stats: ResMut<Stats>,
 ) {
     let phase_config = r!(phase_config.get());
+    let module_config = r!(module_config.get());
 
     // Step powering up the reactor.
-    if !player_deck.step_reactor() {
+    if !player_deck.step_reactor(module_config) {
         phase.enter(Phase::Player);
         return;
     }

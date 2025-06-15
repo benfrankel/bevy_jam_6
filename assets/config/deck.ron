@@ -3,7 +3,7 @@
         PlayerDeck(
             name: "The Weber",
             max_health: 50,
-            heat_capacity: 4,
+            heat_capacity: 5,
             hand_size: 5,
             weapons: [
                 Module(condition: "", effect: "missile"),
