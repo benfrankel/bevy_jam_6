@@ -33,7 +33,6 @@ impl Config for LevelConfig {
 pub struct LevelSetup {
     pub name: String,
     pub enemy_deck: EnemyDeck,
-    pub enemy_health: f32,
 }
 
 #[derive(State, Reflect, Copy, Clone, Default, Eq, PartialEq, Debug)]
@@ -97,6 +96,7 @@ fn spawn_level(
     level_config: ConfigRef<LevelConfig>,
     ship_config: ConfigRef<ShipConfig>,
     player_deck: Res<PlayerDeck>,
+    enemy_deck: Res<EnemyDeck>,
 ) {
     let level = r!(level.get()).0;
     let level_config = r!(level_config.get());
@@ -120,14 +120,14 @@ fn spawn_level(
         DespawnOnExitState::<Level>::default(),
     ));
     commands.spawn((
-        enemy_ship(ship_config, &game_assets, level_setup.enemy_health),
+        enemy_ship(ship_config, &game_assets, enemy_deck.max_health),
         Transform::from_xyz(59.0, 93.0, 0.0),
         DespawnOnExitState::<Level>::default(),
     ));
     commands
         .spawn((
             Name::new("EnemyEscapeSensor"),
-            Transform::from_xyz(59.0, 200.0, 0.0),
+            Transform::from_xyz(59.0, 220.0, 0.0),
             Sensor,
             Collider::rectangle(400.0, 50.0),
             CollisionLayers::new(GameLayer::Default, GameLayer::Enemy),

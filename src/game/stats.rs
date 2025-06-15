@@ -66,7 +66,7 @@ pub fn stats_grid(stats: &Stats, level: usize) -> impl Bundle {
                 Children::spawn(SpawnWith(move |parent: &mut ChildSpawner| {
                     parent.spawn(widget::small_label(level.to_string()));
                     parent.spawn(widget::small_label(format!(
-                        "[b]level{} completed",
+                        "[b]star{} defended",
                         plural(level),
                     )));
                     parent.spawn(widget::small_label(stats.damage_given.to_string()));

@@ -268,11 +268,19 @@ impl PlayerDeck {
 #[reflect(Resource)]
 #[serde(deny_unknown_fields, default)]
 pub struct EnemyDeck {
+    pub max_health: f32,
+
+    /// A list of actions that are always performed at the beginning of the enemy attack.
+    pub start: Vec<String>,
+    /// A list of actions that are performed based on the current round.
+    pub volley: Vec<String>,
+    /// How much deeper the ship will go into its volley each round.
+    pub volley_rate: usize,
+    /// A list of actions that are always performed at the end of the enemy attack.
+    pub finish: Vec<String>,
+
     pub flux: f32,
-    pub actions: Vec<String>,
     pub action_idx: usize,
-    /// The maximum number of actions to be performed on the first round.
-    pub action_limit: usize,
 }
 
 impl Configure for EnemyDeck {
@@ -285,38 +293,42 @@ impl Configure for EnemyDeck {
 impl Default for EnemyDeck {
     fn default() -> Self {
         Self {
+            max_health: 0.0,
+            start: vec![],
+            volley: vec![],
+            volley_rate: 1,
+            finish: vec![],
             flux: 0.0,
-            actions: vec![],
             action_idx: 0,
-            action_limit: 1,
         }
     }
 }
 
 impl EnemyDeck {
-    pub fn reset(&mut self) {
-        *self = default();
-    }
-
     /// Determine whether the deck is done yielding actions.
     pub fn is_done(&self, round: usize) -> bool {
         self.action_idx
-            >= self
-                .actions
-                .len()
-                .min(self.action_limit.saturating_add(round))
+            >= self.start.len()
+                + self.volley.len().min(self.volley_rate * round)
+                + self.finish.len()
     }
 
     /// Simulate one step and get the next action.
     pub fn step(&mut self, round: usize) -> Option<String> {
-        if self.is_done(round) {
+        if let Some(action) = self
+            .start
+            .iter()
+            .chain(self.volley.iter().take(self.volley_rate * round))
+            .chain(&self.finish)
+            .nth(self.action_idx)
+        {
+            self.action_idx += 1;
+            self.flux += 1.0;
+            Some(action.clone())
+        } else {
             self.action_idx = 0;
             self.flux = 0.0;
             None
-        } else {
-            self.action_idx += 1;
-            self.flux += 1.0;
-            Some(self.actions[self.action_idx - 1].clone())
         }
     }
 }
