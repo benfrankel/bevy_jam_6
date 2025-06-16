@@ -125,7 +125,7 @@ impl Module {
         projectile_config: &ProjectileConfig,
         heat_capacity: f32,
     ) -> String {
-        let header = "[b]Reactor module[r]";
+        let header = self.short_description(module_config);
         let heat = if matches!(self.status, ModuleStatus::SlotOverheated) {
             " (OVERHEATED)".to_string()
         } else {
@@ -152,19 +152,19 @@ impl Module {
                     projectile_config.projectiles.get(&effect.effect_projectile)
                 {
                     stats += &format!(
-                        "\n[b]Damage:[r] {} times flux",
+                        "\n- [b]Damage:[r] {} times flux",
                         (10.0 * projectile.damage).round() / 10.0,
                     );
                 }
                 if effect.effect_heal != 0.0 {
                     stats += &format!(
-                        "\n[b]Heal:[r] {} times flux",
+                        "\n- [b]Heal:[r] {} times flux",
                         (10.0 * effect.effect_heal).round() / 10.0,
                     );
                 }
                 if condition.condition_heat + effect.effect_heat != 0.0 {
                     stats += &format!(
-                        "\n[b]Excess heat:[r] {:+}",
+                        "\n- [b]Excess heat:[r] {:+}",
                         (10.0 * (condition.condition_heat + effect.effect_heat)).round() / 10.0,
                     )
                 }
@@ -172,7 +172,7 @@ impl Module {
                     stats = format!("\n{stats}");
                 }
 
-                format!("{header}{heat} - Right click to remove\n\n> {body}{stats}")
+                format!("{header}{heat}\n\n{body}{stats}")
             },
         }
     }

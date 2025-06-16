@@ -56,7 +56,7 @@ impl Configure for PlayerDeck {
 
 impl PlayerDeck {
     /// Reset deck.
-    pub fn reset(&mut self, rng: &mut impl Rng) {
+    pub fn reset(&mut self) {
         // Discard modules from reactor / hand to storage.
         for idx in 0..self.reactor.len() {
             self.discard_module(idx);
@@ -71,7 +71,7 @@ impl PlayerDeck {
         self.last_action.clear();
         self.last_touched_idx = None;
 
-        // Perform setup phase and select the middle module.
+        // Prepare weapons and select the middle module.
         let weapons = self.weapons.clone();
         for weapon in weapons {
             let draw_idx = cq!(self
@@ -80,7 +80,6 @@ impl PlayerDeck {
                 .position(|x| x.condition == weapon.condition && x.effect == weapon.effect));
             self.draw_from_idx(draw_idx);
         }
-        while self.step_setup(rng) {}
         self.hand_idx = self.hand.len() / 2;
     }
 
@@ -109,13 +108,21 @@ impl PlayerDeck {
     /// Discard a module from the reactor to storage.
     pub fn discard_module(&mut self, idx: usize) {
         rq!(!matches!(self.reactor[idx].status, ModuleStatus::SlotEmpty));
-        self.reactor[idx].status = ModuleStatus::SlotEmpty;
 
-        let mut slot = self.reactor[idx].clone();
-        slot.status = ModuleStatus::FaceUp;
-        slot.heat = 0.0;
-        self.storage.push(slot);
+        let mut module = Module::EMPTY;
+        core::mem::swap(&mut self.reactor[idx], &mut module);
+        module.status = ModuleStatus::FaceUp;
+        module.heat = 0.0;
+        self.last_touched_idx = Some(idx);
+        self.storage.push(module);
         self.just_used_storage = true;
+    }
+
+    /// Find the next available reactor slot to place a module in.
+    fn next_available_slot(&self) -> Option<usize> {
+        self.reactor
+            .iter()
+            .position(|slot| matches!(slot.status, ModuleStatus::SlotEmpty))
     }
 
     /// Try to play the currently selected module from hand to reactor,
@@ -156,13 +163,6 @@ impl PlayerDeck {
         true
     }
 
-    /// Find the next available reactor slot to place a module in.
-    fn next_available_slot(&self) -> Option<usize> {
-        self.reactor
-            .iter()
-            .position(|slot| matches!(slot.status, ModuleStatus::SlotEmpty))
-    }
-
     /// Find the next matching reactor module to trigger.
     fn next_matching_module(&self) -> Option<usize> {
         self.reactor
@@ -197,6 +197,7 @@ impl PlayerDeck {
             }
             self.chain += 1.0;
             slot.heat += self.chain + condition.condition_heat + effect.effect_heat;
+            slot.heat = slot.heat.max(0.0);
             self.flux = self.flux.max(self.chain);
             self.action_queue.push_back(idx);
             self.last_action = slot.effect.clone();

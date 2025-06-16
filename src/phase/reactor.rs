@@ -29,9 +29,17 @@ pub(super) fn plugin(app: &mut App) {
 fn reset_step_timer_for_power_up(
     phase_config: ConfigRef<PhaseConfig>,
     mut step_timer: ResMut<StepTimer>,
+    player_deck: Res<PlayerDeck>,
 ) {
     let phase_config = r!(phase_config.get());
-    step_timer.0 = Timer::from_seconds(phase_config.reactor_first_cooldown, TimerMode::Once);
+    step_timer.0 = Timer::from_seconds(
+        if player_deck.is_reactor_done() {
+            phase_config.reactor_skip_cooldown
+        } else {
+            phase_config.reactor_first_cooldown
+        },
+        TimerMode::Once,
+    );
 }
 
 fn step_power_up_phase(

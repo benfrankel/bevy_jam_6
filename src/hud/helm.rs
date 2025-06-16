@@ -43,7 +43,7 @@ fn left_helm() -> impl Bundle {
         Node {
             left: Vw(-0.2083),
             width: Vw(12.0833),
-            ..Node::ROW_CENTER.full_height()
+            ..Node::ROW.center().full_height()
         },
         children![phase_display()],
     )
@@ -69,7 +69,7 @@ fn hand_display() -> impl Bundle {
         HandDisplay,
         Node {
             column_gap: Px(-1.0),
-            ..Node::ROW_CENTER.grow()
+            ..Node::ROW.center().grow()
         },
     )
 }
@@ -81,7 +81,7 @@ fn right_helm(game_assets: &GameplayAssets) -> impl Bundle {
             width: Vw(12.0833),
             padding: UiRect::bottom(Vw(1.25)).with_top(Vw(0.885417)),
             row_gap: Vw(0.052083),
-            ..Node::COLUMN_CENTER.full_height()
+            ..Node::COLUMN.center().full_height()
         },
         children![mini_buttons(game_assets), storage_display(game_assets)],
     )
@@ -96,7 +96,7 @@ fn storage_display(game_assets: &GameplayAssets) -> impl Bundle {
             width: Vw(6.6666),
             aspect_ratio: Some(1.0),
             padding: UiRect::bottom(Vw(0.2083)).with_left(Vw(0.2083)),
-            ..Node::ROW_CENTER
+            ..Node::ROW.center()
         },
         Tooltip::fixed(Anchor::BottomLeft, ""),
         NodeShake::default(),
@@ -238,14 +238,14 @@ fn sync_phase_display(
         .clone();
         tooltip.content = TooltipContent::Primary(
             RichText::from_sections(parse_rich(match phase {
-                Phase::Setup => "[b]Storage phase[r]\n\nPulling reactor modules from storage.",
+                Phase::Setup => "[b]Storage phase[r]\n\nPulling modules from storage.",
                 Phase::Helm => {
                     "[b]Player phase[r]\n\nLeft click a module to play it, right click to discard."
                 },
                 Phase::Reactor | Phase::Player => {
                     "[b]Reactor phase[r]\n\nDirecting power to the reactor."
                 },
-                Phase::Enemy => "[b]Enemy phase[r]\n\nSustaining the enemy's barrage.",
+                Phase::Enemy => "[b]Enemy phase[r]\n\nSustaining the enemy's barrage!",
             }))
             .with_justify(JustifyText::Center),
         );
@@ -286,7 +286,7 @@ fn sync_hand_display(
                     Name::new("ModuleInteractionRegion"),
                     Node {
                         padding: UiRect::all(Vw(0.4167)),
-                        ..Node::COLUMN_CENTER.full_height()
+                        ..Node::COLUMN.center().full_height()
                     },
                     Tooltip::fixed(
                         Anchor::BottomCenter,

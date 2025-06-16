@@ -29,12 +29,15 @@ fn reset_step_timer_for_player(
     mut step_timer: ResMut<StepTimer>,
     player_deck: Res<PlayerDeck>,
 ) {
-    if player_deck.is_player_done() {
-        step_timer.0 = Timer::from_seconds(0.0, TimerMode::Once);
-    } else {
-        let phase_config = r!(phase_config.get());
-        step_timer.0 = Timer::from_seconds(phase_config.player_first_cooldown, TimerMode::Once);
-    }
+    let phase_config = r!(phase_config.get());
+    step_timer.0 = Timer::from_seconds(
+        if player_deck.is_player_done() {
+            phase_config.player_skip_cooldown
+        } else {
+            phase_config.player_first_cooldown
+        },
+        TimerMode::Once,
+    );
 }
 
 fn step_player_phase(

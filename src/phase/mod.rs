@@ -17,22 +17,26 @@ pub(super) fn plugin(app: &mut App) {
 #[derive(Asset, Reflect, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields, default)]
 pub struct PhaseConfig {
+    setup_skip_cooldown: f32,
     setup_cooldown: f32,
     setup_cooldown_decay: f32,
     setup_first_cooldown: f32,
     setup_last_cooldown: f32,
 
+    reactor_skip_cooldown: f32,
     reactor_cooldown: f32,
     reactor_cooldown_decay: f32,
     reactor_first_cooldown: f32,
     reactor_last_cooldown: f32,
     reactor_sfx_tones: f32,
 
+    player_skip_cooldown: f32,
     player_cooldown: f32,
     player_cooldown_decay: f32,
     player_first_cooldown: f32,
     player_last_cooldown: f32,
 
+    enemy_skip_cooldown: f32,
     enemy_cooldown: f32,
     enemy_cooldown_decay: f32,
     enemy_first_cooldown: f32,

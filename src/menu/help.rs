@@ -11,25 +11,23 @@ fn spawn_help_menu(mut commands: Commands, menu_root: Res<MenuRoot>, player_deck
     commands
         .entity(menu_root.ui)
         .with_child(widget::popup(children![
-            widget::label_base(
-                Vw(1.8),
-                ThemeColor::BodyText,
-                JustifyText::Left,
-                1.8,
-                format!(
-                    "> Welcome aboard [b]{}[r]!\
-                    \n\n\
-                    > Insert modules into the [b]reactor[r] to forge powerful chain reactions. \
-                    Every module has a [b]condition[r] and an [b]effect[r]. \
-                    The reactor will always activate the first matching module from the top left.\
-                    \n\n\
-                    > When a module activates, it gains [b]heat[r] equal to the length of the current \
-                    chain, while [b]flux[r] tracks the longest chain and boosts your power.\
-                    \n\n",
-                    player_deck.name,
-                ),
-            ),
-            widget::row_of_buttons(children![widget::button("Close manual", go_back)]),
+            widget::paragraph(format!(
+                "Welcome aboard [b]{}[r]!\n\
+                \n\
+                [b]The Helm[r] (bottom)\n\
+                - Select a module to insert into the reactor.\n\
+                - Right click to discard (including reactor modules).\n\
+                - Press E to end your turn.\n\
+                \n\
+                [b]The Reactor[r] (left)\n\
+                - Each module has a [b]Condition[r] -> [b]Effect[r].\n\
+                - The reactor always activates the first matching module.\n\
+                - Modules gain heat equal to the length of the current chain.\n\
+                - Flux tracks the longest chain and boosts your power.\n\
+                \n",
+                player_deck.name,
+            ),),
+            widget::row_of_buttons(children![widget::small_button("Close manual", go_back)]),
         ]));
 }
 

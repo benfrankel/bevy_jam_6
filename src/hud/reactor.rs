@@ -25,7 +25,7 @@ pub fn reactor(game_assets: &GameplayAssets) -> impl Bundle {
             aspect_ratio: Some(124.0 / 270.0),
             padding: UiRect::all(Vw(1.69)),
             row_gap: Vw(1.69),
-            ..Node::COLUMN_MID.full_height()
+            ..Node::COLUMN.top_center().full_height()
         },
         children![flux_display(), reactor_grid()],
     )

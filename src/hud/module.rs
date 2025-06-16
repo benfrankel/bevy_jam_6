@@ -53,7 +53,7 @@ pub fn module(
         Node {
             width: Vw(6.66666),
             aspect_ratio: Some(1.0),
-            ..Node::ROW_CENTER
+            ..Node::ROW.center()
         },
         children![
             (

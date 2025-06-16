@@ -15,7 +15,7 @@ pub fn flux_display() -> impl Bundle {
             width: Vw(22.5),
             height: Vw(5.0),
             border: UiRect::all(Vw(0.2083)),
-            ..Node::ROW_CENTER
+            ..Node::ROW.center()
         },
         ThemeColor::Monitor.set::<BackgroundColor>(),
         ThemeColor::MonitorDimText.set::<BorderColor>(),

@@ -20,7 +20,7 @@ fn side_panel() -> impl Bundle {
         Node {
             padding: UiRect::all(Vw(2.0)),
             border: UiRect::right(Px(1.0)),
-            ..Node::COLUMN_CENTER
+            ..Node::COLUMN.center()
         },
         ThemeColor::Popup.set::<BackgroundColor>(),
         ThemeColor::BorderColor.set::<BorderColor>(),
@@ -51,7 +51,7 @@ fn title() -> impl Bundle {
         Name::new("Title"),
         Node {
             padding: UiRect::top(Vw(6.0)),
-            ..Node::COLUMN_MID.full_size()
+            ..Node::COLUMN.top_center().full_size()
         },
         children![widget::header("[b]Flux Pursuit")],
     )

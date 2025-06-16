@@ -1,20 +1,24 @@
 (
+    setup_skip_cooldown: 0.25,
     setup_cooldown: 0.35,
     setup_cooldown_decay: 0.7,
     setup_first_cooldown: 0.4,
     setup_last_cooldown: 0.3,
 
+    reactor_skip_cooldown: 0.4,
     reactor_cooldown: 0.65,
     reactor_cooldown_decay: 0.8,
     reactor_first_cooldown: 0.6,
     reactor_last_cooldown: 1.1,
     reactor_sfx_tones: 12,
 
+    player_skip_cooldown: 0,
     player_cooldown: 0.512,
     player_cooldown_decay: 0.8,
     player_first_cooldown: 0,
     player_last_cooldown: 1.0,
 
+    enemy_skip_cooldown: 0.25,
     enemy_cooldown: 0.512,
     enemy_cooldown_decay: 0.8,
     enemy_first_cooldown: 1.0,

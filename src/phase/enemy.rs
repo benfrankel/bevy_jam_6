@@ -39,12 +39,15 @@ fn reset_step_timer_for_enemy(
     enemy_deck: Res<EnemyDeck>,
     enemy_is_dead: Single<Has<Dead>, With<EnemyShip>>,
 ) {
-    if *enemy_is_dead || enemy_deck.is_done(round.0) {
-        step_timer.0 = Timer::from_seconds(0.0, TimerMode::Once);
-    } else {
-        let phase_config = r!(phase_config.get());
-        step_timer.0 = Timer::from_seconds(phase_config.enemy_first_cooldown, TimerMode::Once);
-    }
+    let phase_config = r!(phase_config.get());
+    step_timer.0 = Timer::from_seconds(
+        if *enemy_is_dead || enemy_deck.is_done(round.0) {
+            phase_config.enemy_skip_cooldown
+        } else {
+            phase_config.enemy_first_cooldown
+        },
+        TimerMode::Once,
+    );
 }
 
 fn step_enemy_phase(

@@ -5,6 +5,7 @@ use crate::level::Level;
 use crate::phase::Phase;
 use crate::prelude::*;
 use crate::screen::gameplay::GameplayAssets;
+use crate::theme::toast::ToastBox;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(
@@ -136,17 +137,20 @@ fn helm_play_module(
     game_assets: Res<GameplayAssets>,
     audio_settings: Res<AudioSettings>,
     mut player_deck: ResMut<PlayerDeck>,
-    mut phase: NextMut<Phase>,
+    toast_box: Single<Entity, With<ToastBox>>,
 ) {
-    if !player_deck.play_selected() {
-        commands.spawn((
-            widget::toast("Error!"),
+    if !player_deck.bypass_change_detection().play_selected() {
+        commands.entity(*toast_box).with_child((
+            widget::toast(
+                "[b]The reactor is full![r]\n\
+                Remove a module first to make space, or press E to end your turn.",
+            ),
             DespawnOnExitState::<Level>::default(),
         ));
         return;
     }
 
-    phase.enter(Phase::Reactor);
+    player_deck.set_changed();
     commands.spawn((
         sfx_audio(&audio_settings, game_assets.module_insert_sfx.clone(), 1.0),
         DespawnOnExitState::<Level>::default(),
@@ -158,7 +162,6 @@ fn helm_discard_module(
     game_assets: Res<GameplayAssets>,
     audio_settings: Res<AudioSettings>,
     mut player_deck: ResMut<PlayerDeck>,
-    mut phase: NextMut<Phase>,
 ) {
     rq!(player_deck.discard_selected(&mut thread_rng()));
 
@@ -166,9 +169,6 @@ fn helm_discard_module(
         sfx_audio(&audio_settings, game_assets.module_hover_sfx.clone(), 1.0),
         DespawnOnExitState::<Level>::default(),
     ));
-    if player_deck.hand.is_empty() {
-        phase.enter(Phase::Reactor);
-    }
 }
 
 fn helm_end_turn(mut phase: NextMut<Phase>) {

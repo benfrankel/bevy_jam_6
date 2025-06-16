@@ -40,12 +40,16 @@ fn increment_total_rounds(mut stats: ResMut<Stats>) {
 }
 
 pub fn stats_grid(stats: &Stats, level: usize) -> impl Bundle {
-    let stats = stats.clone();
+    let repairs = stats.actions.get("repair").copied().unwrap_or_default();
+    let missiles = stats.actions.get("missile").copied().unwrap_or_default();
+    let lasers = stats.actions.get("laser").copied().unwrap_or_default();
+    let fireballs = stats.actions.get("fireball").copied().unwrap_or_default();
+
     (
         Name::new("StatsGrid"),
         Node {
             column_gap: Vw(4.0),
-            ..Node::ROW_CENTER
+            ..Node::ROW.center()
         },
         children![
             (
@@ -63,19 +67,16 @@ pub fn stats_grid(stats: &Stats, level: usize) -> impl Bundle {
                     ..Node::DEFAULT.grow()
                 },
                 GridAlignment::columns([JustifySelf::End, JustifySelf::Start]),
-                Children::spawn(SpawnWith(move |parent: &mut ChildSpawner| {
-                    parent.spawn(widget::small_label(level.to_string()));
-                    parent.spawn(widget::small_label(format!(
-                        "[b]star{} defended",
-                        plural(level),
-                    )));
-                    parent.spawn(widget::small_label(stats.damage_given.to_string()));
-                    parent.spawn(widget::small_label("[b]damage given"));
-                    parent.spawn(widget::small_label(stats.damage_taken.to_string()));
-                    parent.spawn(widget::small_label("[b]damage taken"));
-                    parent.spawn(widget::small_label(stats.highest_damage.to_string()));
-                    parent.spawn(widget::small_label("[b]max damage"));
-                })),
+                children![
+                    widget::small_label(level.to_string()),
+                    widget::small_label(format!("[b]star{} defended", plural(level))),
+                    widget::small_label(stats.damage_given.to_string()),
+                    widget::small_label("[b]damage given"),
+                    widget::small_label(stats.damage_taken.to_string()),
+                    widget::small_label("[b]damage taken"),
+                    widget::small_label(stats.highest_damage.to_string()),
+                    widget::small_label("[b]max damage"),
+                ],
             ),
             (
                 Name::new("RightGrid"),
@@ -93,26 +94,23 @@ pub fn stats_grid(stats: &Stats, level: usize) -> impl Bundle {
                 },
                 GridAlignment::columns([JustifySelf::End, JustifySelf::Start]),
                 Children::spawn(SpawnWith(move |parent: &mut ChildSpawner| {
-                    parent.spawn(widget::small_label(stats.actions["missile"].to_string()));
+                    parent.spawn(widget::small_label(missiles.to_string()));
                     parent.spawn(widget::small_label(format!(
                         "[b]missile{} launched",
-                        plural(stats.actions["missile"]),
+                        plural(missiles),
                     )));
-                    parent.spawn(widget::small_label(stats.actions["laser"].to_string()));
+                    parent.spawn(widget::small_label(lasers.to_string()));
                     parent.spawn(widget::small_label(format!(
                         "[b]laser{} fired",
-                        plural(stats.actions["laser"]),
+                        plural(lasers),
                     )));
-                    parent.spawn(widget::small_label(stats.actions["fireball"].to_string()));
+                    parent.spawn(widget::small_label(fireballs.to_string()));
                     parent.spawn(widget::small_label(format!(
                         "[b]fireball{} unleashed",
-                        plural(stats.actions["fireball"]),
+                        plural(fireballs),
                     )));
-                    parent.spawn(widget::small_label(stats.actions["repair"].to_string()));
-                    parent.spawn(widget::small_label(format!(
-                        "[b]repair{}",
-                        plural(stats.actions["repair"]),
-                    )));
+                    parent.spawn(widget::small_label(repairs.to_string()));
+                    parent.spawn(widget::small_label(format!("[b]repair{}", plural(repairs))));
                 })),
             ),
         ],

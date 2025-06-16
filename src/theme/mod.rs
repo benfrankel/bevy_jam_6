@@ -6,6 +6,7 @@ pub mod color;
 pub mod grid;
 pub mod interaction;
 pub mod text;
+pub mod toast;
 pub mod tooltip;
 pub mod widget;
 
@@ -39,6 +40,7 @@ pub(super) fn plugin(app: &mut App) {
         grid::plugin,
         interaction::plugin,
         text::plugin,
+        toast::plugin,
         tooltip::plugin,
     ));
 }

@@ -4,6 +4,9 @@ use bevy::text::LineHeight;
 
 use crate::animation::backup::Backup;
 use crate::animation::offset::NodeOffset;
+use crate::combat::death::DespawnOnDeath;
+use crate::combat::death::DieOnClick;
+use crate::combat::death::DieOnLifetime;
 use crate::prelude::*;
 use crate::theme::color::Rainbow;
 
@@ -28,7 +31,7 @@ pub fn blocking_overlay(z: i32) -> impl Bundle {
 pub fn dimming_overlay() -> impl Bundle {
     (
         Name::new("DimmingOverlay"),
-        Node::ROW_CENTER.full_size(),
+        Node::ROW.center().full_size(),
         ThemeColor::Overlay.set::<BackgroundColor>(),
         FocusPolicy::Block,
     )
@@ -49,7 +52,7 @@ pub fn popup(children: impl Bundle) -> impl Bundle {
         Name::new("PopupContainer"),
         Node {
             padding: UiRect::all(Vw(5.0)),
-            ..Node::COLUMN_CENTER.full_size()
+            ..Node::COLUMN.center().full_size()
         },
         children![(
             Name::new("Popup"),
@@ -81,7 +84,7 @@ pub fn toast(text: impl AsRef<str>) -> impl Bundle {
         Node {
             padding: UiRect::all(Vw(1.0)),
             border: UiRect::all(Px(1.0)),
-            ..Node::COLUMN.width(Vw(8.0))
+            ..Node::COLUMN.width(Vw(35.0))
         },
         ThemeColor::Popup.set::<BackgroundColor>(),
         BorderRadius::all(Vw(3.0)),
@@ -93,7 +96,12 @@ pub fn toast(text: impl AsRef<str>) -> impl Bundle {
             spread_radius: Val::ZERO,
             blur_radius: Val::Vw(4.0),
         }),
-        children![widget::small_label(text)],
+        FocusPolicy::Block,
+        DieOnLifetime(5.0),
+        DieOnClick,
+        // TODO: Fade out instead of despawning.
+        DespawnOnDeath,
+        children![widget::paragraph(text)],
     )
 }
 
@@ -112,7 +120,7 @@ pub fn body(children: impl Bundle) -> impl Bundle {
 pub fn center(children: impl Bundle) -> impl Bundle {
     (
         Name::new("Center"),
-        Node::COLUMN_CENTER.full_size(),
+        Node::COLUMN.center().full_size(),
         children,
     )
 }
@@ -123,7 +131,7 @@ pub fn column_of_buttons(children: impl Bundle) -> impl Bundle {
         Node {
             margin: UiRect::vertical(Vw(2.5)),
             row_gap: Vw(2.5),
-            ..Node::COLUMN_CENTER
+            ..Node::COLUMN.center()
         },
         children,
     )
@@ -135,14 +143,14 @@ pub fn row_of_buttons(children: impl Bundle) -> impl Bundle {
         Node {
             margin: UiRect::vertical(Vw(2.5)),
             column_gap: Vw(2.5),
-            ..Node::ROW_CENTER
+            ..Node::ROW.center()
         },
         children,
     )
 }
 
 pub fn stretch(children: impl Bundle) -> impl Bundle {
-    (Name::new("Stretch"), Node::ROW_CENTER.grow(), children)
+    (Name::new("Stretch"), Node::ROW.center().grow(), children)
 }
 
 pub fn header(text: impl AsRef<str>) -> impl Bundle {
@@ -199,6 +207,10 @@ pub fn small_label(text: impl AsRef<str>) -> impl Bundle {
         1.2,
         text,
     )
+}
+
+pub fn paragraph(text: impl AsRef<str>) -> impl Bundle {
+    label_base(Vw(1.8), ThemeColor::BodyText, JustifyText::Left, 1.4, text)
 }
 
 pub fn small_colored_label(color: ThemeColor, text: impl AsRef<str>) -> impl Bundle {
@@ -296,7 +308,7 @@ where
         Node {
             width,
             height,
-            ..Node::ROW_CENTER
+            ..Node::ROW.center()
         },
         BorderRadius::all(Vw(1.0)),
         ThemeColor::default().set::<BackgroundColor>(),

@@ -204,7 +204,7 @@ fn offered_upgrades(
         Node {
             margin: UiRect::top(Vw(2.0)).with_bottom(Vw(5.2)),
             column_gap: Px(-1.0),
-            ..Node::ROW_CENTER
+            ..Node::ROW.center()
         },
         children![
             upgrade_selector(game_assets, module_config, upgrades.remove(0)),

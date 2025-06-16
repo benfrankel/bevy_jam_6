@@ -68,7 +68,7 @@ fn reset_camera(camera_root: Res<CameraRoot>, mut camera_query: Query<&mut Shake
 }
 
 fn reset_player_deck(mut player_deck: ResMut<PlayerDeck>) {
-    player_deck.reset(&mut thread_rng());
+    player_deck.reset();
 }
 
 fn set_up_decks(
