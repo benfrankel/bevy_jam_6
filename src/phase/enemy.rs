@@ -1,21 +1,21 @@
 use crate::animation::oscillate::Oscillate;
+use crate::combat::death::Dead;
 use crate::core::audio::AudioSettings;
 use crate::core::audio::sfx_audio;
-use crate::game::GameAssets;
-use crate::game::combat::death::Dead;
-use crate::game::deck::EnemyDeck;
-use crate::game::level::Level;
-use crate::game::module::OnAction;
-use crate::game::phase::Phase;
-use crate::game::phase::PhaseConfig;
-use crate::game::phase::Round;
-use crate::game::phase::Step;
-use crate::game::phase::StepTimer;
-use crate::game::phase::on_step_timer;
-use crate::game::ship::EnemyShip;
-use crate::game::ship::PlayerShip;
+use crate::deck::EnemyDeck;
+use crate::level::Level;
 use crate::menu::Menu;
+use crate::module::OnAction;
+use crate::phase::Phase;
+use crate::phase::PhaseConfig;
+use crate::phase::Round;
+use crate::phase::Step;
+use crate::phase::StepTimer;
+use crate::phase::on_step_timer;
 use crate::prelude::*;
+use crate::screen::gameplay::GameplayAssets;
+use crate::ship::EnemyShip;
+use crate::ship::PlayerShip;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(
@@ -62,7 +62,7 @@ fn step_enemy_phase(
     >,
     player_ship: Single<Entity, With<PlayerShip>>,
     audio_settings: Res<AudioSettings>,
-    game_assets: Res<GameAssets>,
+    game_assets: Res<GameplayAssets>,
     mut menu: ResMut<NextStateStack<Menu>>,
 ) {
     let phase_config = r!(phase_config.get());

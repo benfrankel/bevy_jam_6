@@ -1,7 +1,7 @@
 use crate::animation::oscillate::Oscillate;
-use crate::game::GameLayer;
-use crate::game::combat::damage::Damage;
-use crate::game::combat::faction::Faction;
+use crate::combat::damage::Damage;
+use crate::combat::faction::Faction;
+use crate::core::physics::GameLayer;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {

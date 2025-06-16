@@ -1,15 +1,15 @@
+use crate::combat::faction::Faction;
+use crate::combat::health::OnHeal;
 use crate::core::audio::AudioSettings;
 use crate::core::audio::sfx_audio;
-use crate::game::GameAssets;
-use crate::game::combat::faction::Faction;
-use crate::game::combat::health::OnHeal;
-use crate::game::deck::EnemyDeck;
-use crate::game::deck::PlayerDeck;
-use crate::game::level::Level;
-use crate::game::projectile::ProjectileConfig;
-use crate::game::ship::Weapon;
-use crate::game::stats::Stats;
+use crate::deck::EnemyDeck;
+use crate::deck::PlayerDeck;
+use crate::level::Level;
 use crate::prelude::*;
+use crate::projectile::ProjectileConfig;
+use crate::screen::gameplay::GameplayAssets;
+use crate::ship::Weapon;
+use crate::stats::Stats;
 
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(ConfigHandle<ModuleConfig>, OnAction)>();
@@ -210,7 +210,7 @@ fn perform_action(
     projectile_config: ConfigRef<ProjectileConfig>,
     player_deck: Res<PlayerDeck>,
     enemy_deck: Res<EnemyDeck>,
-    game_assets: Res<GameAssets>,
+    game_assets: Res<GameplayAssets>,
     audio_settings: Res<AudioSettings>,
     ship_query: Query<(&Children, &Faction)>,
     children_query: Query<&Children>,

@@ -1,13 +1,13 @@
-use crate::game::deck::PlayerDeck;
-use crate::game::module::OnAction;
-use crate::game::phase::Phase;
-use crate::game::phase::PhaseConfig;
-use crate::game::phase::Step;
-use crate::game::phase::StepTimer;
-use crate::game::phase::on_step_timer;
-use crate::game::ship::EnemyShip;
-use crate::game::ship::PlayerShip;
+use crate::deck::PlayerDeck;
+use crate::module::OnAction;
+use crate::phase::Phase;
+use crate::phase::PhaseConfig;
+use crate::phase::Step;
+use crate::phase::StepTimer;
+use crate::phase::on_step_timer;
 use crate::prelude::*;
+use crate::ship::EnemyShip;
+use crate::ship::PlayerShip;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(

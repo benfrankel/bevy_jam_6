@@ -5,10 +5,10 @@ mod reactor;
 
 use crate::animation::shake::NodeShake;
 use crate::animation::shake::ShakeWithScreen;
-use crate::game::GameAssets;
-use crate::game::hud::helm::helm;
-use crate::game::hud::reactor::reactor;
+use crate::hud::helm::helm;
+use crate::hud::reactor::reactor;
 use crate::prelude::*;
+use crate::screen::gameplay::GameplayAssets;
 
 pub(super) fn plugin(app: &mut App) {
     app.configure::<ConfigHandle<HudConfig>>();
@@ -16,7 +16,7 @@ pub(super) fn plugin(app: &mut App) {
     app.add_plugins((flux::plugin, helm::plugin, module::plugin, reactor::plugin));
 }
 
-pub fn hud(game_assets: &GameAssets) -> impl Bundle {
+pub fn hud(game_assets: &GameplayAssets) -> impl Bundle {
     (
         Name::new("Hud"),
         Node::ROW.full_size().abs(),

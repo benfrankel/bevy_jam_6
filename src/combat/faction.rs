@@ -1,4 +1,4 @@
-use crate::game::GameLayer;
+use crate::core::physics::GameLayer;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {

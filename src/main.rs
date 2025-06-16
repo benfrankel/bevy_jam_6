@@ -4,11 +4,19 @@
 #![cfg_attr(not(feature = "dev"), windows_subsystem = "windows")]
 
 mod animation;
+mod combat;
 mod core;
-pub mod game;
+mod deck;
+mod hud;
+mod level;
 mod menu;
+mod module;
+mod phase;
 mod prelude;
+mod projectile;
 mod screen;
+mod ship;
+mod stats;
 mod theme;
 mod util;
 
@@ -21,9 +29,17 @@ pub fn plugin(app: &mut App) {
     // Add other plugins.
     app.add_plugins((
         animation::plugin,
-        game::plugin,
+        combat::plugin,
+        deck::plugin,
+        hud::plugin,
+        level::plugin,
         menu::plugin,
+        module::plugin,
+        phase::plugin,
+        projectile::plugin,
         screen::plugin,
+        ship::plugin,
+        stats::plugin,
         theme::plugin,
         util::plugin,
     ));

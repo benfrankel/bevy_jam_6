@@ -15,14 +15,13 @@ pub trait NodeExtLayout {
 
     fn reverse(self) -> Self;
 
-    fn width(self, percent: f32) -> Self;
+    fn width(self, width: Val) -> Self;
+    fn height(self, height: Val) -> Self;
     fn full_width(self) -> Self;
-    fn height(self, percent: f32) -> Self;
     fn full_height(self) -> Self;
     fn full_size(self) -> Self;
     fn grow(self) -> Self;
 
-    fn centered(self) -> Self;
     fn abs(self) -> Self;
 }
 
@@ -95,22 +94,22 @@ impl NodeExtLayout for Node {
         self
     }
 
-    fn width(mut self, percent: f32) -> Self {
-        self.width = Percent(percent);
+    fn width(mut self, width: Val) -> Self {
+        self.width = width;
+        self
+    }
+
+    fn height(mut self, height: Val) -> Self {
+        self.height = height;
         self
     }
 
     fn full_width(self) -> Self {
-        self.width(100.0)
-    }
-
-    fn height(mut self, percent: f32) -> Self {
-        self.height = Percent(percent);
-        self
+        self.width(Percent(100.0))
     }
 
     fn full_height(self) -> Self {
-        self.height(100.0)
+        self.height(Percent(100.0))
     }
 
     fn full_size(self) -> Self {
@@ -119,12 +118,6 @@ impl NodeExtLayout for Node {
 
     fn grow(mut self) -> Self {
         self.flex_grow = 1.0;
-        self
-    }
-
-    fn centered(mut self) -> Self {
-        self.align_self = AlignSelf::Center;
-        self.justify_self = JustifySelf::Center;
         self
     }
 

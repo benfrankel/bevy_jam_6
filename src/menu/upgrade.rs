@@ -2,15 +2,15 @@ use rand::seq::index::sample_weighted;
 
 use crate::animation::backup::Backup;
 use crate::animation::offset::NodeOffset;
-use crate::game::GameAssets;
-use crate::game::deck::PlayerDeck;
-use crate::game::level::Level;
-use crate::game::level::LevelConfig;
-use crate::game::module::Module;
-use crate::game::module::ModuleConfig;
+use crate::deck::PlayerDeck;
+use crate::level::Level;
+use crate::level::LevelConfig;
 use crate::menu::Menu;
 use crate::menu::MenuRoot;
+use crate::module::Module;
+use crate::module::ModuleConfig;
 use crate::prelude::*;
+use crate::screen::gameplay::GameplayAssets;
 
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(UpgradeHistory, NextLevelButton, UpgradeSelector)>();
@@ -31,7 +31,7 @@ pub enum Upgrade {
 }
 
 impl Upgrade {
-    fn image(&self, game_assets: &GameAssets) -> Handle<Image> {
+    fn image(&self, game_assets: &GameplayAssets) -> Handle<Image> {
         match self {
             Upgrade::FluxCapacitor(_) => &game_assets.upgrade_capacitor,
             Upgrade::QuantumCooler(_) => &game_assets.upgrade_cooler,
@@ -122,7 +122,7 @@ impl Upgrade {
 fn spawn_upgrade_menu(
     mut commands: Commands,
     menu_root: Res<MenuRoot>,
-    game_assets: Res<GameAssets>,
+    game_assets: Res<GameplayAssets>,
     module_config: ConfigRef<ModuleConfig>,
     level_config: ConfigRef<LevelConfig>,
     level: CurrentRef<Level>,
@@ -195,7 +195,7 @@ fn enter_next_level(
 }
 
 fn offered_upgrades(
-    game_assets: &GameAssets,
+    game_assets: &GameplayAssets,
     module_config: &ModuleConfig,
     mut upgrades: Vec<Upgrade>,
 ) -> impl Bundle {
@@ -218,7 +218,7 @@ fn offered_upgrades(
 }
 
 fn upgrade_selector(
-    game_assets: &GameAssets,
+    game_assets: &GameplayAssets,
     module_config: &ModuleConfig,
     upgrade: Upgrade,
 ) -> impl Bundle {

@@ -1,4 +1,4 @@
-use crate::game::level::Level;
+use crate::level::Level;
 use crate::menu::Menu;
 use crate::menu::MenuRoot;
 use crate::prelude::*;

@@ -2,17 +2,17 @@ use crate::animation::shake::Shake;
 use crate::core::audio::AudioSettings;
 use crate::core::audio::sfx_audio;
 use crate::core::camera::CameraRoot;
-use crate::game::GameAssets;
-use crate::game::GameLayer;
-use crate::game::deck::DeckConfig;
-use crate::game::deck::EnemyDeck;
-use crate::game::deck::PlayerDeck;
-use crate::game::hud::hud;
-use crate::game::ship::ShipConfig;
-use crate::game::ship::enemy_ship;
-use crate::game::ship::player_ship;
+use crate::core::physics::GameLayer;
+use crate::deck::DeckConfig;
+use crate::deck::EnemyDeck;
+use crate::deck::PlayerDeck;
+use crate::hud::hud;
 use crate::menu::Menu;
 use crate::prelude::*;
+use crate::screen::gameplay::GameplayAssets;
+use crate::ship::ShipConfig;
+use crate::ship::enemy_ship;
+use crate::ship::player_ship;
 
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(ConfigHandle<LevelConfig>, Level)>();
@@ -91,7 +91,7 @@ fn set_up_decks(
 
 fn spawn_level(
     mut commands: Commands,
-    game_assets: Res<GameAssets>,
+    game_assets: Res<GameplayAssets>,
     level: NextRef<Level>,
     level_config: ConfigRef<LevelConfig>,
     ship_config: ConfigRef<ShipConfig>,
@@ -141,7 +141,7 @@ fn win_level_on_enemy_escape(
     _: Trigger<OnCollisionStart>,
     mut commands: Commands,
     audio_settings: Res<AudioSettings>,
-    game_assets: Res<GameAssets>,
+    game_assets: Res<GameplayAssets>,
     mut menu: ResMut<NextStateStack<Menu>>,
 ) {
     commands.spawn((
@@ -153,7 +153,7 @@ fn win_level_on_enemy_escape(
     menu.acquire();
 }
 
-fn background(game_assets: &GameAssets, level: usize) -> impl Bundle {
+fn background(game_assets: &GameplayAssets, level: usize) -> impl Bundle {
     (
         Name::new("Background"),
         Sprite::from_image(

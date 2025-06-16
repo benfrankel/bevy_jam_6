@@ -1,15 +1,15 @@
 use crate::core::audio::AudioSettings;
 use crate::core::audio::sfx_audio;
-use crate::game::GameAssets;
-use crate::game::deck::PlayerDeck;
-use crate::game::level::Level;
-use crate::game::module::ModuleConfig;
-use crate::game::phase::Phase;
-use crate::game::phase::PhaseConfig;
-use crate::game::phase::StepTimer;
-use crate::game::phase::on_step_timer;
-use crate::game::stats::Stats;
+use crate::deck::PlayerDeck;
+use crate::level::Level;
+use crate::module::ModuleConfig;
+use crate::phase::Phase;
+use crate::phase::PhaseConfig;
+use crate::phase::StepTimer;
+use crate::phase::on_step_timer;
 use crate::prelude::*;
+use crate::screen::gameplay::GameplayAssets;
+use crate::stats::Stats;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(
@@ -38,7 +38,7 @@ fn step_power_up_phase(
     mut commands: Commands,
     phase_config: ConfigRef<PhaseConfig>,
     module_config: ConfigRef<ModuleConfig>,
-    game_assets: Res<GameAssets>,
+    game_assets: Res<GameplayAssets>,
     audio_settings: Res<AudioSettings>,
     mut phase: NextMut<Phase>,
     mut step_timer: ResMut<StepTimer>,

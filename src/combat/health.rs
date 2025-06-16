@@ -1,6 +1,6 @@
-use crate::game::combat::death::Dead;
-use crate::game::combat::death::OnDeath;
-use crate::game::level::Level;
+use crate::combat::death::Dead;
+use crate::combat::death::OnDeath;
+use crate::level::Level;
 use crate::prelude::*;
 
 pub fn plugin(app: &mut App) {

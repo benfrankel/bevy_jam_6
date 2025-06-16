@@ -1,12 +1,12 @@
-use crate::game::level::Level;
-use crate::game::stats::Stats;
-use crate::game::stats::stats_grid;
+use crate::level::Level;
 use crate::menu::Menu;
 use crate::menu::MenuRoot;
 use crate::prelude::*;
 use crate::screen::Screen;
 use crate::screen::fade::fade_out;
 use crate::screen::title::TitleAssets;
+use crate::stats::Stats;
+use crate::stats::stats_grid;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(StateFlush, Menu::Defeat.on_enter(spawn_defeat_menu));

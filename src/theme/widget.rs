@@ -75,6 +75,28 @@ pub fn popup(children: impl Bundle) -> impl Bundle {
     )
 }
 
+pub fn toast(text: impl AsRef<str>) -> impl Bundle {
+    (
+        Name::new("Toast"),
+        Node {
+            padding: UiRect::all(Vw(1.0)),
+            border: UiRect::all(Px(1.0)),
+            ..Node::COLUMN.width(Vw(8.0))
+        },
+        ThemeColor::Popup.set::<BackgroundColor>(),
+        BorderRadius::all(Vw(3.0)),
+        ThemeColor::BorderColor.set::<BorderColor>(),
+        BoxShadow::from(ShadowStyle {
+            color: Color::BLACK.with_alpha(0.5),
+            x_offset: Val::ZERO,
+            y_offset: Val::ZERO,
+            spread_radius: Val::ZERO,
+            blur_radius: Val::Vw(4.0),
+        }),
+        children![widget::small_label(text)],
+    )
+}
+
 pub fn body(children: impl Bundle) -> impl Bundle {
     (
         Name::new("Body"),

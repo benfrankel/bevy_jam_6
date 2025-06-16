@@ -4,7 +4,7 @@ mod splash;
 pub mod title;
 
 use crate::core::camera::CameraRoot;
-use crate::game::level::Level;
+use crate::level::Level;
 use crate::menu::Menu;
 use crate::prelude::*;
 use crate::theme::widget::LoadingBarFill;

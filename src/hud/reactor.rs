@@ -1,23 +1,23 @@
 use crate::animation::shake::NodeShake;
 use crate::core::audio::AudioSettings;
 use crate::core::audio::sfx_audio;
-use crate::game::GameAssets;
-use crate::game::deck::PlayerDeck;
-use crate::game::hud::HudConfig;
-use crate::game::hud::flux::flux_display;
-use crate::game::hud::module::module;
-use crate::game::level::Level;
-use crate::game::module::ModuleConfig;
-use crate::game::module::ModuleStatus;
-use crate::game::phase::Phase;
-use crate::game::projectile::ProjectileConfig;
+use crate::deck::PlayerDeck;
+use crate::hud::HudConfig;
+use crate::hud::flux::flux_display;
+use crate::hud::module::module;
+use crate::level::Level;
+use crate::module::ModuleConfig;
+use crate::module::ModuleStatus;
+use crate::phase::Phase;
 use crate::prelude::*;
+use crate::projectile::ProjectileConfig;
+use crate::screen::gameplay::GameplayAssets;
 
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(ReactorGrid, ReactorIndex)>();
 }
 
-pub fn reactor(game_assets: &GameAssets) -> impl Bundle {
+pub fn reactor(game_assets: &GameplayAssets) -> impl Bundle {
     (
         Name::new("Reactor"),
         ImageNode::from(game_assets.reactor.clone()),
@@ -63,7 +63,7 @@ impl Configure for ReactorGrid {
 
 fn sync_reactor_grid(
     mut commands: Commands,
-    game_assets: Res<GameAssets>,
+    game_assets: Res<GameplayAssets>,
     hud_config: ConfigRef<HudConfig>,
     module_config: ConfigRef<ModuleConfig>,
     projectile_config: ConfigRef<ProjectileConfig>,
@@ -119,7 +119,7 @@ fn play_hover_sfx_on_hover(
     reactor_module_query: Query<Ref<ReactorIndex>>,
     player_deck: Res<PlayerDeck>,
     audio_settings: Res<AudioSettings>,
-    game_assets: Res<GameAssets>,
+    game_assets: Res<GameplayAssets>,
 ) {
     let target = rq!(trigger.get_target());
     let idx = rq!(reactor_module_query.get(target));
@@ -153,7 +153,7 @@ fn discard_module_on_right_click(
     reactor_module_query: Query<&ReactorIndex>,
     mut player_deck: ResMut<PlayerDeck>,
     audio_settings: Res<AudioSettings>,
-    game_assets: Res<GameAssets>,
+    game_assets: Res<GameplayAssets>,
 ) {
     rq!(matches!(trigger.event.button, PointerButton::Secondary));
     rq!(matches!(phase.get(), Some(Phase::Helm)));

@@ -6,9 +6,9 @@ mod setup;
 
 use crate::core::audio::AudioSettings;
 use crate::core::audio::sfx_audio;
-use crate::game::GameAssets;
-use crate::game::level::Level;
+use crate::level::Level;
 use crate::prelude::*;
+use crate::screen::gameplay::GameplayAssets;
 
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(ConfigHandle<PhaseConfig>, Phase, Round, Step, StepTimer)>();
@@ -83,7 +83,7 @@ impl Configure for Phase {
 fn play_phase_change_sfx(
     mut commands: Commands,
     audio_settings: Res<AudioSettings>,
-    game_assets: Res<GameAssets>,
+    game_assets: Res<GameplayAssets>,
 ) {
     commands.spawn((
         sfx_audio(&audio_settings, game_assets.phase_change_sfx.clone(), 1.0),

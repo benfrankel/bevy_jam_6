@@ -4,16 +4,16 @@ use crate::animation::offset::NodeOffset;
 use crate::animation::shake::NodeShake;
 use crate::core::audio::AudioSettings;
 use crate::core::audio::sfx_audio;
-use crate::game::GameAssets;
-use crate::game::deck::PlayerDeck;
-use crate::game::hud::HudConfig;
-use crate::game::hud::module::module;
-use crate::game::level::Level;
-use crate::game::module::ModuleConfig;
-use crate::game::phase::Phase;
-use crate::game::phase::helm::HelmActions;
+use crate::deck::PlayerDeck;
+use crate::hud::HudConfig;
+use crate::hud::module::module;
+use crate::level::Level;
+use crate::module::ModuleConfig;
+use crate::phase::Phase;
+use crate::phase::helm::HelmActions;
 use crate::prelude::*;
 use crate::screen::gameplay::GameplayAction;
+use crate::screen::gameplay::GameplayAssets;
 
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(
@@ -25,7 +25,7 @@ pub(super) fn plugin(app: &mut App) {
     )>();
 }
 
-pub fn helm(game_assets: &GameAssets) -> impl Bundle {
+pub fn helm(game_assets: &GameplayAssets) -> impl Bundle {
     (
         Name::new("Helm"),
         ImageNode::from(game_assets.helm.clone()),
@@ -74,7 +74,7 @@ fn hand_display() -> impl Bundle {
     )
 }
 
-fn right_helm(game_assets: &GameAssets) -> impl Bundle {
+fn right_helm(game_assets: &GameplayAssets) -> impl Bundle {
     (
         Name::new("RightHelm"),
         Node {
@@ -87,7 +87,7 @@ fn right_helm(game_assets: &GameAssets) -> impl Bundle {
     )
 }
 
-fn storage_display(game_assets: &GameAssets) -> impl Bundle {
+fn storage_display(game_assets: &GameplayAssets) -> impl Bundle {
     (
         Name::new("StorageDisplay"),
         StorageDisplay,
@@ -107,7 +107,7 @@ fn storage_display(game_assets: &GameAssets) -> impl Bundle {
     )
 }
 
-fn mini_buttons(game_assets: &GameAssets) -> impl Bundle {
+fn mini_buttons(game_assets: &GameplayAssets) -> impl Bundle {
     (
         Name::new("MiniButtons"),
         Node {
@@ -122,7 +122,7 @@ fn mini_buttons(game_assets: &GameAssets) -> impl Bundle {
     )
 }
 
-fn info_button(game_assets: &GameAssets) -> impl Bundle {
+fn info_button(game_assets: &GameplayAssets) -> impl Bundle {
     mini_button_base(
         game_assets.info_button.clone(),
         parse_rich("[b]Instruction Manual (I)"),
@@ -130,7 +130,7 @@ fn info_button(game_assets: &GameAssets) -> impl Bundle {
     )
 }
 
-fn pause_button(game_assets: &GameAssets) -> impl Bundle {
+fn pause_button(game_assets: &GameplayAssets) -> impl Bundle {
     mini_button_base(
         game_assets.pause_button.clone(),
         parse_rich("[b]Pause (P)"),
@@ -138,7 +138,7 @@ fn pause_button(game_assets: &GameAssets) -> impl Bundle {
     )
 }
 
-fn skip_button(game_assets: &GameAssets) -> impl Bundle {
+fn skip_button(game_assets: &GameplayAssets) -> impl Bundle {
     mini_button_base(
         game_assets.skip_button.clone(),
         parse_rich("[b]End turn (E)"),
@@ -224,7 +224,7 @@ impl Configure for PhaseDisplay {
 
 fn sync_phase_display(
     phase: NextRef<Phase>,
-    game_assets: Res<GameAssets>,
+    game_assets: Res<GameplayAssets>,
     mut phase_display_query: Query<(&mut ImageNode, &mut Tooltip), With<PhaseDisplay>>,
 ) {
     let phase = r!(phase.get());
@@ -271,7 +271,7 @@ impl Configure for HandDisplay {
 fn sync_hand_display(
     mut commands: Commands,
     module_config: ConfigRef<ModuleConfig>,
-    game_assets: Res<GameAssets>,
+    game_assets: Res<GameplayAssets>,
     player_deck: Res<PlayerDeck>,
     hand: Single<Entity, With<HandDisplay>>,
 ) {
@@ -343,7 +343,7 @@ fn select_module_on_hover(
     trigger: Trigger<Pointer<Over>>,
     mut commands: Commands,
     audio_settings: Res<AudioSettings>,
-    game_assets: Res<GameAssets>,
+    game_assets: Res<GameplayAssets>,
     mut module_query: Query<(&mut Node, &HandIndex)>,
     mut player_deck: ResMut<PlayerDeck>,
 ) {

@@ -1,15 +1,15 @@
-use crate::game::GameAssets;
-use crate::game::module::Module;
-use crate::game::module::ModuleConfig;
-use crate::game::module::ModuleStatus;
+use crate::module::Module;
+use crate::module::ModuleConfig;
+use crate::module::ModuleStatus;
 use crate::prelude::*;
+use crate::screen::gameplay::GameplayAssets;
 
 pub(super) fn plugin(app: &mut App) {
     app.configure::<ModuleSlotGlow>();
 }
 
 pub fn module(
-    game_assets: &GameAssets,
+    game_assets: &GameplayAssets,
     module_config: &ModuleConfig,
     module: &Module,
     heat_capacity: f32,
@@ -51,7 +51,7 @@ pub fn module(
         Name::new("Module"),
         ImageNode::from(background),
         Node {
-            width: Vw(6.6666),
+            width: Vw(6.66666),
             aspect_ratio: Some(1.0),
             ..Node::ROW_CENTER
         },

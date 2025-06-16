@@ -1,5 +1,5 @@
-use crate::game::level::Level;
-use crate::game::phase::Phase;
+use crate::level::Level;
+use crate::phase::Phase;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {

@@ -1,4 +1,4 @@
-use crate::game::deck::PlayerDeck;
+use crate::deck::PlayerDeck;
 use crate::menu::Menu;
 use crate::menu::MenuRoot;
 use crate::prelude::*;

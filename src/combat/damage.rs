@@ -1,15 +1,15 @@
+use crate::combat::death::Dead;
+use crate::combat::faction::Faction;
+use crate::combat::health::Health;
 use crate::core::audio::AudioSettings;
 use crate::core::audio::sfx_audio;
-use crate::game::GameAssets;
-use crate::game::combat::death::Dead;
-use crate::game::combat::faction::Faction;
-use crate::game::combat::health::Health;
-use crate::game::level::Level;
-use crate::game::ship::EnemyShip;
-use crate::game::ship::PlayerShip;
-use crate::game::ship::PlayerShipBody;
-use crate::game::stats::Stats;
+use crate::level::Level;
 use crate::prelude::*;
+use crate::screen::gameplay::GameplayAssets;
+use crate::ship::EnemyShip;
+use crate::ship::PlayerShip;
+use crate::ship::PlayerShipBody;
+use crate::stats::Stats;
 
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(ConfigHandle<DamageConfig>, Damage, OnDamage, DamagePopup)>();
@@ -97,7 +97,7 @@ fn play_ship_hurt_sfx_on_damage(
     _: Trigger<OnDamage>,
     mut commands: Commands,
     audio_settings: Res<AudioSettings>,
-    game_assets: Res<GameAssets>,
+    game_assets: Res<GameplayAssets>,
 ) {
     commands.spawn((
         sfx_audio(&audio_settings, game_assets.ship_hurt_sfx.clone(), 1.0),

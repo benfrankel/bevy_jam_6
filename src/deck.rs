@@ -1,8 +1,8 @@
 use std::collections::VecDeque;
 
-use crate::game::module::Module;
-use crate::game::module::ModuleConfig;
-use crate::game::module::ModuleStatus;
+use crate::module::Module;
+use crate::module::ModuleConfig;
+use crate::module::ModuleStatus;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -160,12 +160,7 @@ impl PlayerDeck {
     fn next_available_slot(&self) -> Option<usize> {
         self.reactor
             .iter()
-            .position(|slot| matches!(slot.status, ModuleStatus::SlotOverheated))
-            .or_else(|| {
-                self.reactor
-                    .iter()
-                    .position(|slot| matches!(slot.status, ModuleStatus::SlotEmpty))
-            })
+            .position(|slot| matches!(slot.status, ModuleStatus::SlotEmpty))
     }
 
     /// Find the next matching reactor module to trigger.
@@ -235,17 +230,6 @@ impl PlayerDeck {
             // Action queue is done, so reset chain and flux.
             self.chain = 0.0;
             self.flux = 0.0;
-
-            // If there are no available slots remaining, artificially mark the hottest slot as overheated.
-            if self.next_available_slot().is_none() {
-                let slot = r!(self
-                    .reactor
-                    .iter_mut()
-                    .rev()
-                    .max_by_key(|slot| (slot.heat * 100.0) as i64));
-                slot.status = ModuleStatus::SlotOverheated;
-            }
-
             None
         }
     }

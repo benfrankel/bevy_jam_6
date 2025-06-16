@@ -1,18 +1,18 @@
 use crate::animation::oscillate::Oscillate;
+use crate::combat::death::Dead;
 use crate::core::audio::AudioSettings;
 use crate::core::audio::sfx_audio;
-use crate::game::GameAssets;
-use crate::game::combat::death::Dead;
-use crate::game::deck::PlayerDeck;
-use crate::game::level::Level;
-use crate::game::phase::Phase;
-use crate::game::phase::PhaseConfig;
-use crate::game::phase::Step;
-use crate::game::phase::StepTimer;
-use crate::game::phase::on_step_timer;
-use crate::game::ship::PlayerShip;
+use crate::deck::PlayerDeck;
+use crate::level::Level;
 use crate::menu::Menu;
+use crate::phase::Phase;
+use crate::phase::PhaseConfig;
+use crate::phase::Step;
+use crate::phase::StepTimer;
+use crate::phase::on_step_timer;
 use crate::prelude::*;
+use crate::screen::gameplay::GameplayAssets;
+use crate::ship::PlayerShip;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(
@@ -51,7 +51,7 @@ fn step_setup_phase(
     mut player_deck: ResMut<PlayerDeck>,
     mut player_ship: Single<(Entity, Has<Dead>, &mut Oscillate), With<PlayerShip>>,
     audio_settings: Res<AudioSettings>,
-    game_assets: Res<GameAssets>,
+    game_assets: Res<GameplayAssets>,
     mut menu: ResMut<NextStateStack<Menu>>,
 ) {
     let phase_config = r!(phase_config.get());

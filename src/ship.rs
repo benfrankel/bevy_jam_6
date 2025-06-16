@@ -2,20 +2,20 @@ use crate::animation::oscillate::Oscillate;
 use crate::animation::shake::NodeShake;
 use crate::animation::shake::Shake;
 use crate::animation::shake::ShakeWithScreen;
+use crate::combat::damage::OnDamage;
+use crate::combat::death::OnDeath;
+use crate::combat::faction::Faction;
+use crate::combat::health::Health;
+use crate::combat::health::HealthBar;
+use crate::combat::health::health_bar;
 use crate::core::camera::CameraRoot;
-use crate::game::GameAssets;
-use crate::game::GameLayer;
-use crate::game::combat::damage::OnDamage;
-use crate::game::combat::death::OnDeath;
-use crate::game::combat::faction::Faction;
-use crate::game::combat::health::Health;
-use crate::game::combat::health::HealthBar;
-use crate::game::combat::health::health_bar;
-use crate::game::deck::PlayerDeck;
-use crate::game::hud::HudConfig;
-use crate::game::hud::helm::HandIndex;
-use crate::game::level::Level;
+use crate::core::physics::GameLayer;
+use crate::deck::PlayerDeck;
+use crate::hud::HudConfig;
+use crate::hud::helm::HandIndex;
+use crate::level::Level;
 use crate::prelude::*;
+use crate::screen::gameplay::GameplayAssets;
 
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(
@@ -37,7 +37,11 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
-pub fn player_ship(ship_config: &ShipConfig, game_assets: &GameAssets, health: f32) -> impl Bundle {
+pub fn player_ship(
+    ship_config: &ShipConfig,
+    game_assets: &GameplayAssets,
+    health: f32,
+) -> impl Bundle {
     let weapons = ship_config.player_weapons.clone();
     let image = game_assets.player_ship.clone();
 
@@ -100,7 +104,11 @@ fn shake_player_ship_on_damage(
     shake.exponent = hud_config.player_ship_shake_exponent;
 }
 
-pub fn enemy_ship(ship_config: &ShipConfig, game_assets: &GameAssets, health: f32) -> impl Bundle {
+pub fn enemy_ship(
+    ship_config: &ShipConfig,
+    game_assets: &GameplayAssets,
+    health: f32,
+) -> impl Bundle {
     let weapons = ship_config.enemy_weapons.clone();
     let health_bar_transform =
         Transform::from_translation(ship_config.enemy_health_bar_offset.extend(0.1))

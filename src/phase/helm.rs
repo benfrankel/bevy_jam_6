@@ -1,10 +1,10 @@
 use crate::core::audio::AudioSettings;
 use crate::core::audio::sfx_audio;
-use crate::game::GameAssets;
-use crate::game::deck::PlayerDeck;
-use crate::game::level::Level;
-use crate::game::phase::Phase;
+use crate::deck::PlayerDeck;
+use crate::level::Level;
+use crate::phase::Phase;
 use crate::prelude::*;
+use crate::screen::gameplay::GameplayAssets;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(
@@ -108,7 +108,7 @@ fn enable_helm_actions(mut helm_actions: ResMut<ActionState<HelmActions>>) {
 fn helm_select_left(
     mut commands: Commands,
     audio_settings: Res<AudioSettings>,
-    game_assets: Res<GameAssets>,
+    game_assets: Res<GameplayAssets>,
     mut player_deck: ResMut<PlayerDeck>,
 ) {
     player_deck.bypass_change_detection().advance_selected(-1);
@@ -121,7 +121,7 @@ fn helm_select_left(
 fn helm_select_right(
     mut commands: Commands,
     audio_settings: Res<AudioSettings>,
-    game_assets: Res<GameAssets>,
+    game_assets: Res<GameplayAssets>,
     mut player_deck: ResMut<PlayerDeck>,
 ) {
     player_deck.bypass_change_detection().advance_selected(1);
@@ -133,12 +133,18 @@ fn helm_select_right(
 
 fn helm_play_module(
     mut commands: Commands,
-    game_assets: Res<GameAssets>,
+    game_assets: Res<GameplayAssets>,
     audio_settings: Res<AudioSettings>,
     mut player_deck: ResMut<PlayerDeck>,
     mut phase: NextMut<Phase>,
 ) {
-    rq!(player_deck.play_selected());
+    if !player_deck.play_selected() {
+        commands.spawn((
+            widget::toast("Error!"),
+            DespawnOnExitState::<Level>::default(),
+        ));
+        return;
+    }
 
     phase.enter(Phase::Reactor);
     commands.spawn((
@@ -149,7 +155,7 @@ fn helm_play_module(
 
 fn helm_discard_module(
     mut commands: Commands,
-    game_assets: Res<GameAssets>,
+    game_assets: Res<GameplayAssets>,
     audio_settings: Res<AudioSettings>,
     mut player_deck: ResMut<PlayerDeck>,
     mut phase: NextMut<Phase>,

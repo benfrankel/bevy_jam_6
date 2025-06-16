@@ -1,21 +1,23 @@
+use crate::combat::damage::DamageConfig;
+use crate::combat::health::HealthConfig;
 use crate::core::audio::AudioSettings;
 use crate::core::audio::MusicAudio;
 use crate::core::audio::music_audio;
-use crate::game::GameAssets;
-use crate::game::combat::damage::DamageConfig;
-use crate::game::combat::health::HealthConfig;
-use crate::game::deck::DeckConfig;
-use crate::game::hud::HudConfig;
-use crate::game::level::LevelConfig;
-use crate::game::phase::PhaseConfig;
-use crate::game::projectile::ProjectileConfig;
-use crate::game::ship::ShipConfig;
+use crate::deck::DeckConfig;
+use crate::hud::HudConfig;
+use crate::level::LevelConfig;
 use crate::menu::Menu;
+use crate::phase::PhaseConfig;
 use crate::prelude::*;
+use crate::projectile::ProjectileConfig;
 use crate::screen::Screen;
+use crate::screen::gameplay::GameplayAssets;
+use crate::ship::ShipConfig;
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_loading_state(LoadingState::new(Screen::Title.bevy()).load_collection::<GameAssets>());
+    app.add_loading_state(
+        LoadingState::new(Screen::Title.bevy()).load_collection::<GameplayAssets>(),
+    );
     app.add_systems(
         StateFlush,
         Screen::Title.on_enter((

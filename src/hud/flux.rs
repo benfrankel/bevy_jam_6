@@ -1,7 +1,7 @@
 use crate::animation::shake::NodeShake;
-use crate::game::deck::PlayerDeck;
-use crate::game::hud::HudConfig;
-use crate::game::phase::Phase;
+use crate::deck::PlayerDeck;
+use crate::hud::HudConfig;
+use crate::phase::Phase;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
