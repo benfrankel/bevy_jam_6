@@ -34,33 +34,50 @@ fn spawn_menu_overlay(mut commands: Commands) {
 #[reflect(Resource)]
 pub struct GameplayAssets {
     // Space background images.
-    #[asset(path = "image/space/space0.png")]
+    #[asset(path = "image/background/space0.png")]
     pub bg_level0: Handle<Image>,
-    #[asset(path = "image/space/space1.png")]
+    #[asset(path = "image/background/space1.png")]
     pub bg_level1: Handle<Image>,
-    #[asset(path = "image/space/space2.png")]
+    #[asset(path = "image/background/space2.png")]
     pub bg_level2: Handle<Image>,
-    #[asset(path = "image/space/space3.png")]
+    #[asset(path = "image/background/space3.png")]
     pub bg_level3: Handle<Image>,
-    #[asset(path = "image/space/space4.png")]
+    #[asset(path = "image/background/space4.png")]
     pub bg_level4: Handle<Image>,
-    #[asset(path = "image/space/space5.png")]
+    #[asset(path = "image/background/space5.png")]
     pub bg_level5: Handle<Image>,
-    #[asset(path = "image/space/space6.png")]
+    #[asset(path = "image/background/space6.png")]
     pub bg_level6: Handle<Image>,
-    #[asset(path = "image/space/space7.png")]
+    #[asset(path = "image/background/space7.png")]
     pub bg_level7: Handle<Image>,
-    #[asset(path = "image/space/space8.png")]
+    #[asset(path = "image/background/space8.png")]
     pub bg_level8: Handle<Image>,
-    #[asset(path = "image/space/space9.png")]
+    #[asset(path = "image/background/space9.png")]
     pub bg_level9: Handle<Image>,
 
     // HUD layout.
-    #[asset(path = "image/ui/reactor.png")]
+    #[asset(path = "image/hud/reactor.png")]
     pub reactor: Handle<Image>,
-    #[asset(path = "image/ui/helm.png")]
+    #[asset(path = "image/hud/helm.png")]
     pub helm: Handle<Image>,
 
+    // Phase display.
+    #[asset(path = "image/hud/phase_setup.png")]
+    pub phase_setup: Handle<Image>,
+    #[asset(path = "image/hud/phase_player.png")]
+    pub phase_player: Handle<Image>,
+    #[asset(path = "image/hud/phase_reactor.png")]
+    pub phase_reactor: Handle<Image>,
+    #[asset(path = "image/hud/phase_enemy.png")]
+    pub phase_enemy: Handle<Image>,
+
+    // Buttons.
+    #[asset(path = "image/hud/info_button.png")]
+    pub info_button: Handle<Image>,
+    #[asset(path = "image/hud/pause_button.png")]
+    pub pause_button: Handle<Image>,
+    #[asset(path = "image/hud/skip_button.png")]
+    pub skip_button: Handle<Image>,
     // Reactor module background images and VFX.
     #[asset(path = "image/module/face_up.png")]
     pub module_face_up: Handle<Image>,
@@ -79,40 +96,22 @@ pub struct GameplayAssets {
     #[asset(path = "image/module/full_glow.png")]
     pub module_slot_full_glow: Handle<Image>,
 
-    // Phase display.
-    #[asset(path = "image/ui/phase_setup.png")]
-    pub phase_setup: Handle<Image>,
-    #[asset(path = "image/ui/phase_player.png")]
-    pub phase_player: Handle<Image>,
-    #[asset(path = "image/ui/phase_reactor.png")]
-    pub phase_reactor: Handle<Image>,
-    #[asset(path = "image/ui/phase_enemy.png")]
-    pub phase_enemy: Handle<Image>,
-
-    // Buttons.
-    #[asset(path = "image/ui/info_button.png")]
-    pub info_button: Handle<Image>,
-    #[asset(path = "image/ui/pause_button.png")]
-    pub pause_button: Handle<Image>,
-    #[asset(path = "image/ui/skip_button.png")]
-    pub skip_button: Handle<Image>,
-
     // Upgrade icons.
-    #[asset(path = "image/ui/upgrade_pack_nothing.png")]
+    #[asset(path = "image/upgrade/upgrade_pack_nothing.png")]
     pub upgrade_pack_nothing: Handle<Image>,
-    #[asset(path = "image/ui/upgrade_pack_repair.png")]
+    #[asset(path = "image/upgrade/upgrade_pack_repair.png")]
     pub upgrade_pack_repair: Handle<Image>,
-    #[asset(path = "image/ui/upgrade_pack_missile.png")]
+    #[asset(path = "image/upgrade/upgrade_pack_missile.png")]
     pub upgrade_pack_missile: Handle<Image>,
-    #[asset(path = "image/ui/upgrade_pack_laser.png")]
+    #[asset(path = "image/upgrade/upgrade_pack_laser.png")]
     pub upgrade_pack_laser: Handle<Image>,
-    #[asset(path = "image/ui/upgrade_pack_fireball.png")]
+    #[asset(path = "image/upgrade/upgrade_pack_fireball.png")]
     pub upgrade_pack_fireball: Handle<Image>,
-    #[asset(path = "image/ui/upgrade_capacitor.png")]
+    #[asset(path = "image/upgrade/upgrade_capacitor.png")]
     pub upgrade_capacitor: Handle<Image>,
-    #[asset(path = "image/ui/upgrade_cooler.png")]
+    #[asset(path = "image/upgrade/upgrade_cooler.png")]
     pub upgrade_cooler: Handle<Image>,
-    #[asset(path = "image/ui/upgrade_alloy.png")]
+    #[asset(path = "image/upgrade/upgrade_alloy.png")]
     pub upgrade_alloy: Handle<Image>,
 
     // Spaceships.

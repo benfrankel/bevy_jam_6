@@ -8,7 +8,7 @@ pub(super) fn plugin(app: &mut App) {
     app.configure::<FluxLabel>();
 }
 
-pub fn flux_display() -> impl Bundle {
+pub(super) fn flux_display() -> impl Bundle {
     (
         Name::new("FluxDisplay"),
         Node {

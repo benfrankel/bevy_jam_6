@@ -24,22 +24,26 @@ fn spawn_pause_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
         ]));
 }
 
-fn close_menu(_: Trigger<Pointer<Click>>, mut menu: NextMut<Menu>) {
+fn close_menu(trigger: Trigger<Pointer<Click>>, mut menu: NextMut<Menu>) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     menu.disable();
 }
 
-fn restart_level(_: Trigger<Pointer<Click>>, mut level: FlushMut<Level>) {
+fn restart_level(trigger: Trigger<Pointer<Click>>, mut level: FlushMut<Level>) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     level.refresh();
 }
 
-fn open_settings(_: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Menu>>) {
+fn open_settings(trigger: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Menu>>) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     menu.push(Menu::Settings);
 }
 
 fn quit_to_title(
-    _: Trigger<Pointer<Click>>,
+    trigger: Trigger<Pointer<Click>>,
     mut commands: Commands,
     title_assets: Res<TitleAssets>,
 ) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     commands.spawn(fade_out(&title_assets, Screen::Title));
 }

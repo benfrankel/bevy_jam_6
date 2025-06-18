@@ -15,9 +15,9 @@ fn spawn_help_menu(mut commands: Commands, menu_root: Res<MenuRoot>, player_deck
                 "Welcome aboard [b]{}[r]!\n\
                 \n\
                 [b]The Helm[r] (bottom)\n\
-                - Select a module to insert into the reactor.\n\
-                - Right click to discard (including reactor modules).\n\
-                - Press E to end your turn.\n\
+                - Left click to insert a module into the reactor.\n\
+                - Right click to remove a module from the reactor or helm.\n\
+                - Press Space to end your turn.\n\
                 \n\
                 [b]The Reactor[r] (left)\n\
                 - Each module has a [b]Condition[r] -> [b]Effect[r].\n\
@@ -31,6 +31,7 @@ fn spawn_help_menu(mut commands: Commands, menu_root: Res<MenuRoot>, player_deck
         ]));
 }
 
-fn go_back(_: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Menu>>) {
+fn go_back(trigger: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Menu>>) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     menu.pop();
 }

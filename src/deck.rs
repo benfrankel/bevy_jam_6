@@ -147,7 +147,7 @@ impl PlayerDeck {
 
     /// Try to discard the currently selected module from hand to storage,
     /// returning false if it's not possible.
-    pub fn discard_selected(&mut self, rng: &mut impl Rng) -> bool {
+    pub fn discard_selected(&mut self) -> bool {
         rq!(!self.hand.is_empty());
 
         // Remove selected module from hand.
@@ -156,8 +156,7 @@ impl PlayerDeck {
         self.hand_idx = self.hand_idx.clamp(0, self.hand.len().saturating_sub(1));
 
         // Insert it into storage.
-        let storage_idx = rng.gen_range(0..=self.storage.len() / 2);
-        self.storage.insert(storage_idx, selected);
+        self.storage.push(selected);
         self.just_used_storage = true;
 
         true

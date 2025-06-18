@@ -36,17 +36,19 @@ fn spawn_intro_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
         ]));
 }
 
-fn go_back(_: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Menu>>) {
+fn go_back(trigger: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Menu>>) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     menu.pop();
 }
 
 fn start_game(
-    _: Trigger<Pointer<Click>>,
+    trigger: Trigger<Pointer<Click>>,
     mut commands: Commands,
     title_assets: Res<TitleAssets>,
     progress: Res<ProgressTracker<BevyState<Screen>>>,
     mut menu: ResMut<NextStateStack<Menu>>,
 ) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     let Progress { done, total } = progress.get_global_combined_progress();
     if done >= total {
         commands.spawn(fade_out(&title_assets, Screen::Gameplay));

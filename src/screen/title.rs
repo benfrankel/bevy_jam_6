@@ -73,7 +73,7 @@ fn background(title_assets: &TitleAssets) -> impl Bundle {
 pub struct TitleAssets {
     #[asset(path = "audio/music/Bevy Jam 6 song 3_5.ogg")]
     music: Handle<AudioSource>,
-    #[asset(path = "image/space/space0.png")]
+    #[asset(path = "image/background/space0.png")]
     pub background: Handle<Image>,
 }
 

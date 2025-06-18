@@ -1,19 +1,16 @@
-mod flux;
 pub mod helm;
 mod module;
 mod reactor;
 
 use crate::animation::shake::NodeShake;
 use crate::animation::shake::ShakeWithScreen;
-use crate::hud::helm::helm;
-use crate::hud::reactor::reactor;
 use crate::prelude::*;
 use crate::screen::gameplay::GameplayAssets;
 
 pub(super) fn plugin(app: &mut App) {
     app.configure::<ConfigHandle<HudConfig>>();
 
-    app.add_plugins((flux::plugin, helm::plugin, module::plugin, reactor::plugin));
+    app.add_plugins((helm::plugin, module::plugin, reactor::plugin));
 }
 
 pub fn hud(game_assets: &GameplayAssets) -> impl Bundle {
@@ -23,11 +20,11 @@ pub fn hud(game_assets: &GameplayAssets) -> impl Bundle {
         ShakeWithScreen,
         NodeShake::default(),
         children![
-            reactor(game_assets),
+            reactor::reactor(game_assets),
             (
                 Name::new("Column"),
                 Node::COLUMN.reverse().grow(),
-                children![helm(game_assets)],
+                children![helm::helm(game_assets)],
             )
         ],
     )

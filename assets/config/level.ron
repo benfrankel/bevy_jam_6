@@ -25,7 +25,6 @@
             name: "Betelgeuse",
             enemy_deck: EnemyDeck(
                 max_health: 90,
-                start: ["missile"],
                 volley: ["missile", "missile", "missile", "missile", "missile", "repair"],
                 finish: ["laser"],
             ),

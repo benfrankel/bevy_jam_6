@@ -27,7 +27,8 @@ fn spawn_settings_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
         ]));
 }
 
-fn go_back(_: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Menu>>) {
+fn go_back(trigger: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Menu>>) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     menu.pop();
 }
 
@@ -97,11 +98,13 @@ fn update_master_volume_selector(
     }
 }
 
-fn master_volume_down(_: Trigger<Pointer<Click>>, mut audio_settings: ResMut<AudioSettings>) {
+fn master_volume_down(trigger: Trigger<Pointer<Click>>, mut audio_settings: ResMut<AudioSettings>) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     audio_settings.master_volume = (audio_settings.master_volume - 0.1).max(0.0);
 }
 
-fn master_volume_up(_: Trigger<Pointer<Click>>, mut audio_settings: ResMut<AudioSettings>) {
+fn master_volume_up(trigger: Trigger<Pointer<Click>>, mut audio_settings: ResMut<AudioSettings>) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     audio_settings.master_volume = (audio_settings.master_volume + 0.1).min(1.0);
 }
 
@@ -145,11 +148,13 @@ fn update_music_volume_selector(
     }
 }
 
-fn music_volume_down(_: Trigger<Pointer<Click>>, mut audio_settings: ResMut<AudioSettings>) {
+fn music_volume_down(trigger: Trigger<Pointer<Click>>, mut audio_settings: ResMut<AudioSettings>) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     audio_settings.music_volume = (audio_settings.music_volume - 0.1).max(0.0);
 }
 
-fn music_volume_up(_: Trigger<Pointer<Click>>, mut audio_settings: ResMut<AudioSettings>) {
+fn music_volume_up(trigger: Trigger<Pointer<Click>>, mut audio_settings: ResMut<AudioSettings>) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     audio_settings.music_volume = (audio_settings.music_volume + 0.1).min(1.0);
 }
 
@@ -193,11 +198,13 @@ fn update_sfx_volume_selector(
     }
 }
 
-fn sfx_volume_down(_: Trigger<Pointer<Click>>, mut audio_settings: ResMut<AudioSettings>) {
+fn sfx_volume_down(trigger: Trigger<Pointer<Click>>, mut audio_settings: ResMut<AudioSettings>) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     audio_settings.sfx_volume = (audio_settings.sfx_volume - 0.1).max(0.0);
 }
 
-fn sfx_volume_up(_: Trigger<Pointer<Click>>, mut audio_settings: ResMut<AudioSettings>) {
+fn sfx_volume_up(trigger: Trigger<Pointer<Click>>, mut audio_settings: ResMut<AudioSettings>) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     audio_settings.sfx_volume = (audio_settings.sfx_volume + 0.1).min(1.0);
 }
 

@@ -57,19 +57,23 @@ fn title() -> impl Bundle {
     )
 }
 
-fn open_intro(_: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Menu>>) {
+fn open_intro(trigger: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Menu>>) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     menu.push(Menu::Intro);
 }
 
-fn open_settings(_: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Menu>>) {
+fn open_settings(trigger: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Menu>>) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     menu.push(Menu::Settings);
 }
 
-fn open_credits(_: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Menu>>) {
+fn open_credits(trigger: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Menu>>) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     menu.push(Menu::Credits);
 }
 
-fn quit_to_desktop(_: Trigger<Pointer<Click>>, mut app_exit: EventWriter<AppExit>) {
+fn quit_to_desktop(trigger: Trigger<Pointer<Click>>, mut app_exit: EventWriter<AppExit>) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     if cfg!(not(feature = "web")) {
         app_exit.write(AppExit::Success);
     }

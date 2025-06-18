@@ -257,7 +257,9 @@ fn perform_action(
 
     // Heal.
     if action.effect_heal > f32::EPSILON {
-        commands.entity(trigger.source).trigger(OnHeal(2.0 * flux));
+        commands
+            .entity(trigger.source)
+            .trigger(OnHeal(action.effect_heal * flux));
         commands.spawn((
             sfx_audio(
                 &audio_settings,

@@ -16,7 +16,8 @@ fn spawn_credits_menu(mut commands: Commands, menu_root: Res<MenuRoot>) {
         ]));
 }
 
-fn go_back(_: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Menu>>) {
+fn go_back(trigger: Trigger<Pointer<Click>>, mut menu: ResMut<NextStateStack<Menu>>) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     menu.pop();
 }
 

@@ -1,9 +1,10 @@
+mod flux_display;
+
 use crate::animation::shake::NodeShake;
 use crate::core::audio::AudioSettings;
 use crate::core::audio::sfx_audio;
 use crate::deck::PlayerDeck;
 use crate::hud::HudConfig;
-use crate::hud::flux::flux_display;
 use crate::hud::module::module;
 use crate::level::Level;
 use crate::module::ModuleConfig;
@@ -14,10 +15,12 @@ use crate::projectile::ProjectileConfig;
 use crate::screen::gameplay::GameplayAssets;
 
 pub(super) fn plugin(app: &mut App) {
+    app.add_plugins(flux_display::plugin);
+
     app.configure::<(ReactorGrid, ReactorIndex)>();
 }
 
-pub fn reactor(game_assets: &GameplayAssets) -> impl Bundle {
+pub(super) fn reactor(game_assets: &GameplayAssets) -> impl Bundle {
     (
         Name::new("Reactor"),
         ImageNode::from(game_assets.reactor.clone()),
@@ -27,7 +30,7 @@ pub fn reactor(game_assets: &GameplayAssets) -> impl Bundle {
             row_gap: Vw(1.69),
             ..Node::COLUMN.top_center().full_height()
         },
-        children![flux_display(), reactor_grid()],
+        children![flux_display::flux_display(), reactor_grid()],
     )
 }
 

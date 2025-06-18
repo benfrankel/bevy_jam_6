@@ -12,7 +12,7 @@ use crate::core::camera::CameraRoot;
 use crate::core::physics::GameLayer;
 use crate::deck::PlayerDeck;
 use crate::hud::HudConfig;
-use crate::hud::helm::HandIndex;
+use crate::hud::helm::hand::HandIndex;
 use crate::level::Level;
 use crate::prelude::*;
 use crate::screen::gameplay::GameplayAssets;

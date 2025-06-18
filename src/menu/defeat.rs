@@ -33,19 +33,22 @@ fn spawn_defeat_menu(
         ]));
 }
 
-fn restart_level(_: Trigger<Pointer<Click>>, mut level: FlushMut<Level>) {
+fn restart_level(trigger: Trigger<Pointer<Click>>, mut level: FlushMut<Level>) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     level.refresh();
 }
 
-fn restart_game(_: Trigger<Pointer<Click>>, mut level: NextMut<Level>) {
+fn restart_game(trigger: Trigger<Pointer<Click>>, mut level: NextMut<Level>) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     level.enter(Level(0));
     level.trigger();
 }
 
 fn quit_to_title(
-    _: Trigger<Pointer<Click>>,
+    trigger: Trigger<Pointer<Click>>,
     mut commands: Commands,
     title_assets: Res<TitleAssets>,
 ) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     commands.spawn(fade_out(&title_assets, Screen::Title));
 }

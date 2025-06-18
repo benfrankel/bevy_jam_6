@@ -35,7 +35,7 @@
             collider_a: Vec2(-4, 0),
             collider_b: Vec2(4, 0),
 
-            damage: 2,
+            damage: 3,
             initial_position: Vec2(0, 0),
             initial_position_spread: Vec2(1, 2),
             initial_angle: 0,

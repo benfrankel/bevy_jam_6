@@ -46,13 +46,13 @@ impl Configure for HelmActions {
                 .with(Self::SelectRight, GamepadButton::RightTrigger)
                 .with(Self::SelectRight, KeyCode::KeyD)
                 .with(Self::SelectRight, KeyCode::ArrowRight)
-                .with(Self::PlayModule, KeyCode::Space)
-                .with(Self::PlayModule, KeyCode::Enter)
-                .with(Self::PlayModule, KeyCode::NumpadEnter)
-                .with(Self::DiscardModule, KeyCode::Delete)
-                .with(Self::DiscardModule, KeyCode::Backspace)
-                .with(Self::DiscardModule, KeyCode::NumpadBackspace)
-                .with(Self::EndTurn, KeyCode::KeyE),
+                .with(Self::PlayModule, GamepadButton::DPadUp)
+                .with(Self::PlayModule, KeyCode::KeyW)
+                .with(Self::PlayModule, KeyCode::ArrowUp)
+                .with(Self::DiscardModule, GamepadButton::DPadDown)
+                .with(Self::DiscardModule, KeyCode::KeyS)
+                .with(Self::DiscardModule, KeyCode::ArrowDown)
+                .with(Self::EndTurn, KeyCode::Space),
         );
         app.add_plugins(InputManagerPlugin::<Self>::default());
         app.add_systems(Startup, disable_helm_phase_actions);
@@ -139,6 +139,7 @@ fn helm_play_module(
     mut player_deck: ResMut<PlayerDeck>,
     toast_box: Single<Entity, With<ToastBox>>,
 ) {
+    rq!(!player_deck.hand.is_empty());
     if !player_deck.bypass_change_detection().play_selected() {
         commands.entity(*toast_box).with_child((
             widget::toast(
@@ -149,8 +150,8 @@ fn helm_play_module(
         ));
         return;
     }
-
     player_deck.set_changed();
+
     commands.spawn((
         sfx_audio(&audio_settings, game_assets.module_insert_sfx.clone(), 1.0),
         DespawnOnExitState::<Level>::default(),
@@ -163,7 +164,9 @@ fn helm_discard_module(
     audio_settings: Res<AudioSettings>,
     mut player_deck: ResMut<PlayerDeck>,
 ) {
-    rq!(player_deck.discard_selected(&mut thread_rng()));
+    rq!(player_deck.bypass_change_detection().discard_selected());
+    player_deck.set_changed();
+    player_deck.last_touched_idx = None;
 
     commands.spawn((
         sfx_audio(&audio_settings, game_assets.module_hover_sfx.clone(), 1.0),

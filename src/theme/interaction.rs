@@ -249,6 +249,7 @@ fn play_click_sfx(
     sfx_query: Query<Option<&InteractionDisabled>, With<InteractionSfx>>,
     mut commands: Commands,
 ) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     let target = r!(trigger.get_target());
     let disabled = rq!(sfx_query.get(target));
     rq!(!matches!(disabled, Some(InteractionDisabled(true))));
@@ -297,6 +298,7 @@ fn play_click_glass_sfx(
     sfx_query: Query<Option<&InteractionDisabled>, With<InteractionGlassSfx>>,
     mut commands: Commands,
 ) {
+    rq!(matches!(trigger.event.button, PointerButton::Primary));
     let target = r!(trigger.get_target());
     let disabled = rq!(sfx_query.get(target));
     rq!(!matches!(disabled, Some(InteractionDisabled(true))));
