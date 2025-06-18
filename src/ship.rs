@@ -253,11 +253,11 @@ impl Configure for Weapon {
 }
 
 fn navigate_player_ship_toward_selected_module(
+    ship_config: ConfigRef<ShipConfig>,
     time: Res<Time>,
     camera_root: Res<CameraRoot>,
     camera_query: Query<(&Camera, &GlobalTransform)>,
     hand_index_query: Query<(&HandIndex, &GlobalTransform, &ComputedNode)>,
-    ship_config: ConfigRef<ShipConfig>,
     player_ship: Single<(&mut LinearVelocity, &GlobalTransform), With<PlayerShip>>,
     player_deck: Res<PlayerDeck>,
 ) {
@@ -267,8 +267,14 @@ fn navigate_player_ship_toward_selected_module(
         .iter()
         .find(|(index, ..)| index.0 == player_deck.hand_idx)
     {
-        let viewport_pos = target_gt.translation().xy() * target_computed_node.inverse_scale_factor;
-        r!(camera.viewport_to_world_2d(camera_gt, viewport_pos))
+        let viewport_pos = camera
+            .physical_viewport_rect()
+            .map(|x| x.min)
+            .unwrap_or_default()
+            .as_vec2();
+        let target_pos_viewport = (viewport_pos + target_gt.translation().xy())
+            * target_computed_node.inverse_scale_factor;
+        r!(camera.viewport_to_world_2d(camera_gt, target_pos_viewport))
     } else {
         vec2(61.0, -46.0)
     };
