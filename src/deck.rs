@@ -187,8 +187,8 @@ impl PlayerDeck {
         // Activate the first matching module.
         if let Some(idx) = self.next_matching_module() {
             let slot = &mut self.reactor[idx];
-            let condition = &module_config.actions[&slot.condition];
-            let effect = &module_config.actions[&slot.effect];
+            let condition = &module_config.action(&slot.condition);
+            let effect = &module_config.action(&slot.effect);
 
             slot.status = ModuleStatus::SlotActive;
             if slot.condition.is_empty() {

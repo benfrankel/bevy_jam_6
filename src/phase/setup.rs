@@ -96,7 +96,7 @@ fn step_setup_phase(
     let cooldown = Duration::from_secs_f32(if player_deck.is_setup_done() {
         phase_config.setup_last_cooldown
     } else {
-        phase_config.setup_cooldown * phase_config.setup_cooldown_decay.powi(step.0 as _)
+        phase_config.setup_cooldown.eval(step.0 as _)
     });
     step_timer.0.set_duration(cooldown);
 }

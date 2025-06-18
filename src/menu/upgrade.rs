@@ -374,20 +374,20 @@ fn generate_upgrades(
     if player_deck.heat_capacity
         < 0.18 * (player_deck.reactor.len() * player_deck.reactor.len()) as f32
     {
-        upgrades.push(Upgrade::QuantumCooler(5.0));
+        upgrades.push(Upgrade::QuantumCooler(4.0));
     } else if player_deck.reactor.len() < 18 {
         upgrades.push(Upgrade::FluxCapacitor(3));
     } else {
-        upgrades.push(if rng.gen_bool(0.8) {
+        upgrades.push(if rng.gen_bool(0.9) {
             Upgrade::AlienAlloy(50.0)
         } else {
-            Upgrade::QuantumCooler(5.0)
+            Upgrade::QuantumCooler(4.0)
         });
     }
-    upgrades.push(if rng.gen_bool(0.8) {
+    upgrades.push(if rng.gen_bool(0.9) {
         Upgrade::AlienAlloy(50.0)
     } else {
-        Upgrade::QuantumCooler(5.0)
+        Upgrade::QuantumCooler(4.0)
     });
 
     // Offer module packs.

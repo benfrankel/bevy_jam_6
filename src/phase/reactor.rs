@@ -77,10 +77,7 @@ fn step_power_up_phase(
     let cooldown = Duration::from_secs_f32(if player_deck.is_reactor_done() {
         phase_config.reactor_last_cooldown
     } else {
-        phase_config.reactor_cooldown
-            * phase_config
-                .reactor_cooldown_decay
-                .powf(player_deck.chain - 1.0)
+        phase_config.reactor_cooldown.eval(player_deck.chain - 1.0)
     });
     step_timer.0.set_duration(cooldown);
 }

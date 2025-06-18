@@ -24,8 +24,8 @@ pub fn module(
     }
     .clone();
 
-    let condition = &module_config.actions[&module.condition];
-    let effect = &module_config.actions[&module.effect];
+    let condition = module_config.action(&module.condition);
+    let effect = module_config.action(&module.effect);
     let show_icons = if matches!(
         module.status,
         ModuleStatus::FaceDown | ModuleStatus::SlotEmpty,

@@ -40,6 +40,14 @@ impl Config for ModuleConfig {
     }
 }
 
+impl ModuleConfig {
+    pub fn action(&self, key: impl AsRef<str>) -> &ActionInfo {
+        self.actions
+            .get(key.as_ref())
+            .unwrap_or_else(|| &self.actions[""])
+    }
+}
+
 #[derive(Reflect, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ActionInfo {
@@ -114,8 +122,8 @@ impl Module {
     pub fn short_description(&self, module_config: &ModuleConfig) -> String {
         format!(
             "[b]{}[r] -> [b]{}[r]",
-            module_config.actions[&self.condition].condition_name,
-            module_config.actions[&self.effect].effect_name,
+            module_config.action(&self.condition).condition_name,
+            module_config.action(&self.effect).effect_name,
         )
     }
 
@@ -135,8 +143,8 @@ impl Module {
             ModuleStatus::FaceDown => header.to_string(),
             ModuleStatus::SlotEmpty => format!("{header}\n\nEmpty slot"),
             _ => {
-                let condition = &module_config.actions[&self.condition];
-                let effect = &module_config.actions[&self.effect];
+                let condition = &module_config.action(&self.condition);
+                let effect = &module_config.action(&self.effect);
                 let body = format!(
                     "{}{}.",
                     condition.condition_description,

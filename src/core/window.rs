@@ -9,6 +9,7 @@ use crate::prelude::*;
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(WindowPlugin {
         primary_window: Some(Window {
+            #[cfg(feature = "dev")]
             name: Some("bevy_app".to_string()),
             title: "Flux Pursuit".to_string(),
             mode: WindowMode::Windowed,
