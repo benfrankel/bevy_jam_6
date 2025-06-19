@@ -44,15 +44,29 @@ impl Configure for AudioSettings {
 
 impl AudioSettings {
     pub fn music_volume(&self) -> Volume {
-        Volume::Linear(self.master_volume * self.music_volume)
+        position_to_volume(self.master_volume * self.music_volume)
     }
 
     pub fn sfx_volume(&self) -> Volume {
-        Volume::Linear(self.master_volume * self.sfx_volume)
+        position_to_volume(self.master_volume * self.sfx_volume)
     }
 
     pub fn ui_volume(&self) -> Volume {
-        Volume::Linear(self.master_volume * self.ui_volume)
+        position_to_volume(self.master_volume * self.ui_volume)
+    }
+}
+
+/// Map a volume selector position (in the [0, 1] range) to its corresponding volume.
+fn position_to_volume(t: f32) -> Volume {
+    const VOLUME_STOP: f32 = 0.01;
+    const VOLUME_STOP_DECIBELS: f32 = -60.0;
+    if t < VOLUME_STOP {
+        let t = t / VOLUME_STOP;
+        let volume_stop_linear = Volume::Decibels(VOLUME_STOP_DECIBELS).to_linear();
+        Volume::Linear(volume_stop_linear * t)
+    } else {
+        let t = (t - VOLUME_STOP) / (1.0 - VOLUME_STOP);
+        Volume::Decibels(VOLUME_STOP_DECIBELS * (1.0 - t))
     }
 }
 
