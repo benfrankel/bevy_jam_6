@@ -47,6 +47,10 @@ pub struct ProjectileInfo {
     pub sprite_path: String,
     #[serde(skip)]
     pub sprite: Handle<Image>,
+    #[serde(rename = "sprite_empowered")]
+    pub sprite_empowered_path: String,
+    #[serde(skip)]
+    pub sprite_empowered: Handle<Image>,
     #[serde(rename = "spawn_sfx", default)]
     pub spawn_sfx_path: String,
     #[serde(skip)]
@@ -58,19 +62,23 @@ pub struct ProjectileInfo {
     pub collider_b: Vec2,
 
     pub damage: f32,
-    pub initial_position: Vec2,
-    pub initial_position_spread: Vec2,
-    pub initial_angle: f32,
-    pub initial_angle_spread: f32,
-    pub initial_speed: f32,
-    pub initial_speed_spread: f32,
-    pub max_speed: f32,
-    pub thruster_force: Vec2,
+    pub scale: Vec2,
+    pub scale_max: Vec2,
+    pub scale_max_flux_factor: Vec2,
+    pub growth: Vec2,
+    pub growth_flux_factor: Vec2,
+    pub position: Vec2,
+    pub position_spread: Vec2,
+    pub angle: f32,
+    pub angle_spread: f32,
+    pub speed: f32,
+    pub speed_spread: f32,
+    pub speed_max: f32,
+    pub speed_max_flux_factor: f32,
+    pub acceleration: Vec2,
+    pub acceleration_flux_factor: f32,
     pub homing_approach: f32,
     pub homing_target_spread: Vec2,
-    pub growth_rate: Vec2,
-    pub initial_scale: Vec2,
-    pub max_scale: Vec2,
     pub oscillate_amplitude: Vec2,
     pub oscillate_phase: Vec2,
     pub oscillate_rate: Vec2,
@@ -90,19 +98,18 @@ impl ProjectileInfo {
         target: Entity,
     ) -> impl Bundle {
         // Calculate initial transform.
-        transform.translation += (self.initial_position
-            + self.initial_position_spread
-                * vec2(rng.gen_range(-1.0..=1.0), rng.gen_range(-1.0..=1.0)))
+        transform.translation += (self.position
+            + self.position_spread * vec2(rng.gen_range(-1.0..=1.0), rng.gen_range(-1.0..=1.0)))
         .extend(0.0);
-        transform.scale *= self.initial_scale.extend(1.0);
+        transform.scale *= self.scale.extend(1.0);
         let angle = transform.rotation.to_rot2().as_degrees()
-            + self.initial_angle
-            + self.initial_angle_spread * rng.gen_range(-1.0..=1.0);
+            + self.angle
+            + self.angle_spread * rng.gen_range(-1.0..=1.0);
         let angle = angle.to_radians();
         transform.rotation = Quat::radians(angle);
 
         // Calculate initial velocity.
-        let speed = self.initial_speed + self.initial_speed_spread * rng.gen_range(-1.0..=1.0);
+        let speed = self.speed + self.speed_spread * rng.gen_range(-1.0..=1.0);
         let velocity = speed.max(1.0) * Vec2::from_angle(angle);
 
         // Calculate homing target position offset.
@@ -112,11 +119,15 @@ impl ProjectileInfo {
         (
             Name::new(self.name.clone()),
             faction,
-            Sprite::from_image(self.sprite.clone()),
+            Sprite::from_image(if flux >= 10.0 {
+                self.sprite_empowered.clone()
+            } else {
+                self.sprite.clone()
+            }),
             Damage(self.damage * flux),
             Growth {
-                rate: self.growth_rate,
-                max_scale: self.max_scale,
+                rate: self.growth * self.growth_flux_factor.powf(flux - 1.0),
+                max_scale: self.scale_max * self.scale_max_flux_factor.powf(flux - 1.0),
             },
             Oscillate::new(
                 self.oscillate_amplitude,
@@ -124,7 +135,7 @@ impl ProjectileInfo {
                 self.oscillate_rate,
             ),
             Thruster {
-                force: self.thruster_force,
+                force: self.acceleration * self.acceleration_flux_factor.powf(flux - 1.0),
             },
             Homing {
                 target,
@@ -134,7 +145,7 @@ impl ProjectileInfo {
             RotateWithVelocity,
             (
                 LinearVelocity(velocity),
-                MaxLinearSpeed(self.max_speed),
+                MaxLinearSpeed(self.speed_max * self.speed_max_flux_factor.powf(flux - 1.0)),
                 RigidBody::Dynamic,
                 Mass(1.0),
                 ExternalForce::ZERO.with_persistence(false),
@@ -150,6 +161,7 @@ impl ProjectileInfo {
 
     fn load(&mut self, asset_server: &AssetServer) {
         self.sprite = asset_server.load(&self.sprite_path);
+        self.sprite_empowered = asset_server.load(&self.sprite_empowered_path);
         if !self.spawn_sfx_path.is_empty() {
             self.spawn_sfx = Some(asset_server.load(&self.spawn_sfx_path));
         }
@@ -159,6 +171,9 @@ impl ProjectileInfo {
         let mut progress = Progress::default();
         progress += asset_server
             .is_loaded_with_dependencies(&self.sprite)
+            .into();
+        progress += asset_server
+            .is_loaded_with_dependencies(&self.sprite_empowered)
             .into();
         progress += self
             .spawn_sfx
