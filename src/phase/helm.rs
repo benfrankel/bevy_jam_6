@@ -112,11 +112,14 @@ fn helm_select_left(
     game_assets: Res<GameplayAssets>,
     mut player_deck: ResMut<PlayerDeck>,
 ) {
+    let old_hand_idx = player_deck.hand_idx;
     player_deck.bypass_change_detection().advance_selected(-1);
-    commands.spawn((
-        sfx_audio(&audio_settings, game_assets.module_hover_sfx.clone(), 1.0),
-        DespawnOnExitState::<Level>::default(),
-    ));
+    if player_deck.hand_idx != old_hand_idx {
+        commands.spawn((
+            sfx_audio(&audio_settings, game_assets.module_hover_sfx.clone(), 1.0),
+            DespawnOnExitState::<Level>::default(),
+        ));
+    }
 }
 
 fn helm_select_right(
@@ -125,11 +128,14 @@ fn helm_select_right(
     game_assets: Res<GameplayAssets>,
     mut player_deck: ResMut<PlayerDeck>,
 ) {
+    let old_hand_idx = player_deck.hand_idx;
     player_deck.bypass_change_detection().advance_selected(1);
-    commands.spawn((
-        sfx_audio(&audio_settings, game_assets.module_hover_sfx.clone(), 1.0),
-        DespawnOnExitState::<Level>::default(),
-    ));
+    if player_deck.hand_idx != old_hand_idx {
+        commands.spawn((
+            sfx_audio(&audio_settings, game_assets.module_hover_sfx.clone(), 1.0),
+            DespawnOnExitState::<Level>::default(),
+        ));
+    }
 }
 
 fn helm_play_module(
