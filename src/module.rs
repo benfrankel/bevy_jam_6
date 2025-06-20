@@ -220,7 +220,7 @@ fn perform_action(
     enemy_deck: Res<EnemyDeck>,
     game_assets: Res<GameplayAssets>,
     audio_settings: Res<AudioSettings>,
-    ship_query: Query<(&Children, &Faction)>,
+    ship_query: Query<(&Children, &Faction, &LinearVelocity)>,
     children_query: Query<&Children>,
     weapon_query: Query<&GlobalTransform, With<Weapon>>,
     mut stats: ResMut<Stats>,
@@ -231,7 +231,7 @@ fn perform_action(
 
     // Choose a weapon on the ship.
     let rng = &mut thread_rng();
-    let (children, &faction) = r!(ship_query.get(trigger.source));
+    let (children, &ship_faction, ship_velocity) = r!(ship_query.get(trigger.source));
     let mut weapons = Vec::<&_>::new();
     for &child in children {
         weapons.extend(weapon_query.get(child));
@@ -243,7 +243,7 @@ fn perform_action(
     let weapon_transform = weapon_gt.compute_transform();
 
     // Determine flux.
-    let is_player = faction == Faction::Player;
+    let is_player = ship_faction == Faction::Player;
     let flux = match is_player {
         true => player_deck.flux,
         false => enemy_deck.flux,
@@ -252,7 +252,14 @@ fn perform_action(
     // Spawn projectile.
     if let Some(projectile) = projectile_config.projectiles.get(&action.effect_projectile) {
         commands.spawn((
-            projectile.generate(rng, faction, flux, weapon_transform, trigger.target),
+            projectile.generate(
+                rng,
+                weapon_transform,
+                ship_velocity.0,
+                ship_faction,
+                trigger.target,
+                flux,
+            ),
             DespawnOnExitState::<Level>::default(),
         ));
         if let Some(spawn_sfx) = &projectile.spawn_sfx {

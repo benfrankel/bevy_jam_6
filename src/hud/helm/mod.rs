@@ -5,6 +5,7 @@ mod storage;
 use bevy::ecs::system::IntoObserverSystem;
 
 use crate::animation::offset::NodeOffset;
+use crate::hud::HudConfig;
 use crate::prelude::*;
 use crate::screen::gameplay::GameplayAction;
 use crate::screen::gameplay::GameplayAssets;
@@ -13,7 +14,7 @@ pub(super) fn plugin(app: &mut App) {
     app.add_plugins((hand::plugin, phase_display::plugin, storage::plugin));
 }
 
-pub(super) fn helm(game_assets: &GameplayAssets) -> impl Bundle {
+pub(super) fn helm(hud_config: &HudConfig, game_assets: &GameplayAssets) -> impl Bundle {
     (
         Name::new("Helm"),
         ImageNode::from(game_assets.helm.clone()),
@@ -21,7 +22,11 @@ pub(super) fn helm(game_assets: &GameplayAssets) -> impl Bundle {
             aspect_ratio: Some(356.0 / 58.0),
             ..Node::ROW.full_width()
         },
-        children![left_helm(), hand::hand_display(), right_helm(game_assets)],
+        children![
+            left_helm(),
+            hand::hand_display(),
+            right_helm(hud_config, game_assets),
+        ],
     )
 }
 
@@ -37,7 +42,7 @@ fn left_helm() -> impl Bundle {
     )
 }
 
-fn right_helm(game_assets: &GameplayAssets) -> impl Bundle {
+fn right_helm(hud_config: &HudConfig, game_assets: &GameplayAssets) -> impl Bundle {
     (
         Name::new("RightHelm"),
         Node {
@@ -48,7 +53,7 @@ fn right_helm(game_assets: &GameplayAssets) -> impl Bundle {
         },
         children![
             mini_buttons(game_assets),
-            storage::storage_display(game_assets),
+            storage::storage_display(hud_config, game_assets),
         ],
     )
 }

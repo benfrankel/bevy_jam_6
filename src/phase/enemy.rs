@@ -117,7 +117,7 @@ fn step_enemy_phase(
     let cooldown = Duration::from_secs_f32(if enemy_deck.is_done(round.0) {
         phase_config.enemy_last_cooldown
     } else {
-        phase_config.enemy_cooldown.eval(step.0 as _)
+        phase_config.enemy_cooldown.sample(step.0 as _)
     });
     step_timer.0.set_duration(cooldown);
 }

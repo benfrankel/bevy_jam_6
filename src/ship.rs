@@ -1,7 +1,7 @@
 use crate::animation::oscillate::Oscillate;
-use crate::animation::shake::NodeShake;
 use crate::animation::shake::Shake;
-use crate::animation::shake::ShakeWithScreen;
+use crate::animation::shake::ShakeWithCamera;
+use crate::animation::shake::Trauma;
 use crate::combat::damage::OnDamage;
 use crate::combat::death::OnDeath;
 use crate::combat::faction::Faction;
@@ -16,6 +16,7 @@ use crate::hud::helm::hand::HandIndex;
 use crate::level::Level;
 use crate::prelude::*;
 use crate::screen::gameplay::GameplayAssets;
+use crate::util::math::ScalingTrauma;
 
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(
@@ -53,8 +54,12 @@ pub fn player_ship(
         Visibility::default(),
         RigidBody::Kinematic,
         MaxLinearSpeed(ship_config.player_speed_max),
-        Shake::default(),
-        Oscillate::default(),
+        ship_config.player_shake,
+        Oscillate::new(
+            ship_config.player_oscillate_amplitude,
+            ship_config.player_oscillate_phase,
+            ship_config.player_oscillate_rate,
+        ),
         children![
             (
                 health_bar(),
@@ -88,20 +93,13 @@ pub fn player_ship(
 
 fn shake_player_ship_on_damage(
     trigger: Trigger<OnDamage>,
-    mut shake_query: Query<&mut Shake>,
-    hud_config: ConfigRef<HudConfig>,
+    mut trauma_query: Query<&mut Trauma>,
+    ship_config: ConfigRef<ShipConfig>,
 ) {
-    let hud_config = r!(hud_config.get());
+    let ship_config = r!(ship_config.get());
     let target = r!(trigger.get_target());
-    let mut shake = r!(shake_query.get_mut(target));
-
-    let factor = hud_config
-        .player_ship_shake_damage_factor
-        .powf(trigger.0.max(hud_config.player_ship_shake_damage_min) - 1.0);
-    shake.amplitude = hud_config.player_ship_shake_amplitude;
-    shake.trauma += hud_config.player_ship_shake_trauma * factor;
-    shake.decay = hud_config.player_ship_shake_decay;
-    shake.exponent = hud_config.player_ship_shake_exponent;
+    let mut trauma = r!(trauma_query.get_mut(target));
+    trauma.0 += ship_config.player_damage_trauma.sample(trigger.0);
 }
 
 pub fn enemy_ship(
@@ -125,7 +123,7 @@ pub fn enemy_ship(
         Mass(1.0),
         Collider::rectangle(167.0, 15.0),
         CollisionLayers::new(GameLayer::Enemy, LayerMask::ALL),
-        Shake::default(),
+        ship_config.enemy_shake,
         Oscillate::new(
             ship_config.enemy_oscillate_amplitude,
             ship_config.enemy_oscillate_phase,
@@ -162,20 +160,13 @@ fn survive_on_one_health(
 
 fn shake_enemy_ship_on_damage(
     trigger: Trigger<OnDamage>,
-    mut shake_query: Query<&mut Shake>,
-    hud_config: ConfigRef<HudConfig>,
+    mut trauma_query: Query<&mut Trauma>,
+    ship_config: ConfigRef<ShipConfig>,
 ) {
-    let hud_config = r!(hud_config.get());
+    let ship_config = r!(ship_config.get());
     let target = r!(trigger.get_target());
-    let mut shake = r!(shake_query.get_mut(target));
-
-    let factor = hud_config
-        .enemy_ship_shake_damage_factor
-        .powf(trigger.0.max(hud_config.enemy_ship_shake_damage_min) - 1.0);
-    shake.amplitude = hud_config.enemy_ship_shake_amplitude;
-    shake.trauma += hud_config.enemy_ship_shake_trauma * factor;
-    shake.decay = hud_config.enemy_ship_shake_decay;
-    shake.exponent = hud_config.enemy_ship_shake_exponent;
+    let mut trauma = r!(trauma_query.get_mut(target));
+    trauma.0 += ship_config.enemy_damage_trauma.sample(trigger.0);
 }
 
 fn weapon() -> impl Bundle {
@@ -199,6 +190,11 @@ pub struct ShipConfig {
     player_speed_max: f32,
     player_tilt_sensitivity: f32,
     player_tilt_max: f32,
+    player_oscillate_amplitude: Vec2,
+    player_oscillate_phase: Vec2,
+    player_oscillate_rate: Vec2,
+    player_shake: Shake,
+    player_damage_trauma: ScalingTrauma,
 
     enemy_weapons: Vec<Vec2>,
     enemy_health_bar_offset: Vec2,
@@ -206,6 +202,8 @@ pub struct ShipConfig {
     enemy_oscillate_amplitude: Vec2,
     enemy_oscillate_phase: Vec2,
     enemy_oscillate_rate: Vec2,
+    enemy_shake: Shake,
+    enemy_damage_trauma: ScalingTrauma,
 }
 
 impl Config for ShipConfig {
@@ -314,24 +312,16 @@ fn tilt_player_ship_with_velocity(
 fn shake_screen_on_damage(
     trigger: Trigger<OnDamage>,
     hud_config: ConfigRef<HudConfig>,
-    mut shake_query: Query<&mut Shake, With<ShakeWithScreen>>,
-    mut node_shake_query: Query<&mut NodeShake, With<ShakeWithScreen>>,
+    camera_root: Res<CameraRoot>,
+    ui_query: Query<Entity, With<ShakeWithCamera>>,
+    mut trauma_query: Query<&mut Trauma>,
 ) {
     let hud_config = r!(hud_config.get());
-    let factor = hud_config
-        .screen_shake_damage_factor
-        .powf(trigger.0.max(hud_config.screen_shake_damage_min) - 1.0);
+    let mut camera_trauma = r!(trauma_query.get_mut(camera_root.primary));
+    camera_trauma.0 += hud_config.camera_damage_trauma.sample(trigger.0);
 
-    for mut shake in &mut shake_query {
-        shake.amplitude = hud_config.camera_screen_shake_amplitude;
-        shake.trauma += hud_config.camera_screen_shake_trauma * factor;
-        shake.decay = hud_config.camera_screen_shake_decay;
-        shake.exponent = hud_config.camera_screen_shake_exponent;
-    }
-    for mut node_shake in &mut node_shake_query {
-        node_shake.amplitude = hud_config.ui_screen_shake_amplitude;
-        node_shake.trauma += hud_config.ui_screen_shake_trauma * factor;
-        node_shake.decay = hud_config.ui_screen_shake_decay;
-        node_shake.exponent = hud_config.ui_screen_shake_exponent;
+    for entity in &ui_query {
+        let mut trauma = cq!(trauma_query.get_mut(entity));
+        trauma.0 += hud_config.camera_ui_damage_trauma.sample(trigger.0);
     }
 }

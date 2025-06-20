@@ -1,4 +1,4 @@
-use crate::animation::shake::NodeShake;
+use crate::animation::shake::Trauma;
 use crate::deck::PlayerDeck;
 use crate::hud::HudConfig;
 use crate::phase::Phase;
@@ -8,7 +8,7 @@ pub(super) fn plugin(app: &mut App) {
     app.configure::<FluxLabel>();
 }
 
-pub(super) fn flux_display() -> impl Bundle {
+pub(super) fn flux_display(hud_config: &HudConfig) -> impl Bundle {
     (
         Name::new("FluxDisplay"),
         Node {
@@ -28,7 +28,7 @@ pub(super) fn flux_display() -> impl Bundle {
         children![(
             FluxLabel,
             widget::colored_label(default(), ""),
-            NodeShake::default(),
+            hud_config.flux_label_shake,
         )],
     )
 }
@@ -68,13 +68,10 @@ fn sync_flux_display_to_phase(
 fn sync_flux_label(
     hud_config: ConfigRef<HudConfig>,
     player_deck: Res<PlayerDeck>,
-    mut label_query: Query<
-        (&mut RichText, &mut ThemeColorForText, &mut NodeShake),
-        With<FluxLabel>,
-    >,
+    mut label_query: Query<(&mut RichText, &mut ThemeColorForText, &mut Trauma), With<FluxLabel>>,
 ) {
     let hud_config = r!(hud_config.get());
-    for (mut text, mut text_color, mut shake) in &mut label_query {
+    for (mut text, mut text_color, mut trauma) in &mut label_query {
         text_color.0 = if player_deck.flux > f32::EPSILON {
             vec![ThemeColor::MonitorText]
         } else {
@@ -83,13 +80,7 @@ fn sync_flux_label(
 
         let new_text = RichText::from_sections(parse_rich(format!("flux {}x", player_deck.flux)));
         if !text.sections.is_empty() && text.sections[0].value != new_text.sections[0].value {
-            let factor = hud_config
-                .flux_shake_flux_factor
-                .powf(player_deck.flux.max(hud_config.flux_shake_flux_min) - 1.0);
-            shake.amplitude = hud_config.flux_shake_amplitude;
-            shake.trauma += hud_config.flux_shake_trauma * factor;
-            shake.decay = hud_config.flux_shake_decay;
-            shake.exponent = hud_config.flux_shake_exponent;
+            trauma.0 += hud_config.flux_label_flux_trauma.sample(player_deck.flux);
         }
         *text = new_text;
     }

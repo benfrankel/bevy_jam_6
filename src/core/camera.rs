@@ -5,7 +5,6 @@ use bevy::window::WindowResized;
 use bevy::window::WindowScaleFactorChanged;
 
 use crate::animation::shake::Shake;
-use crate::animation::shake::ShakeWithScreen;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -76,7 +75,6 @@ impl FromWorld for CameraRoot {
                         exponent: 2.0,
                         ..default()
                     },
-                    ShakeWithScreen,
                 ))
                 .id(),
         }

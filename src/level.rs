@@ -6,7 +6,8 @@ use crate::core::physics::GameLayer;
 use crate::deck::DeckConfig;
 use crate::deck::EnemyDeck;
 use crate::deck::PlayerDeck;
-use crate::hud::hud;
+use crate::hud;
+use crate::hud::HudConfig;
 use crate::menu::Menu;
 use crate::prelude::*;
 use crate::screen::gameplay::GameplayAssets;
@@ -94,6 +95,7 @@ fn spawn_level(
     game_assets: Res<GameplayAssets>,
     level: NextRef<Level>,
     level_config: ConfigRef<LevelConfig>,
+    hud_config: ConfigRef<HudConfig>,
     ship_config: ConfigRef<ShipConfig>,
     player_deck: Res<PlayerDeck>,
     enemy_deck: Res<EnemyDeck>,
@@ -101,10 +103,14 @@ fn spawn_level(
     let level = r!(level.get()).0;
     let level_config = r!(level_config.get());
     let level_setup = r!(level_config.levels.get(level));
+    let hud_config = r!(hud_config.get());
     let ship_config = r!(ship_config.get());
 
     commands.spawn(background(&game_assets, level));
-    commands.spawn((hud(&game_assets), DespawnOnExitState::<Level>::default()));
+    commands.spawn((
+        hud::hud(&hud_config, &game_assets),
+        DespawnOnExitState::<Level>::default(),
+    ));
     commands.spawn((
         widget::tiny_label(format!("[b]{}", level_setup.name)),
         Node {

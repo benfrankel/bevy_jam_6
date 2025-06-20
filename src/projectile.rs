@@ -92,17 +92,18 @@ impl ProjectileInfo {
     pub fn generate(
         &self,
         rng: &mut impl Rng,
-        faction: Faction,
-        flux: f32,
         mut transform: Transform,
+        velocity: Vec2,
+        faction: Faction,
         target: Entity,
+        flux: f32,
     ) -> impl Bundle {
         // Calculate initial transform.
         transform.translation += (self.position
             + self.position_spread * vec2(rng.gen_range(-1.0..=1.0), rng.gen_range(-1.0..=1.0)))
         .extend(0.0);
         transform.scale *= self.scale.extend(1.0);
-        let angle = transform.rotation.to_rot2().as_degrees()
+        let angle = transform.rotation.to_degrees()
             + self.angle
             + self.angle_spread * rng.gen_range(-1.0..=1.0);
         let angle = angle.to_radians();
@@ -110,7 +111,7 @@ impl ProjectileInfo {
 
         // Calculate initial velocity.
         let speed = self.speed + self.speed_spread * rng.gen_range(-1.0..=1.0);
-        let velocity = speed.max(1.0) * Vec2::from_angle(angle);
+        let velocity = velocity + speed.max(1.0) * Vec2::from_angle(angle);
 
         // Calculate homing target position offset.
         let offset =
@@ -256,7 +257,8 @@ fn apply_homing(
             }
         } else {
             1.0
-        };
+        } * velocity.length()
+            / 100.0;
         let decay = homing.approach.powf(time.delta_secs() * time_scale);
         let rotation = full_rotation * (1.0 - decay).clamp(0.0, 1.0);
         velocity.0 = Vec2::from_angle(rotation).rotate(velocity.0);

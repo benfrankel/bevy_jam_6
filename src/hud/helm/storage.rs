@@ -1,4 +1,4 @@
-use crate::animation::shake::NodeShake;
+use crate::animation::shake::Trauma;
 use crate::deck::PlayerDeck;
 use crate::hud::HudConfig;
 use crate::prelude::*;
@@ -8,7 +8,7 @@ pub(super) fn plugin(app: &mut App) {
     app.configure::<(StorageDisplay, StorageLabel)>();
 }
 
-pub(super) fn storage_display(game_assets: &GameplayAssets) -> impl Bundle {
+pub(super) fn storage_display(hud_config: &HudConfig, game_assets: &GameplayAssets) -> impl Bundle {
     (
         Name::new("StorageDisplay"),
         StorageDisplay,
@@ -20,7 +20,7 @@ pub(super) fn storage_display(game_assets: &GameplayAssets) -> impl Bundle {
             ..Node::ROW.center()
         },
         Tooltip::fixed(Anchor::BottomLeft, ""),
-        NodeShake::default(),
+        hud_config.module_shake,
         children![(
             widget::small_colored_label(ThemeColor::IconText, ""),
             StorageLabel,
@@ -94,19 +94,12 @@ fn are(num: usize) -> &'static str {
 fn sync_storage_display_shake(
     mut player_deck: ResMut<PlayerDeck>,
     hud_config: ConfigRef<HudConfig>,
-    mut shake: Single<&mut NodeShake, With<StorageDisplay>>,
+    mut trauma: Single<&mut Trauma, With<StorageDisplay>>,
 ) {
     let hud_config = r!(hud_config.get());
     rq!(player_deck.just_used_storage);
     player_deck.just_used_storage = false;
-
-    let factor = hud_config
-        .module_shake_flux_factor
-        .powf(hud_config.module_shake_flux_min - 1.0);
-    shake.amplitude = hud_config.module_shake_amplitude;
-    shake.trauma = hud_config.module_shake_trauma * factor;
-    shake.decay = hud_config.module_shake_decay;
-    shake.exponent = hud_config.module_shake_exponent;
+    trauma.0 += hud_config.module_flux_trauma.sample(0.0);
 }
 
 #[derive(Component, Reflect, Debug)]

@@ -1,6 +1,6 @@
 mod flux_display;
 
-use crate::animation::shake::NodeShake;
+use crate::animation::shake::Trauma;
 use crate::core::audio::AudioSettings;
 use crate::core::audio::sfx_audio;
 use crate::deck::PlayerDeck;
@@ -20,7 +20,7 @@ pub(super) fn plugin(app: &mut App) {
     app.configure::<(ReactorGrid, ReactorIndex)>();
 }
 
-pub(super) fn reactor(game_assets: &GameplayAssets) -> impl Bundle {
+pub(super) fn reactor(hud_config: &HudConfig, game_assets: &GameplayAssets) -> impl Bundle {
     (
         Name::new("Reactor"),
         ImageNode::from(game_assets.reactor.clone()),
@@ -30,7 +30,7 @@ pub(super) fn reactor(game_assets: &GameplayAssets) -> impl Bundle {
             row_gap: Vw(1.69),
             ..Node::COLUMN.top_center().full_height()
         },
-        children![flux_display::flux_display(), reactor_grid()],
+        children![flux_display::flux_display(hud_config), reactor_grid()],
     )
 }
 
@@ -82,23 +82,18 @@ fn sync_reactor_grid(
             .despawn_related::<Children>()
             .with_children(|parent| {
                 for (i, slot) in player_deck.reactor.iter().enumerate() {
-                    let mut shake = NodeShake::default();
+                    let mut trauma = 0.0;
                     if let Some(last_touched) = player_deck.last_touched_idx {
                         if last_touched == i {
-                            let factor = hud_config
-                                .module_shake_flux_factor
-                                .powf(player_deck.flux.max(hud_config.module_shake_flux_min) - 1.0);
-                            shake.amplitude = hud_config.module_shake_amplitude;
-                            shake.trauma = hud_config.module_shake_trauma * factor;
-                            shake.decay = hud_config.module_shake_decay;
-                            shake.exponent = hud_config.module_shake_exponent;
+                            trauma += hud_config.module_flux_trauma.sample(player_deck.flux);
                         }
                     }
 
                     parent.spawn((
-                        module(&game_assets, module_config, slot, player_deck.heat_capacity),
-                        shake,
                         ReactorIndex(i),
+                        module(&game_assets, module_config, slot, player_deck.heat_capacity),
+                        hud_config.module_shake,
+                        Trauma(trauma),
                         Tooltip::fixed(
                             Anchor::CenterRight,
                             parse_rich(slot.description(
