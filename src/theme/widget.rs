@@ -87,7 +87,7 @@ pub fn toast(text: impl AsRef<str>) -> impl Bundle {
             ..Node::COLUMN.width(Vw(35.0))
         },
         ThemeColor::Popup.set::<BackgroundColor>(),
-        BorderRadius::all(Vw(3.0)),
+        BorderRadius::all(Vw(1.0)),
         ThemeColor::BorderColor.set::<BorderColor>(),
         BoxShadow::from(ShadowStyle {
             color: Color::BLACK.with_alpha(0.5),

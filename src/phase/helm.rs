@@ -150,13 +150,23 @@ fn helm_play_module(
         commands.entity(*toast_box).with_child((
             widget::toast(
                 "[b]The reactor is full![r]\n\
-                Remove a module first to make space, or press E to end your turn.",
+                Remove a module first to make space, or press Space to end your turn.",
             ),
             DespawnOnExitState::<Level>::default(),
         ));
         return;
     }
     player_deck.set_changed();
+
+    if player_deck.hand.is_empty() {
+        commands.entity(*toast_box).with_child((
+            widget::toast(
+                "[b]Your hand is empty![r]\n\
+                Press Space to end your turn.",
+            ),
+            DespawnOnExitState::<Level>::default(),
+        ));
+    }
 
     commands.spawn((
         sfx_audio(&audio_settings, game_assets.module_insert_sfx.clone(), 1.0),
@@ -169,10 +179,21 @@ fn helm_discard_module(
     game_assets: Res<GameplayAssets>,
     audio_settings: Res<AudioSettings>,
     mut player_deck: ResMut<PlayerDeck>,
+    toast_box: Single<Entity, With<ToastBox>>,
 ) {
     rq!(player_deck.bypass_change_detection().discard_selected());
     player_deck.set_changed();
     player_deck.last_touched_idx = None;
+
+    if player_deck.hand.is_empty() {
+        commands.entity(*toast_box).with_child((
+            widget::toast(
+                "[b]Your hand is empty![r]\n\
+                Press Space to end your turn.",
+            ),
+            DespawnOnExitState::<Level>::default(),
+        ));
+    }
 
     commands.spawn((
         sfx_audio(&audio_settings, game_assets.module_hover_sfx.clone(), 1.0),

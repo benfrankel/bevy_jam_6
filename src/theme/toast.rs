@@ -20,10 +20,9 @@ fn spawn_toast_box(mut commands: Commands) {
         Name::new("ToastBox"),
         ToastBox,
         Node {
-            left: Vw(1.5),
-            bottom: Vw(1.5),
+            padding: UiRect::all(Vw(1.5)),
             row_gap: Vw(0.5),
-            ..Node::COLUMN.abs()
+            ..Node::COLUMN.center().full_size().abs()
         },
         GlobalZIndex(1),
         Pickable::IGNORE,
