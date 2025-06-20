@@ -74,10 +74,15 @@ fn step_power_up_phase(
     stats.highest_flux = stats.highest_flux.max(player_deck.flux);
 
     // Set the next cooldown.
-    let cooldown = Duration::from_secs_f32(if player_deck.is_reactor_done() {
-        phase_config.reactor_last_cooldown
+    let cooldown = Duration::from_secs_f32(if let Some(idx) = player_deck.next_matching_module() {
+        let chain = if player_deck.reactor[idx].condition.is_empty() {
+            0.0
+        } else {
+            player_deck.chain
+        };
+        phase_config.reactor_cooldown.eval(chain)
     } else {
-        phase_config.reactor_cooldown.eval(player_deck.chain - 1.0)
+        phase_config.reactor_last_cooldown
     });
     step_timer.0.set_duration(cooldown);
 }

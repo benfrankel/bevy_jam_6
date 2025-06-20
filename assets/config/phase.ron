@@ -4,8 +4,8 @@
     setup_last_cooldown: 0.3,
     setup_skip_cooldown: 0.5,
 
-    reactor_cooldown: Approach(a: 0.55, b: 0.1, rate: 0.85),
-    reactor_first_cooldown: 0.6,
+    reactor_cooldown: Approach(a: 0.65, b: 0.1, rate: 0.85),
+    reactor_first_cooldown: 0.65,
     reactor_last_cooldown: 1.1,
     reactor_skip_cooldown: 0.5,
     reactor_sfx_tones: 12,

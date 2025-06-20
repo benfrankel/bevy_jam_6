@@ -163,7 +163,7 @@ impl PlayerDeck {
     }
 
     /// Find the next matching reactor module to trigger.
-    fn next_matching_module(&self) -> Option<usize> {
+    pub fn next_matching_module(&self) -> Option<usize> {
         self.reactor
             .iter()
             .position(|slot| {
