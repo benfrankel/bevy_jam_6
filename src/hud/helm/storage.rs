@@ -19,8 +19,8 @@ pub(super) fn storage_display(hud_config: &HudConfig, game_assets: &GameplayAsse
             padding: UiRect::bottom(Vw(0.2083)).with_left(Vw(0.2083)),
             ..Node::ROW.center()
         },
-        Tooltip::fixed(Anchor::BottomLeft, ""),
         hud_config.module_shake,
+        Tooltip::fixed(Anchor::BottomLeft, ""),
         children![(
             widget::small_colored_label(ThemeColor::IconText, ""),
             StorageLabel,
@@ -30,7 +30,7 @@ pub(super) fn storage_display(hud_config: &HudConfig, game_assets: &GameplayAsse
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-struct StorageDisplay;
+pub struct StorageDisplay;
 
 impl Configure for StorageDisplay {
     fn configure(app: &mut App) {
@@ -104,7 +104,7 @@ fn sync_storage_display_shake(
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-struct StorageLabel;
+pub struct StorageLabel;
 
 impl Configure for StorageLabel {
     fn configure(app: &mut App) {

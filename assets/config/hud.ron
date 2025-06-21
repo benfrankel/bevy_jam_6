@@ -7,14 +7,15 @@
         "fireball",
     ],
 
-    flux_label_shake: NodeShake(amplitude: Vec2(6, 0), decay: 4, exponent: 1, trauma: 0.1),
+    flux_label_shake: NodeShake(amplitude_x: Vw(6), amplitude_y: Vw(0), decay: 4, exponent: 1, trauma: 0.1),
     flux_label_flux_trauma: ScalingTrauma(magnitude: 0.1, rate: 1.15, low: 4),
 
-    module_shake: NodeShake(amplitude: Vec2(1.5, 1.5), decay: 1.8, exponent: 1, trauma: 0.2),
+    module_shake: NodeShake(amplitude_x: Vw(1.5), amplitude_y: Vw(1.5), decay: 1.8, exponent: 1, trauma: 0.2),
     module_flux_trauma: ScalingTrauma(magnitude: 0.2, rate: 1.12, low: 8),
 
     camera_shake: Shake(amplitude: Vec2(40, 40), decay: 3, exponent: 1.8),
-    camera_damage_trauma: ScalingTrauma(magnitude: 0.1, rate: 1.1, low: 3),
-    camera_ui_shake: NodeShake(amplitude: Vec2(6, 6), decay: 3, exponent: 1.8),
-    camera_ui_damage_trauma: ScalingTrauma(magnitude: 0.1, rate: 1.1, low: 3),
+    camera_player_damage_trauma: ScalingTrauma(magnitude: 0.1, rate: 1.1, low: 3),
+
+    hud_shake: NodeShake(amplitude_x: Vw(6), amplitude_y: Vw(6), decay: 3, exponent: 1.8),
+    hud_player_damage_trauma: ScalingTrauma(magnitude: 0.1, rate: 1.1, low: 3),
 )

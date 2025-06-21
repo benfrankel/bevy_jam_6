@@ -35,7 +35,7 @@ pub(super) fn flux_display(hud_config: &HudConfig) -> impl Bundle {
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-struct FluxLabel;
+pub struct FluxLabel;
 
 impl Configure for FluxLabel {
     fn configure(app: &mut App) {

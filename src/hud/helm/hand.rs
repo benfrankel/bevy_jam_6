@@ -26,7 +26,7 @@ pub(super) fn hand_display() -> impl Bundle {
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-struct HandDisplay;
+pub struct HandDisplay;
 
 impl Configure for HandDisplay {
     fn configure(app: &mut App) {

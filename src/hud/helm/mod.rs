@@ -1,6 +1,6 @@
 pub mod hand;
-mod phase_display;
-mod storage;
+pub mod phase_display;
+pub mod storage;
 
 use bevy::ecs::system::IntoObserverSystem;
 

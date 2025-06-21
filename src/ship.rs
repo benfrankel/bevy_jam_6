@@ -1,6 +1,5 @@
 use crate::animation::oscillate::Oscillate;
 use crate::animation::shake::Shake;
-use crate::animation::shake::ShakeWithCamera;
 use crate::animation::shake::Trauma;
 use crate::combat::damage::OnDamage;
 use crate::combat::death::OnDeath;
@@ -11,6 +10,7 @@ use crate::combat::health::health_bar;
 use crate::core::camera::CameraRoot;
 use crate::core::physics::GameLayer;
 use crate::deck::PlayerDeck;
+use crate::hud::Hud;
 use crate::hud::HudConfig;
 use crate::hud::helm::hand::HandIndex;
 use crate::level::Level;
@@ -313,15 +313,15 @@ fn shake_screen_on_damage(
     trigger: Trigger<OnDamage>,
     hud_config: ConfigRef<HudConfig>,
     camera_root: Res<CameraRoot>,
-    ui_query: Query<Entity, With<ShakeWithCamera>>,
+    hud_query: Query<Entity, With<Hud>>,
     mut trauma_query: Query<&mut Trauma>,
 ) {
     let hud_config = r!(hud_config.get());
     let mut camera_trauma = r!(trauma_query.get_mut(camera_root.primary));
-    camera_trauma.0 += hud_config.camera_damage_trauma.sample(trigger.0);
+    camera_trauma.0 += hud_config.camera_player_damage_trauma.sample(trigger.0);
 
-    for entity in &ui_query {
+    for entity in &hud_query {
         let mut trauma = cq!(trauma_query.get_mut(entity));
-        trauma.0 += hud_config.camera_ui_damage_trauma.sample(trigger.0);
+        trauma.0 += hud_config.hud_player_damage_trauma.sample(trigger.0);
     }
 }

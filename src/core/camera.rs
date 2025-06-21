@@ -12,7 +12,6 @@ pub(super) fn plugin(app: &mut App) {
         ConfigHandle<CameraConfig>,
         CameraRoot,
         SmoothFollow,
-        AbsoluteScale,
         Letterbox,
     )>();
 }
@@ -61,20 +60,17 @@ impl FromWorld for CameraRoot {
                     Name::new("PrimaryCamera"),
                     IsDefaultUiCamera,
                     Camera2d,
-                    Letterbox(16.0 / 9.0),
                     Projection::Orthographic(OrthographicProjection {
                         near: -1000.0,
                         ..OrthographicProjection::default_2d()
                     }),
                     Msaa::Off,
+                    Letterbox(16.0 / 9.0),
                     SmoothFollow {
                         target: Entity::PLACEHOLDER,
                         rate: Vec2::splat(100.0),
                     },
-                    Shake {
-                        exponent: 2.0,
-                        ..default()
-                    },
+                    Shake::default(),
                 ))
                 .id(),
         }
@@ -109,44 +105,6 @@ fn apply_smooth_follow(
         let mut pos = transform.translation.xy();
         pos += (target_pos - pos) * (follow.rate * dt).clamp(Vec2::ZERO, Vec2::ONE);
         transform.translation = pos.extend(transform.translation.z);
-    }
-}
-
-// TODO: Workaround for <https://github.com/bevyengine/bevy/issues/1890>.
-/// Camera zoom-independent scale.
-#[derive(Component, Reflect)]
-#[reflect(Component)]
-pub struct AbsoluteScale(pub Vec3);
-
-impl Configure for AbsoluteScale {
-    fn configure(app: &mut App) {
-        app.register_type::<Self>();
-        app.add_systems(Update, apply_absolute_scale.in_set(UpdateSystems::SyncLate));
-    }
-}
-
-impl Default for AbsoluteScale {
-    fn default() -> Self {
-        Self(Vec3::ONE)
-    }
-}
-
-fn apply_absolute_scale(
-    camera_root: Res<CameraRoot>,
-    camera_query: Query<(&Projection, &Camera)>,
-    mut scale_query: Query<(&mut Transform, &AbsoluteScale)>,
-) {
-    let (projection, camera) = r!(camera_query.get(camera_root.primary));
-    let projection = r!(match projection {
-        Projection::Orthographic(x) => Some(x),
-        _ => None,
-    });
-    let viewport_size = r!(camera.logical_viewport_size());
-    let units_per_pixel = projection.area.width() / viewport_size.x;
-    let camera_scale_inverse = Vec2::splat(units_per_pixel).extend(1.0);
-
-    for (mut transform, scale) in &mut scale_query {
-        transform.scale = camera_scale_inverse * scale.0;
     }
 }
 

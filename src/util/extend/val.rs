@@ -6,7 +6,7 @@ pub trait ValExtAdd: Sized {
         &self,
         other: Self,
         parent_size: f32,
-        viewport_size: Vec2,
+        target_size: Vec2,
     ) -> Result<Self, ValArithmeticError>;
 }
 
@@ -15,9 +15,10 @@ impl ValExtAdd for Val {
         &self,
         other: Self,
         parent_size: f32,
-        viewport_size: Vec2,
+        target_size: Vec2,
     ) -> Result<Self, ValArithmeticError> {
-        Ok(Px(self.resolve(parent_size, viewport_size)?
-            + other.resolve(parent_size, viewport_size)?))
+        Ok(Px(
+            self.resolve(parent_size, target_size)? + other.resolve(parent_size, target_size)?
+        ))
     }
 }

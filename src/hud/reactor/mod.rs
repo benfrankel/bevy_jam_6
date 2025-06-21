@@ -1,4 +1,4 @@
-mod flux_display;
+pub mod flux_display;
 
 use crate::animation::shake::Trauma;
 use crate::core::audio::AudioSettings;
@@ -50,7 +50,7 @@ fn reactor_grid() -> impl Bundle {
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-struct ReactorGrid;
+pub struct ReactorGrid;
 
 impl Configure for ReactorGrid {
     fn configure(app: &mut App) {

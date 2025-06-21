@@ -35,7 +35,7 @@ fn player_end_turn(
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-struct PhaseDisplay;
+pub struct PhaseDisplay;
 
 impl Configure for PhaseDisplay {
     fn configure(app: &mut App) {

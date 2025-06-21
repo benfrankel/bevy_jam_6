@@ -1,6 +1,5 @@
 use crate::animation::PostTransformSystems;
 use crate::animation::backup::Backup;
-use crate::core::window::WindowRoot;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -25,7 +24,7 @@ fn apply_offset(mut offset_query: Query<(&Offset, &mut Transform)>) {
     }
 }
 
-#[derive(Component, Reflect, Copy, Clone, Default)]
+#[derive(Component, Reflect, Copy, Clone)]
 #[reflect(Component)]
 #[require(Backup<Transform>)]
 pub struct NodeOffset {
@@ -43,6 +42,15 @@ impl Configure for NodeOffset {
     }
 }
 
+impl Default for NodeOffset {
+    fn default() -> Self {
+        Self {
+            x: Val::ZERO,
+            y: Val::ZERO,
+        }
+    }
+}
+
 impl NodeOffset {
     pub fn new(x: Val, y: Val) -> Self {
         Self { x, y }
@@ -50,45 +58,37 @@ impl NodeOffset {
 }
 
 fn apply_node_offset(
-    window_root: Res<WindowRoot>,
-    window_query: Query<&Window>,
     mut node_offset_query: Query<(
         &NodeOffset,
         &ComputedNode,
+        &ComputedNodeTarget,
         &mut Transform,
         Option<&mut BoxShadow>,
         Has<Backup<BoxShadow>>,
     )>,
 ) {
-    let window = rq!(window_query.get(window_root.primary));
-    let viewport_size = window.resolution.size();
-
-    for (offset, computed_node, mut transform, box_shadow, has_backup_box_shadow) in
+    for (offset, node, target, mut transform, box_shadow, has_backup_box_shadow) in
         &mut node_offset_query
     {
+        let parent_size = node.size().x;
+        let target_size = target.physical_size().as_vec2();
         let x = match offset.x {
             Val::Auto => 0.0,
-            x => c!(x.resolve(computed_node.size().x, viewport_size)),
+            x => c!(x.resolve(parent_size, target_size)),
         };
         let y = match offset.y {
             Val::Auto => 0.0,
-            y => c!(y.resolve(computed_node.size().x, viewport_size)),
+            y => c!(y.resolve(parent_size, target_size)),
         };
         transform.translation += vec3(x, y, 0.0);
 
         let mut box_shadow = cq!(box_shadow);
         c!(has_backup_box_shadow);
         for shadow in &mut box_shadow.0 {
-            if let Ok(x) = shadow
-                .x_offset
-                .add(Px(-x), computed_node.size().x, viewport_size)
-            {
+            if let Ok(x) = shadow.x_offset.add(Px(-x), parent_size, target_size) {
                 shadow.x_offset = x;
             }
-            if let Ok(y) = shadow
-                .y_offset
-                .add(Px(-y), computed_node.size().x, viewport_size)
-            {
+            if let Ok(y) = shadow.y_offset.add(Px(-y), parent_size, target_size) {
                 shadow.y_offset = y;
             }
         }

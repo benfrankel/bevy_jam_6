@@ -108,7 +108,7 @@ fn spawn_level(
 
     commands.spawn(background(&game_assets, level));
     commands.spawn((
-        hud::hud(&hud_config, &game_assets),
+        hud::hud(hud_config, &game_assets),
         DespawnOnExitState::<Level>::default(),
     ));
     commands.spawn((

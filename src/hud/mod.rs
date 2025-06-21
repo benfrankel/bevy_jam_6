@@ -1,16 +1,18 @@
 pub mod helm;
-mod module;
-mod reactor;
+pub mod module;
+pub mod reactor;
 
 use crate::animation::shake::NodeShake;
 use crate::animation::shake::Shake;
-use crate::animation::shake::ShakeWithCamera;
+use crate::hud::helm::storage::StorageDisplay;
+use crate::hud::reactor::ReactorIndex;
+use crate::hud::reactor::flux_display::FluxLabel;
 use crate::prelude::*;
 use crate::screen::gameplay::GameplayAssets;
 use crate::util::math::ScalingTrauma;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<ConfigHandle<HudConfig>>();
+    app.configure::<(ConfigHandle<HudConfig>, Hud)>();
 
     app.add_plugins((helm::plugin, module::plugin, reactor::plugin));
 }
@@ -18,9 +20,9 @@ pub(super) fn plugin(app: &mut App) {
 pub fn hud(hud_config: &HudConfig, game_assets: &GameplayAssets) -> impl Bundle {
     (
         Name::new("Hud"),
+        Hud,
         Node::ROW.full_size().abs(),
-        ShakeWithCamera,
-        NodeShake::default(),
+        hud_config.hud_shake,
         children![
             reactor::reactor(hud_config, game_assets),
             (
@@ -44,11 +46,52 @@ pub struct HudConfig {
     module_flux_trauma: ScalingTrauma,
 
     pub camera_shake: Shake,
-    pub camera_damage_trauma: ScalingTrauma,
-    pub camera_ui_shake: NodeShake,
-    pub camera_ui_damage_trauma: ScalingTrauma,
+    pub camera_player_damage_trauma: ScalingTrauma,
+
+    pub hud_shake: NodeShake,
+    pub hud_player_damage_trauma: ScalingTrauma,
 }
 
 impl Config for HudConfig {
     const FILE: &'static str = "hud.ron";
+
+    fn on_load(&mut self, world: &mut World) {
+        for mut shake in world
+            .query_filtered::<&mut NodeShake, With<FluxLabel>>()
+            .iter_mut(world)
+        {
+            *shake = self.flux_label_shake;
+        }
+
+        for mut shake in world
+            .query_filtered::<&mut NodeShake, Or<(With<ReactorIndex>, With<StorageDisplay>)>>()
+            .iter_mut(world)
+        {
+            *shake = self.module_shake;
+        }
+
+        for mut shake in world
+            .query_filtered::<&mut Shake, With<IsDefaultUiCamera>>()
+            .iter_mut(world)
+        {
+            *shake = self.camera_shake;
+        }
+
+        for mut shake in world
+            .query_filtered::<&mut NodeShake, With<Hud>>()
+            .iter_mut(world)
+        {
+            *shake = self.hud_shake;
+        }
+    }
+}
+
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
+pub struct Hud;
+
+impl Configure for Hud {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+    }
 }
