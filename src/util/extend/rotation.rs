@@ -1,9 +1,12 @@
+use core::f32::consts::TAU;
+
 use crate::prelude::*;
 
 // TODO: Workaround for <https://github.com/bevyengine/bevy/issues/14525>.
 pub trait QuatExtConvert {
     fn radians(radians: f32) -> Self;
     fn degrees(degrees: f32) -> Self;
+    fn turn_fraction(fraction: f32) -> Self;
 
     fn to_radians(self) -> f32;
     fn to_degrees(self) -> f32;
@@ -18,6 +21,10 @@ impl QuatExtConvert for Quat {
 
     fn degrees(degrees: f32) -> Self {
         Self::from_rotation_z(degrees.to_radians())
+    }
+
+    fn turn_fraction(fraction: f32) -> Self {
+        Self::from_rotation_z(TAU * fraction)
     }
 
     fn to_radians(self) -> f32 {
@@ -66,6 +73,7 @@ impl Rot2ExtConvert for Rot2 {
 pub trait Dir2ExtConvert {
     fn radians(radians: f32) -> Self;
     fn degrees(degrees: f32) -> Self;
+    fn turn_fraction(fraction: f32) -> Self;
 
     fn to_radians(self) -> f32;
     fn to_degrees(self) -> f32;
@@ -80,6 +88,10 @@ impl Dir2ExtConvert for Dir2 {
 
     fn degrees(degrees: f32) -> Self {
         Dir2::new_unchecked(Vec2::from_angle(degrees.to_radians()))
+    }
+
+    fn turn_fraction(fraction: f32) -> Self {
+        Dir2::new_unchecked(Vec2::from_angle(TAU * fraction))
     }
 
     fn to_radians(self) -> f32 {

@@ -11,8 +11,8 @@
     player_oscillate_amplitude: Vec2(0, 0.5),
     player_oscillate_phase: Vec2(0, 0),
     player_oscillate_rate: Vec2(0, 3),
-    player_shake: Shake(amplitude: Vec2(35, 12), decay: 2, exponent: 1.2),
-    player_damage_trauma: ExponentialFit(Vec2(5, 0.2), Vec2(30, 1)),
+    player_shake: Shake(amplitude: Vec2(35, 12), decay: 2, exponent: 1.2, frequency: 20),
+    player_damage_trauma: ExponentialFit(Vec2(5, 0.3), Vec2(30, 1)),
 
     enemy_weapons: [Vec2(-42, -21), Vec2(-26, -22), Vec2(39, -18)],
     enemy_health_bar_offset: Vec2(0, 30),
@@ -20,6 +20,6 @@
     enemy_oscillate_amplitude: Vec2(6, 0),
     enemy_oscillate_phase: Vec2(0, 1),
     enemy_oscillate_rate: Vec2(1, 1),
-    enemy_shake: Shake(amplitude: Vec2(70, 25), decay: 0.8, exponent: 1.2),
-    enemy_damage_trauma: ExponentialFit(Vec2(10, 0.15), Vec2(100, 1)),
+    enemy_shake: Shake(amplitude: Vec2(75, 28), decay: 1, exponent: 1.2, frequency: 30),
+    enemy_damage_trauma: ExponentialFit(Vec2(5, 0.11), Vec2(100, 1)),
 )

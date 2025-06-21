@@ -75,7 +75,7 @@ pub fn player_ship(
                 Collider::rectangle(80.0, 10.0),
                 CollisionLayers::new(GameLayer::Player, LayerMask::ALL),
                 Children::spawn(SpawnWith(move |parent: &mut ChildSpawner| {
-                    let rotation = Rot2::turn_fraction(0.25).to_quat();
+                    let rotation = Quat::turn_fraction(0.25);
                     for pos in weapons {
                         parent.spawn((
                             weapon(),

@@ -10,10 +10,12 @@ pub(super) fn plugin(app: &mut App) {
 #[derive(Component, Reflect, Serialize, Deserialize, Copy, Clone)]
 #[reflect(Component)]
 #[require(Backup<Transform>)]
+#[serde(deny_unknown_fields)]
 pub struct Shake {
     pub amplitude: Vec2,
     pub decay: f32,
     pub exponent: f32,
+    pub frequency: f32,
     #[serde(default)]
     pub trauma: f32,
 }
@@ -31,18 +33,28 @@ impl Default for Shake {
             amplitude: Vec2::ZERO,
             decay: 0.0,
             exponent: 1.0,
+            frequency: 1.0,
             trauma: 0.0,
         }
     }
 }
 
 fn apply_shake(time: Res<Time>, mut shake_query: Query<(&mut Shake, &mut Transform)>) {
-    let rng = &mut thread_rng();
+    let noise_fn = Noise::<(
+        MixCellGradients<OrthoGrid, Smoothstep, QuickGradients>,
+        SNormToUNorm,
+    )>::default();
+    let t = time.elapsed_secs();
     for (mut shake, mut transform) in &mut shake_query {
         shake.trauma = shake.trauma.clamp(0.0, 1.0);
         cq!(shake.trauma > f32::EPSILON);
 
-        let noise = vec2(rng.gen_range(-1.0..=1.0), rng.gen_range(-1.0..=1.0));
+        let t = t * shake.frequency;
+        let noise = vec2(
+            noise_fn.sample(vec2(t, 0.5)),
+            noise_fn.sample(vec2(t + 100.0, 0.5)),
+        );
+        let noise = 1.0 - 2.0 * noise;
         let offset = shake.amplitude * shake.trauma.powf(shake.exponent) * noise;
         transform.translation += offset.extend(0.0);
 
@@ -60,6 +72,7 @@ pub struct ShakeRotation {
     pub amplitude: f32,
     pub decay: f32,
     pub exponent: f32,
+    pub frequency: f32,
     #[serde(default)]
     pub trauma: f32,
 }
@@ -80,6 +93,7 @@ impl Default for ShakeRotation {
             amplitude: 0.0,
             decay: 0.0,
             exponent: 1.0,
+            frequency: 1.0,
             trauma: 0.0,
         }
     }
@@ -89,12 +103,18 @@ fn apply_shake_rotation(
     time: Res<Time>,
     mut twist_query: Query<(&mut ShakeRotation, &mut Transform)>,
 ) {
-    let rng = &mut thread_rng();
+    let noise_fn = Noise::<(
+        MixCellGradients<OrthoGrid, Smoothstep, QuickGradients>,
+        SNormToUNorm,
+    )>::default();
+    let t = time.elapsed_secs();
     for (mut shake, mut transform) in &mut twist_query {
         shake.trauma = shake.trauma.clamp(0.0, 1.0);
         cq!(shake.trauma > f32::EPSILON);
 
-        let noise = rng.gen_range(-1.0..=1.0);
+        let t = t * shake.frequency;
+        let noise: f32 = noise_fn.sample(vec2(t + 200.0, 0.5));
+        let noise = 1.0 - 2.0 * noise;
         let offset = shake.amplitude * shake.trauma.powf(shake.exponent) * noise;
         transform.rotate_z(offset.to_radians());
 
@@ -112,6 +132,7 @@ pub struct NodeShake {
     pub amplitude_y: Val,
     pub decay: f32,
     pub exponent: f32,
+    pub frequency: f32,
     #[serde(default)]
     pub trauma: f32,
 }
@@ -133,6 +154,7 @@ impl Default for NodeShake {
             amplitude_y: Val::ZERO,
             decay: 0.0,
             exponent: 1.0,
+            frequency: 1.0,
             trauma: 0.0,
         }
     }
@@ -147,7 +169,11 @@ fn apply_node_shake(
         &mut Transform,
     )>,
 ) {
-    let rng = &mut thread_rng();
+    let noise_fn = Noise::<(
+        MixCellGradients<OrthoGrid, Smoothstep, QuickGradients>,
+        SNormToUNorm,
+    )>::default();
+    let t = time.elapsed_secs();
     for (mut shake, node, target, mut transform) in &mut shake_query {
         shake.trauma = shake.trauma.clamp(0.0, 1.0);
         cq!(shake.trauma > f32::EPSILON);
@@ -165,7 +191,12 @@ fn apply_node_shake(
         };
         let amplitude = vec2(amplitude_x, amplitude_y);
 
-        let noise = vec2(rng.gen_range(-1.0..=1.0), rng.gen_range(-1.0..=1.0));
+        let t = t * shake.frequency;
+        let noise = vec2(
+            noise_fn.sample(vec2(t + 300.0, 0.5)),
+            noise_fn.sample(vec2(t + 400.0, 0.5)),
+        );
+        let noise = 1.0 - 2.0 * noise;
         let offset = amplitude * shake.trauma.powf(shake.exponent) * noise;
         transform.translation += offset.extend(0.0);
 
