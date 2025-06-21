@@ -9,7 +9,7 @@ pub(super) fn plugin(app: &mut App) {
         ConfigHandle<ProjectileConfig>,
         Thruster,
         Homing,
-        RotateWithVelocity,
+        RotateWithThruster,
         Growth,
     )>();
 }
@@ -98,20 +98,28 @@ impl ProjectileInfo {
         target: Entity,
         flux: f32,
     ) -> impl Bundle {
-        // Calculate initial transform.
-        transform.translation += (self.position
-            + self.position_spread * vec2(rng.gen_range(-1.0..=1.0), rng.gen_range(-1.0..=1.0)))
-        .extend(0.0);
-        transform.scale *= self.scale.extend(1.0);
+        // Calculate initial direction.
         let angle = transform.rotation.to_degrees()
             + self.angle
             + self.angle_spread * rng.gen_range(-1.0..=1.0);
         let angle = angle.to_radians();
-        transform.rotation = Quat::radians(angle);
+        let direction = Vec2::from_angle(angle);
 
-        // Calculate initial velocity.
+        // Calculate initial transform.
+        transform.translation += direction
+            .rotate(
+                self.position
+                    + self.position_spread
+                        * vec2(rng.gen_range(-1.0..=1.0), rng.gen_range(-1.0..=1.0)),
+            )
+            .extend(0.0);
+        transform.rotation = Quat::radians(angle);
+        transform.scale *= self.scale.extend(1.0);
+
+        // Calculate initial velocity and acceleration.
         let speed = self.speed + self.speed_spread * rng.gen_range(-1.0..=1.0);
-        let velocity = velocity + speed.max(1.0) * Vec2::from_angle(angle);
+        let velocity = velocity + speed * direction;
+        let acceleration = direction.rotate(self.acceleration);
 
         // Calculate homing target position offset.
         let offset =
@@ -135,15 +143,13 @@ impl ProjectileInfo {
                 self.oscillate_phase,
                 self.oscillate_rate,
             ),
-            Thruster {
-                force: self.acceleration * self.acceleration_flux_factor.powf(flux - 1.0),
-            },
+            Thruster(acceleration * self.acceleration_flux_factor.powf(flux - 1.0)),
             Homing {
                 target,
                 offset,
                 approach: self.homing_approach,
             },
-            RotateWithVelocity,
+            RotateWithThruster,
             (
                 LinearVelocity(velocity),
                 MaxLinearSpeed(self.speed_max * self.speed_max_flux_factor.powf(flux - 1.0)),
@@ -187,9 +193,7 @@ impl ProjectileInfo {
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-struct Thruster {
-    force: Vec2,
-}
+struct Thruster(Vec2);
 
 impl Configure for Thruster {
     fn configure(app: &mut App) {
@@ -203,9 +207,9 @@ impl Configure for Thruster {
     }
 }
 
-fn apply_thruster(mut thruster_query: Query<(&mut ExternalForce, &GlobalTransform, &Thruster)>) {
-    for (mut force, gt, thruster) in &mut thruster_query {
-        force.apply_force(gt.rotation().to_rot2() * thruster.force);
+fn apply_thruster(mut thruster_query: Query<(&mut ExternalForce, &Thruster)>) {
+    for (mut force, thruster) in &mut thruster_query {
+        force.apply_force(thruster.0);
     }
 }
 
@@ -233,22 +237,18 @@ fn apply_homing(
     time: Res<Time>,
     mut homing_query: Query<(
         &mut LinearVelocity,
+        &mut Thruster,
         Option<&MaxLinearSpeed>,
         &GlobalTransform,
         &Homing,
     )>,
     target_query: Query<&GlobalTransform>,
 ) {
-    for (mut velocity, maybe_max_speed, gt, homing) in &mut homing_query {
-        cq!(velocity.0 != Vec2::ZERO);
+    for (mut velocity, mut thruster, maybe_max_speed, gt, homing) in &mut homing_query {
         let target_gt = cq!(target_query.get(homing.target));
+        cq!(velocity.0 != Vec2::ZERO);
 
-        // Calculate the required rotation to point velocity towards target position.
-        let target_pos = target_gt.translation().xy() + homing.offset;
-        let delta = target_pos - gt.translation().xy();
-        let full_rotation = velocity.angle_to(delta);
-
-        // Approach the rotation exponentially.
+        // Calculate the exponential approach factor.
         let time_scale = if let Some(max_speed) = maybe_max_speed {
             if max_speed.0 == 0.0 {
                 1.0
@@ -260,33 +260,41 @@ fn apply_homing(
         } * velocity.length()
             / 100.0;
         let decay = homing.approach.powf(time.delta_secs() * time_scale);
-        let rotation = full_rotation * (1.0 - decay).clamp(0.0, 1.0);
+
+        // Calculate the target direction.
+        let target_pos = target_gt.translation().xy() + homing.offset;
+        let delta = target_pos - gt.translation().xy();
+
+        // Rotate velocity and thruster towards the target direction.
+        let rotation = velocity.angle_to(delta) * (1.0 - decay).clamp(0.0, 1.0);
         velocity.0 = Vec2::from_angle(rotation).rotate(velocity.0);
+        let rotation = thruster.0.angle_to(delta) * (1.0 - decay).clamp(0.0, 1.0);
+        thruster.0 = Vec2::from_angle(rotation).rotate(thruster.0);
     }
 }
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-struct RotateWithVelocity;
+struct RotateWithThruster;
 
-impl Configure for RotateWithVelocity {
+impl Configure for RotateWithThruster {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.add_systems(
             Update,
-            rotate_with_velocity
+            rotate_with_thruster
                 .in_set(UpdateSystems::Update)
                 .in_set(PausableSystems),
         );
     }
 }
 
-fn rotate_with_velocity(
-    mut projectile_query: Query<(&mut Transform, &LinearVelocity), With<RotateWithVelocity>>,
+fn rotate_with_thruster(
+    mut projectile_query: Query<(&mut Transform, &Thruster), With<RotateWithThruster>>,
 ) {
-    for (mut transform, velocity) in &mut projectile_query {
-        cq!(velocity.0 != Vec2::ZERO);
-        transform.rotation = Quat::radians(velocity.to_angle());
+    for (mut transform, thruster) in &mut projectile_query {
+        cq!(thruster.0 != Vec2::ZERO);
+        transform.rotation = Quat::radians(thruster.0.to_angle());
     }
 }
 

@@ -103,6 +103,30 @@ fn shake_player_ship_on_damage(
     shake.trauma += ship_config.player_damage_trauma.sample_clamped(trigger.0);
 }
 
+fn shake_screen_on_damage(
+    trigger: Trigger<OnDamage>,
+    hud_config: ConfigRef<HudConfig>,
+    camera_root: Res<CameraRoot>,
+    mut camera_query: Query<(&mut Shake, &mut ShakeRotation), Without<Hud>>,
+    mut hud_query: Query<(&mut NodeShake, &mut ShakeRotation), With<Hud>>,
+) {
+    let hud_config = r!(hud_config.get());
+    let (mut shake, mut shake_rotation) = r!(camera_query.get_mut(camera_root.primary));
+    let trauma = hud_config
+        .camera_player_damage_trauma
+        .sample_clamped(trigger.0);
+    shake.trauma += trauma;
+    shake_rotation.trauma += trauma;
+
+    let hud_trauma = hud_config
+        .hud_player_damage_trauma
+        .sample_clamped(trigger.0);
+    for (mut shake, mut shake_rotation) in &mut hud_query {
+        shake.trauma += hud_trauma;
+        shake_rotation.trauma += hud_trauma;
+    }
+}
+
 pub fn enemy_ship(
     ship_config: &ShipConfig,
     game_assets: &GameplayAssets,
@@ -307,28 +331,5 @@ fn tilt_player_ship_with_velocity(
     for &child in children {
         let mut transform = cq!(transform_query.get_mut(child));
         transform.rotation = rotation;
-    }
-}
-
-fn shake_screen_on_damage(
-    trigger: Trigger<OnDamage>,
-    hud_config: ConfigRef<HudConfig>,
-    camera_root: Res<CameraRoot>,
-    mut camera_query: Query<(&mut Shake, &mut ShakeRotation)>,
-    mut hud_query: Query<&mut NodeShake, With<Hud>>,
-) {
-    let hud_config = r!(hud_config.get());
-    let (mut shake, mut twist) = r!(camera_query.get_mut(camera_root.primary));
-    let trauma = hud_config
-        .camera_player_damage_trauma
-        .sample_clamped(trigger.0);
-    shake.trauma += trauma;
-    twist.trauma += trauma;
-
-    let hud_trauma = hud_config
-        .hud_player_damage_trauma
-        .sample_clamped(trigger.0);
-    for mut shake in &mut hud_query {
-        shake.trauma += hud_trauma;
     }
 }

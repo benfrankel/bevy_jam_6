@@ -23,7 +23,12 @@ pub struct Shake {
 impl Configure for Shake {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
-        app.add_systems(PostUpdate, apply_shake.in_set(PostTransformSystems::Blend));
+        app.add_systems(
+            PostUpdate,
+            apply_shake
+                .in_set(PostTransformSystems::Blend)
+                .in_set(PausableSystems),
+        );
     }
 }
 
@@ -44,12 +49,11 @@ fn apply_shake(time: Res<Time>, mut shake_query: Query<(&mut Shake, &mut Transfo
         MixCellGradients<OrthoGrid, Smoothstep, QuickGradients>,
         SNormToUNorm,
     )>::default();
-    let t = time.elapsed_secs();
     for (mut shake, mut transform) in &mut shake_query {
         shake.trauma = shake.trauma.clamp(0.0, 1.0);
         cq!(shake.trauma > f32::EPSILON);
 
-        let t = t * shake.frequency;
+        let t = shake.frequency * time.elapsed_secs();
         let noise = vec2(
             noise_fn.sample(vec2(t, 0.5)),
             noise_fn.sample(vec2(t + 100.0, 0.5)),
@@ -82,7 +86,9 @@ impl Configure for ShakeRotation {
         app.register_type::<Self>();
         app.add_systems(
             PostUpdate,
-            apply_shake_rotation.in_set(PostTransformSystems::Blend),
+            apply_shake_rotation
+                .in_set(PostTransformSystems::Blend)
+                .in_set(PausableSystems),
         );
     }
 }
@@ -101,18 +107,17 @@ impl Default for ShakeRotation {
 
 fn apply_shake_rotation(
     time: Res<Time>,
-    mut twist_query: Query<(&mut ShakeRotation, &mut Transform)>,
+    mut shake_query: Query<(&mut ShakeRotation, &mut Transform)>,
 ) {
     let noise_fn = Noise::<(
         MixCellGradients<OrthoGrid, Smoothstep, QuickGradients>,
         SNormToUNorm,
     )>::default();
-    let t = time.elapsed_secs();
-    for (mut shake, mut transform) in &mut twist_query {
+    for (mut shake, mut transform) in &mut shake_query {
         shake.trauma = shake.trauma.clamp(0.0, 1.0);
         cq!(shake.trauma > f32::EPSILON);
 
-        let t = t * shake.frequency;
+        let t = shake.frequency * time.elapsed_secs();
         let noise: f32 = noise_fn.sample(vec2(t + 200.0, 0.5));
         let noise = 1.0 - 2.0 * noise;
         let offset = shake.amplitude * shake.trauma.powf(shake.exponent) * noise;
@@ -142,7 +147,9 @@ impl Configure for NodeShake {
         app.register_type::<Self>();
         app.add_systems(
             PostUpdate,
-            apply_node_shake.in_set(PostTransformSystems::Blend),
+            apply_node_shake
+                .in_set(PostTransformSystems::Blend)
+                .in_set(PausableSystems),
         );
     }
 }
@@ -173,7 +180,6 @@ fn apply_node_shake(
         MixCellGradients<OrthoGrid, Smoothstep, QuickGradients>,
         SNormToUNorm,
     )>::default();
-    let t = time.elapsed_secs();
     for (mut shake, node, target, mut transform) in &mut shake_query {
         shake.trauma = shake.trauma.clamp(0.0, 1.0);
         cq!(shake.trauma > f32::EPSILON);
@@ -189,12 +195,12 @@ fn apply_node_shake(
             Val::Auto => 0.0,
             y => c!(y.resolve(parent_size, target_size)),
         };
-        let amplitude = vec2(amplitude_x, amplitude_y);
+        let amplitude = vec2(-amplitude_x, amplitude_y);
 
-        let t = t * shake.frequency;
+        let t = shake.frequency * time.elapsed_secs();
         let noise = vec2(
-            noise_fn.sample(vec2(t + 300.0, 0.5)),
-            noise_fn.sample(vec2(t + 400.0, 0.5)),
+            noise_fn.sample(vec2(t, 0.5)),
+            noise_fn.sample(vec2(t + 100.0, 0.5)),
         );
         let noise = 1.0 - 2.0 * noise;
         let offset = amplitude * shake.trauma.powf(shake.exponent) * noise;

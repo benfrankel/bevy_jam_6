@@ -24,6 +24,7 @@ pub fn hud(hud_config: &HudConfig, game_assets: &GameplayAssets) -> impl Bundle 
         Hud,
         Node::ROW.full_size().abs(),
         hud_config.hud_shake,
+        hud_config.hud_shake_rotation,
         children![
             reactor::reactor(hud_config, game_assets),
             (
@@ -51,6 +52,7 @@ pub struct HudConfig {
     pub camera_player_damage_trauma: ExponentialFit,
 
     pub hud_shake: NodeShake,
+    pub hud_shake_rotation: ShakeRotation,
     pub hud_player_damage_trauma: ExponentialFit,
 }
 
@@ -62,40 +64,30 @@ impl Config for HudConfig {
             .query_filtered::<&mut NodeShake, With<FluxLabel>>()
             .iter_mut(world)
         {
-            let mut new_shake = self.flux_label_shake;
-            new_shake.trauma = shake.trauma;
-            *shake = new_shake;
+            *shake = self.flux_label_shake;
         }
 
         for mut shake in world
             .query_filtered::<&mut NodeShake, Or<(With<ReactorIndex>, With<StorageDisplay>)>>()
             .iter_mut(world)
         {
-            let mut new_shake = self.module_shake;
-            new_shake.trauma = shake.trauma;
-            *shake = new_shake;
+            *shake = self.module_shake;
         }
 
         for (mut shake, mut shake_rotation) in world
             .query_filtered::<(&mut Shake, &mut ShakeRotation), With<IsDefaultUiCamera>>()
             .iter_mut(world)
         {
-            let mut new_shake = self.camera_shake;
-            new_shake.trauma = shake.trauma;
-            *shake = new_shake;
-
-            let mut new_shake_rotation = self.camera_shake_rotation;
-            new_shake_rotation.trauma = shake_rotation.trauma;
-            *shake_rotation = new_shake_rotation;
+            *shake = self.camera_shake;
+            *shake_rotation = self.camera_shake_rotation;
         }
 
-        for mut shake in world
-            .query_filtered::<&mut NodeShake, With<Hud>>()
+        for (mut shake, mut shake_rotation) in world
+            .query_filtered::<(&mut NodeShake, &mut ShakeRotation), With<Hud>>()
             .iter_mut(world)
         {
-            let mut new_shake = self.hud_shake;
-            new_shake.trauma = shake.trauma;
-            *shake = new_shake;
+            *shake = self.hud_shake;
+            *shake_rotation = self.hud_shake_rotation;
         }
     }
 }

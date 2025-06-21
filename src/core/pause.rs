@@ -21,6 +21,10 @@ pub struct PausableSystems;
 
 impl Configure for PausableSystems {
     fn configure(app: &mut App) {
+        app.configure_sets(First, PausableSystems.run_if(Pause::is_disabled));
+        app.configure_sets(PreUpdate, PausableSystems.run_if(Pause::is_disabled));
         app.configure_sets(Update, PausableSystems.run_if(Pause::is_disabled));
+        app.configure_sets(PostUpdate, PausableSystems.run_if(Pause::is_disabled));
+        app.configure_sets(Last, PausableSystems.run_if(Pause::is_disabled));
     }
 }
