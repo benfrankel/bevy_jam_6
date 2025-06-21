@@ -4,12 +4,13 @@ pub mod reactor;
 
 use crate::animation::shake::NodeShake;
 use crate::animation::shake::Shake;
+use crate::animation::shake::ShakeRotation;
 use crate::hud::helm::storage::StorageDisplay;
 use crate::hud::reactor::ReactorIndex;
 use crate::hud::reactor::flux_display::FluxLabel;
 use crate::prelude::*;
 use crate::screen::gameplay::GameplayAssets;
-use crate::util::math::ScalingTrauma;
+use crate::util::math::ExponentialFit;
 
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(ConfigHandle<HudConfig>, Hud)>();
@@ -40,16 +41,17 @@ pub struct HudConfig {
     storage_summary_actions: Vec<String>,
 
     flux_label_shake: NodeShake,
-    flux_label_flux_trauma: ScalingTrauma,
+    flux_label_flux_trauma: ExponentialFit,
 
     module_shake: NodeShake,
-    module_flux_trauma: ScalingTrauma,
+    module_flux_trauma: ExponentialFit,
 
     pub camera_shake: Shake,
-    pub camera_player_damage_trauma: ScalingTrauma,
+    pub camera_shake_rotation: ShakeRotation,
+    pub camera_player_damage_trauma: ExponentialFit,
 
     pub hud_shake: NodeShake,
-    pub hud_player_damage_trauma: ScalingTrauma,
+    pub hud_player_damage_trauma: ExponentialFit,
 }
 
 impl Config for HudConfig {
@@ -60,28 +62,40 @@ impl Config for HudConfig {
             .query_filtered::<&mut NodeShake, With<FluxLabel>>()
             .iter_mut(world)
         {
-            *shake = self.flux_label_shake;
+            let mut new_shake = self.flux_label_shake;
+            new_shake.trauma = shake.trauma;
+            *shake = new_shake;
         }
 
         for mut shake in world
             .query_filtered::<&mut NodeShake, Or<(With<ReactorIndex>, With<StorageDisplay>)>>()
             .iter_mut(world)
         {
-            *shake = self.module_shake;
+            let mut new_shake = self.module_shake;
+            new_shake.trauma = shake.trauma;
+            *shake = new_shake;
         }
 
-        for mut shake in world
-            .query_filtered::<&mut Shake, With<IsDefaultUiCamera>>()
+        for (mut shake, mut shake_rotation) in world
+            .query_filtered::<(&mut Shake, &mut ShakeRotation), With<IsDefaultUiCamera>>()
             .iter_mut(world)
         {
-            *shake = self.camera_shake;
+            let mut new_shake = self.camera_shake;
+            new_shake.trauma = shake.trauma;
+            *shake = new_shake;
+
+            let mut new_shake_rotation = self.camera_shake_rotation;
+            new_shake_rotation.trauma = shake_rotation.trauma;
+            *shake_rotation = new_shake_rotation;
         }
 
         for mut shake in world
             .query_filtered::<&mut NodeShake, With<Hud>>()
             .iter_mut(world)
         {
-            *shake = self.hud_shake;
+            let mut new_shake = self.hud_shake;
+            new_shake.trauma = shake.trauma;
+            *shake = new_shake;
         }
     }
 }

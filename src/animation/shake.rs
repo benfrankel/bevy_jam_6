@@ -1,28 +1,21 @@
 use crate::animation::PostTransformSystems;
+use crate::animation::backup::Backup;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<(Trauma, Shake, NodeShake)>();
+    app.configure::<(Shake, ShakeRotation, NodeShake)>();
 }
 
-/// See [`Shake`] and [`NodeShake`].
-#[derive(Component, Reflect, Debug, Default)]
-#[reflect(Component)]
-pub struct Trauma(pub f32);
-
-impl Configure for Trauma {
-    fn configure(app: &mut App) {
-        app.register_type::<Self>();
-    }
-}
-
+/// Translational shake.
 #[derive(Component, Reflect, Serialize, Deserialize, Copy, Clone)]
 #[reflect(Component)]
-#[require(Trauma)]
+#[require(Backup<Transform>)]
 pub struct Shake {
     pub amplitude: Vec2,
     pub decay: f32,
     pub exponent: f32,
+    #[serde(default)]
+    pub trauma: f32,
 }
 
 impl Configure for Shake {
@@ -38,32 +31,89 @@ impl Default for Shake {
             amplitude: Vec2::ZERO,
             decay: 0.0,
             exponent: 1.0,
+            trauma: 0.0,
         }
     }
 }
 
-fn apply_shake(time: Res<Time>, mut shake_query: Query<(&Shake, &mut Trauma, &mut Transform)>) {
+fn apply_shake(time: Res<Time>, mut shake_query: Query<(&mut Shake, &mut Transform)>) {
     let rng = &mut thread_rng();
-    for (shake, mut trauma, mut transform) in &mut shake_query {
-        trauma.0 = trauma.0.clamp(0.0, 1.0);
-        cq!(trauma.0 > f32::EPSILON);
+    for (mut shake, mut transform) in &mut shake_query {
+        shake.trauma = shake.trauma.clamp(0.0, 1.0);
+        cq!(shake.trauma > f32::EPSILON);
 
-        let amplitude = shake.amplitude * trauma.0.powf(shake.exponent);
-        let point = Rectangle::from_size(amplitude).sample_interior(rng);
-        transform.translation += point.extend(0.0);
+        let noise = vec2(rng.gen_range(-1.0..=1.0), rng.gen_range(-1.0..=1.0));
+        let offset = shake.amplitude * shake.trauma.powf(shake.exponent) * noise;
+        transform.translation += offset.extend(0.0);
 
-        trauma.0 -= shake.decay * time.delta_secs();
+        shake.trauma -= shake.decay * time.delta_secs();
     }
 }
 
+/// Rotational shake.
 #[derive(Component, Reflect, Serialize, Deserialize, Copy, Clone)]
 #[reflect(Component)]
-#[require(Trauma)]
+#[require(Backup<Transform>)]
+#[serde(deny_unknown_fields)]
+pub struct ShakeRotation {
+    /// The maximum rotation offset in degrees.
+    pub amplitude: f32,
+    pub decay: f32,
+    pub exponent: f32,
+    #[serde(default)]
+    pub trauma: f32,
+}
+
+impl Configure for ShakeRotation {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+        app.add_systems(
+            PostUpdate,
+            apply_shake_rotation.in_set(PostTransformSystems::Blend),
+        );
+    }
+}
+
+impl Default for ShakeRotation {
+    fn default() -> Self {
+        Self {
+            amplitude: 0.0,
+            decay: 0.0,
+            exponent: 1.0,
+            trauma: 0.0,
+        }
+    }
+}
+
+fn apply_shake_rotation(
+    time: Res<Time>,
+    mut twist_query: Query<(&mut ShakeRotation, &mut Transform)>,
+) {
+    let rng = &mut thread_rng();
+    for (mut shake, mut transform) in &mut twist_query {
+        shake.trauma = shake.trauma.clamp(0.0, 1.0);
+        cq!(shake.trauma > f32::EPSILON);
+
+        let noise = rng.gen_range(-1.0..=1.0);
+        let offset = shake.amplitude * shake.trauma.powf(shake.exponent) * noise;
+        transform.rotate_z(offset.to_radians());
+
+        shake.trauma -= shake.decay * time.delta_secs();
+    }
+}
+
+/// Translational shake with amplitude defined in terms of [`Val`].
+#[derive(Component, Reflect, Serialize, Deserialize, Copy, Clone)]
+#[reflect(Component)]
+#[require(Backup<Transform>)]
+#[serde(deny_unknown_fields)]
 pub struct NodeShake {
     pub amplitude_x: Val,
     pub amplitude_y: Val,
     pub decay: f32,
     pub exponent: f32,
+    #[serde(default)]
+    pub trauma: f32,
 }
 
 impl Configure for NodeShake {
@@ -83,6 +133,7 @@ impl Default for NodeShake {
             amplitude_y: Val::ZERO,
             decay: 0.0,
             exponent: 1.0,
+            trauma: 0.0,
         }
     }
 }
@@ -90,18 +141,18 @@ impl Default for NodeShake {
 fn apply_node_shake(
     time: Res<Time>,
     mut shake_query: Query<(
-        &NodeShake,
+        &mut NodeShake,
         &ComputedNode,
         &ComputedNodeTarget,
-        &mut Trauma,
         &mut Transform,
     )>,
 ) {
     let rng = &mut thread_rng();
-    for (shake, node, target, mut trauma, mut transform) in &mut shake_query {
-        trauma.0 = trauma.0.clamp(0.0, 1.0);
-        cq!(trauma.0 > f32::EPSILON);
+    for (mut shake, node, target, mut transform) in &mut shake_query {
+        shake.trauma = shake.trauma.clamp(0.0, 1.0);
+        cq!(shake.trauma > f32::EPSILON);
 
+        // Resolve amplitude Vals.
         let parent_size = node.size().x;
         let target_size = target.physical_size().as_vec2();
         let amplitude_x = match shake.amplitude_x {
@@ -112,10 +163,12 @@ fn apply_node_shake(
             Val::Auto => 0.0,
             y => c!(y.resolve(parent_size, target_size)),
         };
-        let amplitude = vec2(amplitude_x, amplitude_y) * trauma.0.powf(shake.exponent);
-        let point = Rectangle::from_size(amplitude).sample_interior(rng);
-        transform.translation += point.extend(0.0);
+        let amplitude = vec2(amplitude_x, amplitude_y);
 
-        trauma.0 -= shake.decay * time.delta_secs();
+        let noise = vec2(rng.gen_range(-1.0..=1.0), rng.gen_range(-1.0..=1.0));
+        let offset = amplitude * shake.trauma.powf(shake.exponent) * noise;
+        transform.translation += offset.extend(0.0);
+
+        shake.trauma -= shake.decay * time.delta_secs();
     }
 }

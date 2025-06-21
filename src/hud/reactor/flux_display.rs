@@ -1,4 +1,4 @@
-use crate::animation::shake::Trauma;
+use crate::animation::shake::NodeShake;
 use crate::deck::PlayerDeck;
 use crate::hud::HudConfig;
 use crate::phase::Phase;
@@ -68,10 +68,13 @@ fn sync_flux_display_to_phase(
 fn sync_flux_label(
     hud_config: ConfigRef<HudConfig>,
     player_deck: Res<PlayerDeck>,
-    mut label_query: Query<(&mut RichText, &mut ThemeColorForText, &mut Trauma), With<FluxLabel>>,
+    mut label_query: Query<
+        (&mut RichText, &mut ThemeColorForText, &mut NodeShake),
+        With<FluxLabel>,
+    >,
 ) {
     let hud_config = r!(hud_config.get());
-    for (mut text, mut text_color, mut trauma) in &mut label_query {
+    for (mut text, mut text_color, mut shake) in &mut label_query {
         text_color.0 = if player_deck.flux > f32::EPSILON {
             vec![ThemeColor::MonitorText]
         } else {
@@ -80,7 +83,9 @@ fn sync_flux_label(
 
         let new_text = RichText::from_sections(parse_rich(format!("flux {}x", player_deck.flux)));
         if !text.sections.is_empty() && text.sections[0].value != new_text.sections[0].value {
-            trauma.0 += hud_config.flux_label_flux_trauma.sample(player_deck.flux);
+            shake.trauma += hud_config
+                .flux_label_flux_trauma
+                .sample_clamped(player_deck.flux);
         }
         *text = new_text;
     }

@@ -1,6 +1,7 @@
 use crate::animation::oscillate::Oscillate;
+use crate::animation::shake::NodeShake;
 use crate::animation::shake::Shake;
-use crate::animation::shake::Trauma;
+use crate::animation::shake::ShakeRotation;
 use crate::combat::damage::OnDamage;
 use crate::combat::death::OnDeath;
 use crate::combat::faction::Faction;
@@ -16,7 +17,7 @@ use crate::hud::helm::hand::HandIndex;
 use crate::level::Level;
 use crate::prelude::*;
 use crate::screen::gameplay::GameplayAssets;
-use crate::util::math::ScalingTrauma;
+use crate::util::math::ExponentialFit;
 
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(
@@ -93,13 +94,13 @@ pub fn player_ship(
 
 fn shake_player_ship_on_damage(
     trigger: Trigger<OnDamage>,
-    mut trauma_query: Query<&mut Trauma>,
+    mut shake_query: Query<&mut Shake>,
     ship_config: ConfigRef<ShipConfig>,
 ) {
     let ship_config = r!(ship_config.get());
     let target = r!(trigger.get_target());
-    let mut trauma = r!(trauma_query.get_mut(target));
-    trauma.0 += ship_config.player_damage_trauma.sample(trigger.0);
+    let mut shake = r!(shake_query.get_mut(target));
+    shake.trauma += ship_config.player_damage_trauma.sample_clamped(trigger.0);
 }
 
 pub fn enemy_ship(
@@ -160,13 +161,13 @@ fn survive_on_one_health(
 
 fn shake_enemy_ship_on_damage(
     trigger: Trigger<OnDamage>,
-    mut trauma_query: Query<&mut Trauma>,
+    mut shake_query: Query<&mut Shake>,
     ship_config: ConfigRef<ShipConfig>,
 ) {
     let ship_config = r!(ship_config.get());
     let target = r!(trigger.get_target());
-    let mut trauma = r!(trauma_query.get_mut(target));
-    trauma.0 += ship_config.enemy_damage_trauma.sample(trigger.0);
+    let mut shake = r!(shake_query.get_mut(target));
+    shake.trauma += ship_config.enemy_damage_trauma.sample_clamped(trigger.0);
 }
 
 fn weapon() -> impl Bundle {
@@ -194,7 +195,7 @@ pub struct ShipConfig {
     player_oscillate_phase: Vec2,
     player_oscillate_rate: Vec2,
     player_shake: Shake,
-    player_damage_trauma: ScalingTrauma,
+    player_damage_trauma: ExponentialFit,
 
     enemy_weapons: Vec<Vec2>,
     enemy_health_bar_offset: Vec2,
@@ -203,7 +204,7 @@ pub struct ShipConfig {
     enemy_oscillate_phase: Vec2,
     enemy_oscillate_rate: Vec2,
     enemy_shake: Shake,
-    enemy_damage_trauma: ScalingTrauma,
+    enemy_damage_trauma: ExponentialFit,
 }
 
 impl Config for ShipConfig {
@@ -313,15 +314,21 @@ fn shake_screen_on_damage(
     trigger: Trigger<OnDamage>,
     hud_config: ConfigRef<HudConfig>,
     camera_root: Res<CameraRoot>,
-    hud_query: Query<Entity, With<Hud>>,
-    mut trauma_query: Query<&mut Trauma>,
+    mut camera_query: Query<(&mut Shake, &mut ShakeRotation)>,
+    mut hud_query: Query<&mut NodeShake, With<Hud>>,
 ) {
     let hud_config = r!(hud_config.get());
-    let mut camera_trauma = r!(trauma_query.get_mut(camera_root.primary));
-    camera_trauma.0 += hud_config.camera_player_damage_trauma.sample(trigger.0);
+    let (mut shake, mut twist) = r!(camera_query.get_mut(camera_root.primary));
+    let trauma = hud_config
+        .camera_player_damage_trauma
+        .sample_clamped(trigger.0);
+    shake.trauma += trauma;
+    twist.trauma += trauma;
 
-    for entity in &hud_query {
-        let mut trauma = cq!(trauma_query.get_mut(entity));
-        trauma.0 += hud_config.hud_player_damage_trauma.sample(trigger.0);
+    let hud_trauma = hud_config
+        .hud_player_damage_trauma
+        .sample_clamped(trigger.0);
+    for mut shake in &mut hud_query {
+        shake.trauma += hud_trauma;
     }
 }

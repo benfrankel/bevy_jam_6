@@ -1,4 +1,4 @@
-use crate::animation::shake::Trauma;
+use crate::animation::shake::NodeShake;
 use crate::deck::PlayerDeck;
 use crate::hud::HudConfig;
 use crate::prelude::*;
@@ -94,12 +94,12 @@ fn are(num: usize) -> &'static str {
 fn sync_storage_display_shake(
     mut player_deck: ResMut<PlayerDeck>,
     hud_config: ConfigRef<HudConfig>,
-    mut trauma: Single<&mut Trauma, With<StorageDisplay>>,
+    mut shake: Single<&mut NodeShake, With<StorageDisplay>>,
 ) {
     let hud_config = r!(hud_config.get());
     rq!(player_deck.just_used_storage);
     player_deck.just_used_storage = false;
-    trauma.0 += hud_config.module_flux_trauma.sample(0.0);
+    shake.trauma += hud_config.module_flux_trauma.sample_clamped(0.0);
 }
 
 #[derive(Component, Reflect, Debug)]

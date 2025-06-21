@@ -7,15 +7,16 @@
         "fireball",
     ],
 
-    flux_label_shake: NodeShake(amplitude_x: Vw(6), amplitude_y: Vw(0), decay: 4, exponent: 1, trauma: 0.1),
-    flux_label_flux_trauma: ScalingTrauma(magnitude: 0.1, rate: 1.15, low: 4),
+    flux_label_shake: NodeShake(amplitude_x: Vw(3), amplitude_y: Vw(0), decay: 4, exponent: 1),
+    flux_label_flux_trauma: ExponentialFit(Vec2(4, 0.2), Vec2(15, 1)),
 
-    module_shake: NodeShake(amplitude_x: Vw(1.5), amplitude_y: Vw(1.5), decay: 1.8, exponent: 1, trauma: 0.2),
-    module_flux_trauma: ScalingTrauma(magnitude: 0.2, rate: 1.12, low: 8),
+    module_shake: NodeShake(amplitude_x: Vw(0.75), amplitude_y: Vw(0.75), decay: 1.8, exponent: 1),
+    module_flux_trauma: ExponentialFit(Vec2(8, 0.495), Vec2(14, 1)),
 
-    camera_shake: Shake(amplitude: Vec2(40, 40), decay: 3, exponent: 1.8),
-    camera_player_damage_trauma: ScalingTrauma(magnitude: 0.1, rate: 1.1, low: 3),
+    camera_shake: Shake(amplitude: Vec2(25, 25), decay: 3, exponent: 1.8),
+    camera_shake_rotation: ShakeRotation(amplitude: 4, decay: 3, exponent: 1.8),
+    camera_player_damage_trauma: ExponentialFit(Vec2(3, 0.2), Vec2(30, 1)),
 
-    hud_shake: NodeShake(amplitude_x: Vw(6), amplitude_y: Vw(6), decay: 3, exponent: 1.8),
-    hud_player_damage_trauma: ScalingTrauma(magnitude: 0.1, rate: 1.1, low: 3),
+    hud_shake: NodeShake(amplitude_x: Vw(3), amplitude_y: Vw(3), decay: 3, exponent: 1.8),
+    hud_player_damage_trauma: ExponentialFit(Vec2(3, 0.2), (30, 1)),
 )

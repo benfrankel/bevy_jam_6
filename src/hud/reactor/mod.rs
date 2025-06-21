@@ -1,6 +1,5 @@
 pub mod flux_display;
 
-use crate::animation::shake::Trauma;
 use crate::core::audio::AudioSettings;
 use crate::core::audio::sfx_audio;
 use crate::deck::PlayerDeck;
@@ -82,18 +81,19 @@ fn sync_reactor_grid(
             .despawn_related::<Children>()
             .with_children(|parent| {
                 for (i, slot) in player_deck.reactor.iter().enumerate() {
-                    let mut trauma = 0.0;
+                    let mut shake = hud_config.module_shake;
                     if let Some(last_touched) = player_deck.last_touched_idx {
                         if last_touched == i {
-                            trauma += hud_config.module_flux_trauma.sample(player_deck.flux);
+                            shake.trauma += hud_config
+                                .module_flux_trauma
+                                .sample_clamped(player_deck.flux);
                         }
                     }
 
                     parent.spawn((
                         ReactorIndex(i),
                         module(&game_assets, module_config, slot, player_deck.heat_capacity),
-                        hud_config.module_shake,
-                        Trauma(trauma),
+                        shake,
                         Tooltip::fixed(
                             Anchor::CenterRight,
                             parse_rich(slot.description(

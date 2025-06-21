@@ -1,21 +1,21 @@
 (
-    setup_cooldown: Approach(a: 0.35, b: 0.1, rate: 0.7),
+    setup_cooldown: ExponentialApproach(a: 0.35, b: 0.1, rate: 0.7),
     setup_first_cooldown: 0.4,
     setup_last_cooldown: 0.3,
     setup_skip_cooldown: 0.5,
 
-    reactor_cooldown: Approach(a: 0.65, b: 0.1, rate: 0.85),
+    reactor_cooldown: ExponentialApproach(a: 0.65, b: 0.1, rate: 0.85),
     reactor_first_cooldown: 0.65,
     reactor_last_cooldown: 1.1,
     reactor_skip_cooldown: 0.5,
     reactor_sfx_tones: 12,
 
-    player_cooldown: Approach(a: 0.6, b: 0.22, rate: 0.82),
+    player_cooldown: ExponentialApproach(a: 0.6, b: 0.22, rate: 0.82),
     player_first_cooldown: 0,
     player_last_cooldown: 1.0,
     player_skip_cooldown: 0,
 
-    enemy_cooldown: Approach(a: 0.6, b: 0.22, rate: 0.82),
+    enemy_cooldown: ExponentialApproach(a: 0.6, b: 0.22, rate: 0.82),
     enemy_first_cooldown: 1.0,
     enemy_last_cooldown: 1.2,
     enemy_skip_cooldown: 0.5,

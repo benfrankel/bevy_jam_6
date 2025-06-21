@@ -80,7 +80,7 @@ fn step_power_up_phase(
         } else {
             player_deck.chain
         };
-        phase_config.reactor_cooldown.sample(chain)
+        phase_config.reactor_cooldown.sample_clamped(chain)
     } else {
         phase_config.reactor_last_cooldown
     });

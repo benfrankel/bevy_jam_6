@@ -18,7 +18,7 @@ pub mod prelude {
     pub use super::config::ConfigRef;
     pub use super::extend::prelude::*;
     pub use super::late_commands::LateCommands;
-    pub use super::math::Approach;
+    pub use super::math::ExponentialApproach;
     pub use super::patch::Patch;
     pub use super::previous::Previous;
     pub use super::selection::Selection;
