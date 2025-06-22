@@ -7,14 +7,39 @@ pub fn plugin(app: &mut App) {
     app.configure::<(
         ConfigHandle<HealthConfig>,
         Health,
-        HealthBar,
+        HealthBarFill,
+        HealthBarLabel,
         OnHeal,
         HealPopup,
     )>();
 }
 
-pub fn health_bar() -> impl Bundle {
-    (Name::new("HealthBar"), HealthBar)
+pub fn health_bar(offset: Vec2, size: Vec2) -> impl Bundle {
+    (
+        Name::new("HealthBar"),
+        Transform::from_translation(offset.extend(0.1)),
+        Visibility::default(),
+        children![
+            (
+                Name::new("HealthBarLabel"),
+                HealthBarLabel,
+                Text2d::default(),
+                TextFont {
+                    font: FONT_HANDLE,
+                    font_size: 8.0,
+                    ..default()
+                },
+                ThemeColorForText(vec![ThemeColor::BodyText]),
+                Transform::from_translation(vec3(0.0, 1.5, 0.1)),
+            ),
+            (
+                Name::new("HealthBarFill"),
+                HealthBarFill,
+                Sprite::default(),
+                Transform::from_scale(size.extend(1.0)),
+            ),
+        ],
+    )
 }
 
 #[derive(Asset, Reflect, Serialize, Deserialize, Default)]
@@ -97,10 +122,9 @@ fn clamp_health(mut health_query: Query<&mut Health, Changed<Health>>) {
 /// Reads from the [`Health`] component on its parent entity.
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-#[require(Sprite)]
-pub struct HealthBar;
+pub struct HealthBarFill;
 
-impl Configure for HealthBar {
+impl Configure for HealthBarFill {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.add_systems(Update, sync_health_bar.in_set(UpdateSystems::SyncLate));
@@ -109,16 +133,41 @@ impl Configure for HealthBar {
 
 fn sync_health_bar(
     health_config: ConfigRef<HealthConfig>,
+    mut fill_query: Query<(&ChildOf, &mut Sprite), With<HealthBarFill>>,
+    parent_query: Query<&ChildOf>,
     health_query: Query<&Health>,
-    mut health_bar_query: Query<(&ChildOf, &mut Sprite), With<HealthBar>>,
 ) {
     let health_config = r!(health_config.get());
-    for (child_of, mut sprite) in &mut health_bar_query {
-        let health = c!(health_query.get(child_of.parent()));
-        let t = health.current.max(0.0) / health.max;
+    for (child_of, mut sprite) in &mut fill_query {
+        let grandchild_of = c!(parent_query.get(child_of.parent()));
+        let health = c!(health_query.get(grandchild_of.parent()));
 
+        let t = health.current.max(0.0) / health.max;
         sprite.custom_size = Some(vec2(t, 1.0));
         sprite.color = health_config.health_bar_color(t);
+    }
+}
+
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
+struct HealthBarLabel;
+
+impl Configure for HealthBarLabel {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+        app.add_systems(Update, sync_health_label.in_set(UpdateSystems::SyncLate));
+    }
+}
+
+fn sync_health_label(
+    health_query: Query<&Health>,
+    parent_query: Query<&ChildOf>,
+    mut label_query: Query<(&ChildOf, &mut Text2d), With<HealthBarLabel>>,
+) {
+    for (child_of, mut text) in &mut label_query {
+        let grandchild_of = c!(parent_query.get(child_of.parent()));
+        let health = c!(health_query.get(grandchild_of.parent()));
+        text.0 = health.current.to_string();
     }
 }
 

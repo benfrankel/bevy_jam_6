@@ -6,7 +6,7 @@ use crate::combat::damage::OnDamage;
 use crate::combat::death::OnDeath;
 use crate::combat::faction::Faction;
 use crate::combat::health::Health;
-use crate::combat::health::HealthBar;
+use crate::combat::health::HealthBarFill;
 use crate::combat::health::health_bar;
 use crate::core::camera::CameraRoot;
 use crate::core::physics::GameLayer;
@@ -62,10 +62,9 @@ pub fn player_ship(
             ship_config.player_oscillate_rate,
         ),
         children![
-            (
-                health_bar(),
-                Transform::from_translation(ship_config.player_health_bar_offset.extend(0.1))
-                    .with_scale(ship_config.player_health_bar_size.extend(1.0)),
+            health_bar(
+                ship_config.player_health_bar_offset,
+                ship_config.player_health_bar_size
             ),
             (
                 Name::new("Body"),
@@ -133,9 +132,8 @@ pub fn enemy_ship(
     health: f32,
 ) -> impl Bundle {
     let weapons = ship_config.enemy_weapons.clone();
-    let health_bar_transform =
-        Transform::from_translation(ship_config.enemy_health_bar_offset.extend(0.1))
-            .with_scale(ship_config.enemy_health_bar_size.extend(1.0));
+    let health_bar_size = ship_config.enemy_health_bar_size;
+    let health_bar_offset = ship_config.enemy_health_bar_offset;
 
     (
         Name::new("EnemyShip"),
@@ -155,7 +153,7 @@ pub fn enemy_ship(
             ship_config.enemy_oscillate_rate,
         ),
         Children::spawn(SpawnWith(move |parent: &mut ChildSpawner| {
-            parent.spawn((health_bar(), health_bar_transform));
+            parent.spawn(health_bar(health_bar_offset, health_bar_size));
 
             let rotation = Rot2::turn_fraction(0.75).to_quat();
             for pos in weapons {
@@ -320,7 +318,7 @@ fn navigate_player_ship_toward_selected_module(
 fn tilt_player_ship_with_velocity(
     ship_config: ConfigRef<ShipConfig>,
     player_ship: Single<(&Children, &LinearVelocity, &MaxLinearSpeed), With<PlayerShip>>,
-    mut transform_query: Query<&mut Transform, Without<HealthBar>>,
+    mut transform_query: Query<&mut Transform, Without<HealthBarFill>>,
 ) {
     let ship_config = r!(ship_config.get());
     let (children, velocity, max_speed) = player_ship.into_inner();
