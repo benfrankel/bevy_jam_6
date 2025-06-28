@@ -84,6 +84,32 @@ fn die_on_click(
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
+pub struct DieOnExitState<S: State>(#[reflect(ignore)] PhantomData<S>);
+
+impl<S: State + TypePath> Configure for DieOnExitState<S> {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+        app.add_systems(StateFlush, S::ANY.on_exit(die_on_exit_state::<S>));
+    }
+}
+
+impl<S: State> Default for DieOnExitState<S> {
+    fn default() -> Self {
+        Self(PhantomData)
+    }
+}
+
+fn die_on_exit_state<S: State>(
+    mut commands: Commands,
+    die_query: Query<Entity, (With<DieOnExitState<S>>, Without<Dead>)>,
+) {
+    for entity in &die_query {
+        commands.entity(entity).trigger(OnDeath);
+    }
+}
+
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
 pub struct DespawnOnDeath;
 
 impl Configure for DespawnOnDeath {

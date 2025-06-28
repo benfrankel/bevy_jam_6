@@ -79,7 +79,7 @@
             scale_max_flux_factor: Vec2(1, 1),
             growth: Vec2(2, 2),
             growth_flux_factor: Vec2(1.06, 1.06),
-            position: Vec2(-6, 0),
+            position: Vec2(-8, 0),
             position_spread: Vec2(2, 1),
             angle: 0,
             angle_spread: 0,

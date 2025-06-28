@@ -1,3 +1,4 @@
+use crate::combat::death::DieOnExitState;
 use crate::core::audio::AudioSettings;
 use crate::core::audio::sfx_audio;
 use crate::deck::PlayerDeck;
@@ -140,30 +141,33 @@ fn helm_select_right(
 
 fn helm_play_module(
     mut commands: Commands,
+    level: CurrentRef<Level>,
     game_assets: Res<GameplayAssets>,
     audio_settings: Res<AudioSettings>,
     mut player_deck: ResMut<PlayerDeck>,
 ) {
     rq!(!player_deck.hand.is_empty());
-    if !player_deck.bypass_change_detection().play_selected() {
+    if !player_deck.bypass_change_detection().play_selected() && level.is_in(&Level(0)) {
         commands.spawn((
             toast(
                 "[b]The reactor is full![r]\n\
-                Remove a module first to make space, or press Space to end your turn.",
+                Right click to remove a module from the reactor.",
             ),
             DespawnOnExitState::<Level>::default(),
+            DieOnExitState::<Phase>::default(),
         ));
         return;
     }
     player_deck.set_changed();
 
-    if player_deck.hand.is_empty() {
+    if player_deck.hand.is_empty() && level.is_in(&Level(0)) {
         commands.spawn((
             toast(
                 "[b]Your hand is empty![r]\n\
-                Press Space to end your turn.",
+                Click the phase display to end your turn.",
             ),
             DespawnOnExitState::<Level>::default(),
+            DieOnExitState::<Phase>::default(),
         ));
     }
 
@@ -175,6 +179,7 @@ fn helm_play_module(
 
 fn helm_discard_module(
     mut commands: Commands,
+    level: CurrentRef<Level>,
     game_assets: Res<GameplayAssets>,
     audio_settings: Res<AudioSettings>,
     mut player_deck: ResMut<PlayerDeck>,
@@ -183,13 +188,14 @@ fn helm_discard_module(
     player_deck.set_changed();
     player_deck.last_touched_idx = None;
 
-    if player_deck.hand.is_empty() {
+    if player_deck.hand.is_empty() && level.is_in(&Level(0)) {
         commands.spawn((
             toast(
                 "[b]Your hand is empty![r]\n\
-                Press Space to end your turn.",
+                Click the phase display to end your turn.",
             ),
             DespawnOnExitState::<Level>::default(),
+            DieOnExitState::<Phase>::default(),
         ));
     }
 

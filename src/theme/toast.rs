@@ -11,8 +11,8 @@ pub fn toast(text: impl AsRef<str>) -> impl Bundle {
         Name::new("Toast"),
         Toast,
         Node {
-            left: Vw(45.5),
-            bottom: Vw(26.0),
+            left: Vw(45.2),
+            bottom: Vw(27.5),
             padding: UiRect::all(Vw(1.0)),
             border: UiRect::all(Px(1.0)),
             ..Node::COLUMN.width(Vw(35.0)).abs()

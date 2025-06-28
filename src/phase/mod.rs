@@ -4,6 +4,7 @@ mod player;
 mod reactor;
 mod setup;
 
+use crate::combat::death::DieOnExitState;
 use crate::core::audio::AudioSettings;
 use crate::core::audio::sfx_audio;
 use crate::level::Level;
@@ -69,6 +70,8 @@ impl Configure for Phase {
                     .run_if(not(Level::is_triggered)),
             ),
         );
+
+        app.configure::<DieOnExitState<Self>>();
 
         app.add_plugins((
             helm::plugin,
