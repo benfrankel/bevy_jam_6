@@ -3,7 +3,18 @@ use crate::combat::death::FadeOutOnDeath;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<Toast>();
+    app.configure::<(Toaster, Toast)>();
+}
+
+/// A marker component for the entity that will contain [`Toast`] entities.
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
+pub struct Toaster;
+
+impl Configure for Toaster {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+    }
 }
 
 pub fn toast(text: impl AsRef<str>) -> impl Bundle {
@@ -11,11 +22,9 @@ pub fn toast(text: impl AsRef<str>) -> impl Bundle {
         Name::new("Toast"),
         Toast,
         Node {
-            left: Vw(45.2),
-            bottom: Vw(27.5),
             padding: UiRect::all(Vw(1.0)),
             border: UiRect::all(Px(1.0)),
-            ..Node::COLUMN.width(Vw(35.0)).abs()
+            ..default()
         },
         ThemeColor::Popup.set::<BackgroundColor>(),
         BorderRadius::all(Vw(1.0)),
@@ -30,7 +39,13 @@ pub fn toast(text: impl AsRef<str>) -> impl Bundle {
         FocusPolicy::Block,
         DieOnClick,
         FadeOutOnDeath { duration: 0.15 },
-        children![widget::paragraph(text)],
+        children![widget::label_base(
+            Vw(1.8),
+            ThemeColor::BodyText,
+            JustifyText::Center,
+            1.5,
+            text,
+        )],
     )
 }
 
@@ -41,16 +56,20 @@ struct Toast;
 impl Configure for Toast {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
-        app.add_observer(despawn_older_toasts);
+        app.add_observer(prepare_toast);
     }
 }
 
-fn despawn_older_toasts(
+fn prepare_toast(
     trigger: Trigger<OnAdd, Toast>,
     mut commands: Commands,
     toast_query: Query<Entity, With<Toast>>,
+    toaster_query: Query<Entity, With<Toaster>>,
 ) {
     let target = rq!(trigger.get_target());
+    if let Ok(toaster) = toaster_query.single() {
+        commands.entity(target).insert(ChildOf(toaster));
+    }
     for entity in &toast_query {
         cq!(entity != target);
         commands.entity(entity).despawn();

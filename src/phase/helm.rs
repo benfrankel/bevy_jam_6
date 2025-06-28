@@ -13,8 +13,24 @@ pub(super) fn plugin(app: &mut App) {
         Update,
         Phase::Helm.on_update(skip_helm_phase.run_if(helm_is_empty)),
     );
+    app.add_systems(
+        StateFlush,
+        Phase::Helm
+            .on_enter(spawn_initial_toast.run_if(Level::is_triggered.and(Level(0).will_enter()))),
+    );
 
     app.configure::<HelmActions>();
+}
+
+fn spawn_initial_toast(mut commands: Commands) {
+    commands.spawn((
+        toast(
+            "[b]Welcome aboard the Weber![r]\n\
+            Click the modules below to get started.",
+        ),
+        DespawnOnExitState::<Level>::default(),
+        DieOnExitState::<Phase>::default(),
+    ));
 }
 
 fn skip_helm_phase(mut phase: NextMut<Phase>) {
@@ -150,8 +166,8 @@ fn helm_play_module(
     if !player_deck.bypass_change_detection().play_selected() && level.is_in(&Level(0)) {
         commands.spawn((
             toast(
-                "[b]The reactor is full![r]\n\
-                Right click to remove a module from the reactor.",
+                "[b]The reactor is full.[r]\n\
+                Right click to remove a module first, or end your turn.",
             ),
             DespawnOnExitState::<Level>::default(),
             DieOnExitState::<Phase>::default(),
@@ -163,7 +179,7 @@ fn helm_play_module(
     if player_deck.hand.is_empty() && level.is_in(&Level(0)) {
         commands.spawn((
             toast(
-                "[b]Your hand is empty![r]\n\
+                "[b]Your hand is empty.[r]\n\
                 Click the phase display to end your turn.",
             ),
             DespawnOnExitState::<Level>::default(),
@@ -191,7 +207,7 @@ fn helm_discard_module(
     if player_deck.hand.is_empty() && level.is_in(&Level(0)) {
         commands.spawn((
             toast(
-                "[b]Your hand is empty![r]\n\
+                "[b]Your hand is empty.[r]\n\
                 Click the phase display to end your turn.",
             ),
             DespawnOnExitState::<Level>::default(),

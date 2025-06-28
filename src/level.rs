@@ -14,6 +14,7 @@ use crate::screen::gameplay::GameplayAssets;
 use crate::ship::ShipConfig;
 use crate::ship::enemy_ship;
 use crate::ship::player_ship;
+use crate::theme::toast::Toaster;
 
 pub(super) fn plugin(app: &mut App) {
     app.configure::<(ConfigHandle<LevelConfig>, Level)>();
@@ -51,12 +52,7 @@ impl Configure for Level {
                 (reset_player_deck, reset_camera),
                 (
                     (set_up_decks, spawn_level).chain(),
-                    (
-                        Menu::release,
-                        Menu::clear,
-                        Menu::Help.enter().run_if(Level(0).will_enter()),
-                    )
-                        .chain(),
+                    (Menu::release, Menu::clear).chain(),
                 ),
             ),
         );
@@ -117,6 +113,16 @@ fn spawn_level(
             top: Vw(1.0),
             right: Vw(1.0),
             ..Node::DEFAULT.abs()
+        },
+        DespawnOnExitState::<Level>::default(),
+    ));
+    commands.spawn((
+        Name::new("Toaster"),
+        Toaster,
+        Node {
+            right: Val::ZERO,
+            padding: UiRect::top(Vw(3.0)),
+            ..Node::COLUMN.center().size(Vw(74.2), Vw(44.2)).abs()
         },
         DespawnOnExitState::<Level>::default(),
     ));
