@@ -20,6 +20,7 @@ pub(super) fn phase_display() -> impl Bundle {
             ..Node::DEFAULT
         },
         InteractionSfx,
+        InteractionDisabled(false),
         BoxShadow::default(),
         Tooltip::fixed(Anchor::TopCenter, ""),
         Patch(|entity| {
@@ -54,10 +55,13 @@ impl Configure for PhaseDisplay {
 fn sync_phase_display(
     phase: NextRef<Phase>,
     game_assets: Res<GameplayAssets>,
-    mut phase_display_query: Query<(&mut ImageNode, &mut Tooltip), With<PhaseDisplay>>,
+    mut phase_display_query: Query<
+        (&mut ImageNode, &mut Tooltip, &mut InteractionDisabled),
+        With<PhaseDisplay>,
+    >,
 ) {
     let phase = r!(phase.get());
-    for (mut image_node, mut tooltip) in &mut phase_display_query {
+    for (mut image_node, mut tooltip, mut interaction_disabled) in &mut phase_display_query {
         image_node.image = match phase {
             Phase::Setup => &game_assets.phase_setup,
             Phase::Helm => &game_assets.phase_player,
@@ -76,6 +80,7 @@ fn sync_phase_display(
             }))
             .with_justify(JustifyText::Center),
         );
+        interaction_disabled.0 = !matches!(phase, Phase::Helm);
     }
 }
 
