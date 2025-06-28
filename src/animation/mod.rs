@@ -1,4 +1,5 @@
 pub mod backup;
+pub mod fade;
 pub mod lifetime;
 pub mod offset;
 pub mod oscillate;
@@ -9,10 +10,11 @@ use bevy::ui::UiSystem;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<(SaveBackupSystems, PostTransformSystems, PostColorSystems)>();
+    app.configure::<(BackupSystems, PostTransformSystems, PostColorSystems)>();
 
     app.add_plugins((
         backup::plugin,
+        fade::plugin,
         lifetime::plugin,
         offset::plugin,
         oscillate::plugin,
@@ -21,13 +23,20 @@ pub(super) fn plugin(app: &mut App) {
 }
 
 #[derive(SystemSet, Clone, Eq, PartialEq, Hash, Debug)]
-struct SaveBackupSystems;
+enum BackupSystems {
+    Insert,
+    Save,
+}
 
-impl Configure for SaveBackupSystems {
+impl Configure for BackupSystems {
     fn configure(app: &mut App) {
         app.configure_sets(
             PostUpdate,
-            ((UiSystem::PostLayout, PhysicsSet::Sync), Self).chain(),
+            (
+                (UiSystem::PostLayout, PhysicsSet::Sync, Self::Insert),
+                Self::Save,
+            )
+                .chain(),
         );
     }
 }
@@ -48,7 +57,7 @@ impl Configure for PostTransformSystems {
         app.configure_sets(
             PostUpdate,
             (
-                SaveBackupSystems,
+                BackupSystems::Save,
                 Self::Blend,
                 Self::ApplyFacing,
                 TransformSystem::TransformPropagate,
@@ -69,6 +78,6 @@ pub enum PostColorSystems {
 
 impl Configure for PostColorSystems {
     fn configure(app: &mut App) {
-        app.configure_sets(PostUpdate, (SaveBackupSystems, Self::Blend).chain());
+        app.configure_sets(PostUpdate, (BackupSystems::Save, Self::Blend).chain());
     }
 }

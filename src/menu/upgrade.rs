@@ -1,6 +1,5 @@
 use rand::seq::index::sample_weighted;
 
-use crate::animation::backup::Backup;
 use crate::animation::offset::NodeOffset;
 use crate::deck::PlayerDeck;
 use crate::level::Level;
@@ -265,7 +264,6 @@ fn upgrade_selector(
                 spread_radius: Vw(0.5),
                 blur_radius: Vw(0.5),
             }),
-            Backup::<BoxShadow>::default(),
         )],
     )
 }

@@ -1,8 +1,16 @@
+use crate::animation::fade::FadeOut;
 use crate::animation::lifetime::Lifetime;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.configure::<(OnDeath, Dead, DieOnLifetime, DieOnClick, DespawnOnDeath)>();
+    app.configure::<(
+        OnDeath,
+        Dead,
+        DieOnLifetime,
+        DieOnClick,
+        DespawnOnDeath,
+        FadeOutOnDeath,
+    )>();
 }
 
 #[derive(Event, Reflect, Debug)]
@@ -43,12 +51,12 @@ impl Configure for DieOnLifetime {
 }
 
 fn die_on_lifetime(
-    mut late: LateCommands,
-    despawn_query: Query<(Entity, &DieOnLifetime, &Lifetime)>,
+    mut commands: Commands,
+    die_query: Query<(Entity, &DieOnLifetime, &Lifetime), Without<Dead>>,
 ) {
-    for (entity, despawn, lifetime) in &despawn_query {
-        cq!(despawn.0 <= lifetime.0);
-        late.commands().entity(entity).despawn();
+    for (entity, die, lifetime) in &die_query {
+        cq!(die.0 <= lifetime.0);
+        commands.entity(entity).trigger(OnDeath);
     }
 }
 
@@ -66,12 +74,12 @@ impl Configure for DieOnClick {
 fn die_on_click(
     trigger: Trigger<Pointer<Click>>,
     mut commands: Commands,
-    despawn_query: Query<(), With<DieOnClick>>,
+    die_query: Query<(), (With<DieOnClick>, Without<Dead>)>,
 ) {
     rq!(matches!(trigger.event.button, PointerButton::Primary));
     let target = rq!(trigger.get_target());
-    rq!(despawn_query.contains(target));
-    commands.entity(target).despawn();
+    rq!(die_query.contains(target));
+    commands.entity(target).trigger(OnDeath);
 }
 
 #[derive(Component, Reflect, Debug)]
@@ -93,4 +101,29 @@ fn despawn_on_death(
     let target = rq!(trigger.get_target());
     rq!(despawn_query.contains(target));
     late.commands().entity(target).despawn();
+}
+
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
+pub struct FadeOutOnDeath {
+    pub duration: f32,
+}
+
+impl Configure for FadeOutOnDeath {
+    fn configure(app: &mut App) {
+        app.register_type::<Self>();
+        app.add_observer(fade_out_on_death);
+    }
+}
+
+fn fade_out_on_death(
+    trigger: Trigger<OnDeath>,
+    mut commands: Commands,
+    fade_query: Query<&FadeOutOnDeath>,
+) {
+    let target = rq!(trigger.get_target());
+    let fade = rq!(fade_query.get(target));
+    commands
+        .entity(target)
+        .try_insert(FadeOut::new(fade.duration));
 }

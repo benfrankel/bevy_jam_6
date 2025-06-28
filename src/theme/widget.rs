@@ -2,11 +2,7 @@ use bevy::ecs::system::IntoObserverSystem;
 use bevy::text::FontSmoothing;
 use bevy::text::LineHeight;
 
-use crate::animation::backup::Backup;
 use crate::animation::offset::NodeOffset;
-use crate::combat::death::DespawnOnDeath;
-use crate::combat::death::DieOnClick;
-use crate::combat::death::DieOnLifetime;
 use crate::prelude::*;
 use crate::theme::color::Rainbow;
 
@@ -75,33 +71,6 @@ pub fn popup(children: impl Bundle) -> impl Bundle {
             FocusPolicy::Block,
             children,
         )],
-    )
-}
-
-pub fn toast(text: impl AsRef<str>) -> impl Bundle {
-    (
-        Name::new("Toast"),
-        Node {
-            padding: UiRect::all(Vw(1.0)),
-            border: UiRect::all(Px(1.0)),
-            ..Node::COLUMN.width(Vw(35.0))
-        },
-        ThemeColor::Popup.set::<BackgroundColor>(),
-        BorderRadius::all(Vw(1.0)),
-        ThemeColor::BorderColor.set::<BorderColor>(),
-        BoxShadow::from(ShadowStyle {
-            color: Color::BLACK.with_alpha(0.5),
-            x_offset: Val::ZERO,
-            y_offset: Val::ZERO,
-            spread_radius: Val::ZERO,
-            blur_radius: Val::Vw(4.0),
-        }),
-        FocusPolicy::Block,
-        DieOnLifetime(5.0),
-        DieOnClick,
-        // TODO: Fade out instead of despawning.
-        DespawnOnDeath,
-        children![widget::paragraph(text)],
     )
 }
 
@@ -331,7 +300,6 @@ where
             spread_radius: Vw(0.5),
             blur_radius: Vw(0.5),
         }),
-        Backup::<BoxShadow>::default(),
         InteractionSfx,
         children![(
             label_base(

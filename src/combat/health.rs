@@ -1,4 +1,6 @@
 use crate::combat::death::Dead;
+use crate::combat::death::DieOnLifetime;
+use crate::combat::death::FadeOutOnDeath;
 use crate::combat::death::OnDeath;
 use crate::level::Level;
 use crate::prelude::*;
@@ -51,7 +53,8 @@ pub struct HealthConfig {
     heal_popup_offset: Vec2,
     heal_popup_offset_spread: Vec2,
     heal_popup_velocity: Vec2,
-    heal_popup_fade_rate: f32,
+    heal_popup_fade_delay: f32,
+    heal_popup_fade_duration: f32,
     heal_popup_scale: f32,
     heal_popup_scale_factor: f32,
     heal_popup_scale_max: f32,
@@ -195,12 +198,6 @@ impl Configure for HealPopup {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.add_observer(spawn_heal_popup_on_heal);
-        app.add_systems(
-            Update,
-            apply_fade_out_to_heal_popup
-                .in_set(UpdateSystems::Update)
-                .in_set(PausableSystems),
-        );
     }
 }
 
@@ -227,7 +224,7 @@ fn spawn_heal_popup_on_heal(
             .max(1.0)
             .powf(trigger.0))
     .min(health_config.heal_popup_scale_max);
-    transform.scale = (transform.scale.xy() * Vec2::splat(scale)).extend(transform.scale.z);
+    transform.scale *= vec3(scale, scale, 1.0);
 
     commands.spawn((
         HealPopup,
@@ -238,6 +235,10 @@ fn spawn_heal_popup_on_heal(
             ..default()
         },
         TextColor::from(health_config.heal_popup_font_color),
+        DieOnLifetime(health_config.heal_popup_fade_delay),
+        FadeOutOnDeath {
+            duration: health_config.heal_popup_fade_duration,
+        },
         transform,
         RigidBody::Kinematic,
         LinearVelocity(health_config.heal_popup_velocity),
@@ -253,31 +254,4 @@ fn spawn_heal_popup_on_heal(
             TextColor::from(health_config.heal_popup_font_color),
         )],
     ));
-}
-
-fn apply_fade_out_to_heal_popup(
-    mut commands: Commands,
-    time: Res<Time>,
-    health_config: ConfigRef<HealthConfig>,
-    heal_popup_query: Query<(Entity, &Children), With<HealPopup>>,
-    mut text_color_query: Query<&mut TextColor>,
-) {
-    let health_config = r!(health_config.get());
-    for (entity, children) in heal_popup_query {
-        if let Ok(mut text_color) = text_color_query.get_mut(entity) {
-            let alpha =
-                text_color.0.alpha() - health_config.heal_popup_fade_rate * time.delta_secs();
-            text_color.0 = text_color.0.with_alpha(alpha);
-            if text_color.0.alpha() < f32::EPSILON {
-                commands.entity(entity).try_despawn();
-            }
-        }
-
-        for &child in children {
-            let mut text_color = cq!(text_color_query.get_mut(child));
-            let alpha =
-                text_color.0.alpha() - health_config.heal_popup_fade_rate * time.delta_secs();
-            text_color.0 = text_color.0.with_alpha(alpha);
-        }
-    }
 }

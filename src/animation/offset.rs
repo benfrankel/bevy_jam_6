@@ -1,5 +1,4 @@
 use crate::animation::PostTransformSystems;
-use crate::animation::backup::Backup;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -8,7 +7,6 @@ pub(super) fn plugin(app: &mut App) {
 
 #[derive(Component, Reflect, Copy, Clone, Default)]
 #[reflect(Component)]
-#[require(Backup<Transform>)]
 pub struct Offset(pub Vec2);
 
 impl Configure for Offset {
@@ -26,7 +24,6 @@ fn apply_offset(mut offset_query: Query<(&Offset, &mut Transform)>) {
 
 #[derive(Component, Reflect, Copy, Clone)]
 #[reflect(Component)]
-#[require(Backup<Transform>)]
 pub struct NodeOffset {
     pub x: Val,
     pub y: Val,
@@ -64,12 +61,9 @@ fn apply_node_offset(
         &ComputedNodeTarget,
         &mut Transform,
         Option<&mut BoxShadow>,
-        Has<Backup<BoxShadow>>,
     )>,
 ) {
-    for (offset, node, target, mut transform, box_shadow, has_backup_box_shadow) in
-        &mut node_offset_query
-    {
+    for (offset, node, target, mut transform, box_shadow) in &mut node_offset_query {
         let parent_size = node.size().x;
         let target_size = target.physical_size().as_vec2();
         let x = match offset.x {
@@ -83,7 +77,6 @@ fn apply_node_offset(
         transform.translation += vec3(x, y, 0.0);
 
         let mut box_shadow = cq!(box_shadow);
-        c!(has_backup_box_shadow);
         for shadow in &mut box_shadow.0 {
             if let Ok(x) = shadow.x_offset.add(Px(-x), parent_size, target_size) {
                 shadow.x_offset = x;

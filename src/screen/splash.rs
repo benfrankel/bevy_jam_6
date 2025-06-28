@@ -8,7 +8,7 @@ use crate::screen::Screen;
 use crate::screen::ScreenRoot;
 use crate::screen::ScreenTime;
 use crate::screen::fade::FADE_IN_SECS;
-use crate::screen::fade::FadeOut;
+use crate::screen::fade::ScreenFadeOut;
 use crate::screen::fade::fade_out;
 use crate::screen::title::TitleAssets;
 use crate::theme::color::ThemeConfig;
@@ -74,7 +74,7 @@ fn update_splash(
     screen_time: Res<ScreenTime>,
     progress: Res<ProgressTracker<BevyState<Screen>>>,
     frame: Res<FrameCount>,
-    fade_out_query: Query<(), With<FadeOut>>,
+    fade_out_query: Query<(), With<ScreenFadeOut>>,
     mut last_done: Local<u32>,
 ) {
     let Progress { done, total } = progress.get_global_combined_progress();

@@ -1,5 +1,4 @@
 use crate::animation::PostTransformSystems;
-use crate::animation::backup::Backup;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -9,7 +8,6 @@ pub(super) fn plugin(app: &mut App) {
 /// Translational shake.
 #[derive(Component, Reflect, Serialize, Deserialize, Copy, Clone)]
 #[reflect(Component)]
-#[require(Backup<Transform>)]
 #[serde(deny_unknown_fields)]
 pub struct Shake {
     pub amplitude: Vec2,
@@ -69,7 +67,6 @@ fn apply_shake(time: Res<Time>, mut shake_query: Query<(&mut Shake, &mut Transfo
 /// Rotational shake.
 #[derive(Component, Reflect, Serialize, Deserialize, Copy, Clone)]
 #[reflect(Component)]
-#[require(Backup<Transform>)]
 #[serde(deny_unknown_fields)]
 pub struct ShakeRotation {
     /// The maximum rotation offset in degrees.
@@ -130,7 +127,6 @@ fn apply_shake_rotation(
 /// Translational shake with amplitude defined in terms of [`Val`].
 #[derive(Component, Reflect, Serialize, Deserialize, Copy, Clone)]
 #[reflect(Component)]
-#[require(Backup<Transform>)]
 #[serde(deny_unknown_fields)]
 pub struct NodeShake {
     pub amplitude_x: Val,

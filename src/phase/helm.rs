@@ -5,7 +5,7 @@ use crate::level::Level;
 use crate::phase::Phase;
 use crate::prelude::*;
 use crate::screen::gameplay::GameplayAssets;
-use crate::theme::toast::ToastBox;
+use crate::theme::toast::toast;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(
@@ -143,12 +143,11 @@ fn helm_play_module(
     game_assets: Res<GameplayAssets>,
     audio_settings: Res<AudioSettings>,
     mut player_deck: ResMut<PlayerDeck>,
-    toast_box: Single<Entity, With<ToastBox>>,
 ) {
     rq!(!player_deck.hand.is_empty());
     if !player_deck.bypass_change_detection().play_selected() {
-        commands.entity(*toast_box).with_child((
-            widget::toast(
+        commands.spawn((
+            toast(
                 "[b]The reactor is full![r]\n\
                 Remove a module first to make space, or press Space to end your turn.",
             ),
@@ -159,8 +158,8 @@ fn helm_play_module(
     player_deck.set_changed();
 
     if player_deck.hand.is_empty() {
-        commands.entity(*toast_box).with_child((
-            widget::toast(
+        commands.spawn((
+            toast(
                 "[b]Your hand is empty![r]\n\
                 Press Space to end your turn.",
             ),
@@ -179,15 +178,14 @@ fn helm_discard_module(
     game_assets: Res<GameplayAssets>,
     audio_settings: Res<AudioSettings>,
     mut player_deck: ResMut<PlayerDeck>,
-    toast_box: Single<Entity, With<ToastBox>>,
 ) {
     rq!(player_deck.bypass_change_detection().discard_selected());
     player_deck.set_changed();
     player_deck.last_touched_idx = None;
 
     if player_deck.hand.is_empty() {
-        commands.entity(*toast_box).with_child((
-            widget::toast(
+        commands.spawn((
+            toast(
                 "[b]Your hand is empty![r]\n\
                 Press Space to end your turn.",
             ),

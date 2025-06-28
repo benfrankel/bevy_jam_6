@@ -1,4 +1,6 @@
 use crate::combat::death::Dead;
+use crate::combat::death::DieOnLifetime;
+use crate::combat::death::FadeOutOnDeath;
 use crate::combat::faction::Faction;
 use crate::combat::health::Health;
 use crate::core::audio::AudioSettings;
@@ -33,7 +35,8 @@ pub struct DamageConfig {
     damage_popup_offset: Vec2,
     damage_popup_offset_spread: Vec2,
     damage_popup_velocity: Vec2,
-    damage_popup_fade_rate: f32,
+    damage_popup_fade_delay: f32,
+    damage_popup_fade_duration: f32,
     damage_popup_scale: f32,
     damage_popup_scale_factor: f32,
     damage_popup_scale_max: f32,
@@ -113,20 +116,14 @@ impl Configure for DamagePopup {
     fn configure(app: &mut App) {
         app.register_type::<Self>();
         app.add_observer(spawn_damage_popup_on_damage);
-        app.add_systems(
-            Update,
-            apply_fade_out_to_damage_popup
-                .in_set(UpdateSystems::Update)
-                .in_set(PausableSystems),
-        );
     }
 }
 
 fn spawn_damage_popup_on_damage(
     trigger: Trigger<OnDamage>,
     mut commands: Commands,
-    assets: Res<Assets<Image>>,
     damage_config: ConfigRef<DamageConfig>,
+    images: Res<Assets<Image>>,
     player_ship: Single<Entity, With<PlayerShip>>,
     player_ship_body: Single<(&Sprite, &GlobalTransform), With<PlayerShipBody>>,
     enemy_ship: Single<(Entity, &Sprite, &Transform), With<EnemyShip>>,
@@ -142,7 +139,7 @@ fn spawn_damage_popup_on_damage(
         warn!("No match found for entity.");
         return;
     };
-    let sprite_size = r!(assets.get(&sprite.image)).size_f32();
+    let sprite_size = r!(images.get(&sprite.image)).size_f32();
 
     // Randomize position.
     let rng = &mut thread_rng();
@@ -156,7 +153,7 @@ fn spawn_damage_popup_on_damage(
             .max(1.0)
             .powf(trigger.0))
     .min(damage_config.damage_popup_scale_max);
-    transform.scale = (transform.scale.xy() * Vec2::splat(scale)).extend(transform.scale.z);
+    transform.scale *= vec3(scale, scale, 1.0);
 
     commands.spawn((
         Name::new("DamagePopup"),
@@ -168,6 +165,10 @@ fn spawn_damage_popup_on_damage(
             ..default()
         },
         TextColor::from(damage_config.damage_popup_font_color),
+        DieOnLifetime(damage_config.damage_popup_fade_delay),
+        FadeOutOnDeath {
+            duration: damage_config.damage_popup_fade_duration,
+        },
         transform,
         RigidBody::Kinematic,
         LinearVelocity(damage_config.damage_popup_velocity),
@@ -183,31 +184,4 @@ fn spawn_damage_popup_on_damage(
             TextColor::from(damage_config.damage_popup_font_color),
         )],
     ));
-}
-
-fn apply_fade_out_to_damage_popup(
-    mut commands: Commands,
-    time: Res<Time>,
-    damage_config: ConfigRef<DamageConfig>,
-    damage_popup_query: Query<(Entity, &Children), With<DamagePopup>>,
-    mut text_color_query: Query<&mut TextColor>,
-) {
-    let damage_config = r!(damage_config.get());
-    for (entity, children) in damage_popup_query {
-        if let Ok(mut text_color) = text_color_query.get_mut(entity) {
-            let alpha =
-                text_color.0.alpha() - damage_config.damage_popup_fade_rate * time.delta_secs();
-            text_color.0 = text_color.0.with_alpha(alpha);
-            if text_color.0.alpha() < f32::EPSILON {
-                commands.entity(entity).try_despawn();
-            }
-        }
-
-        for &child in children {
-            let mut text_color = cq!(text_color_query.get_mut(child));
-            let alpha =
-                text_color.0.alpha() - damage_config.damage_popup_fade_rate * time.delta_secs();
-            text_color.0 = text_color.0.with_alpha(alpha);
-        }
-    }
 }

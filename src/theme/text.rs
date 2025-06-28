@@ -1,6 +1,8 @@
 use bevy::asset::load_internal_binary_asset;
 use bevy::asset::weak_handle;
 
+use crate::core::camera::CameraRoot;
+use crate::core::window::WindowRoot;
 use crate::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -63,6 +65,10 @@ impl DynamicFontSize {
 }
 
 pub fn apply_dynamic_font_size(
+    camera_root: Res<CameraRoot>,
+    camera_query: Query<&Camera>,
+    window_root: Res<WindowRoot>,
+    window_query: Query<&Window>,
     mut text_query: Query<(
         &DynamicFontSize,
         &ComputedNode,
@@ -70,10 +76,30 @@ pub fn apply_dynamic_font_size(
         &mut RichText,
     )>,
 ) {
+    // Use the camera's viewport size or the window size as fallback target size.
+    //
+    // When a node first spawns, its `ComputedNode` and `ComputedNodeTarget` components
+    // have not yet been updated, so we can't resolve the `Val` until then; but at that
+    // point it would be too late to set the font size for that frame.
+    //
+    // A proper fix for this would have to be directly integrated into the layout system.
+    let camera = rq!(camera_query.get(camera_root.primary));
+    let viewport_size = if let Some(viewport) = &camera.viewport {
+        viewport.physical_size
+    } else {
+        let window = rq!(window_query.get(window_root.primary));
+        window.resolution.physical_size()
+    }
+    .as_vec2();
+
     for (font_size, node, target, mut text) in &mut text_query {
-        // Compute font size.
+        // Resolve font size.
         let parent_size = node.size().x;
-        let target_size = target.physical_size().as_vec2();
+        let target_size = if target.physical_size() == UVec2::ZERO {
+            viewport_size
+        } else {
+            target.physical_size().as_vec2()
+        };
         let size = c!(font_size.size.resolve(parent_size, target_size));
 
         // Round down to the nearest multiple of step.
@@ -82,6 +108,7 @@ pub fn apply_dynamic_font_size(
         } else {
             size
         };
+
         // Clamp above minimum.
         let size = resolved.max(font_size.minimum);
 
