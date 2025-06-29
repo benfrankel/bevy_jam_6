@@ -77,10 +77,12 @@ pub struct ProjectileInfo {
     pub speed_max_flux_factor: f32,
     pub acceleration: Vec2,
     pub acceleration_flux_factor: f32,
+    pub acceleration_rotation: bool,
     pub homing_approach: f32,
     pub homing_target_spread: Vec2,
     pub oscillate_amplitude: Vec2,
     pub oscillate_phase: Vec2,
+    pub oscillate_phase_spread: f32,
     pub oscillate_rate: Vec2,
 }
 
@@ -140,7 +142,7 @@ impl ProjectileInfo {
             },
             Oscillate::new(
                 self.oscillate_amplitude,
-                self.oscillate_phase,
+                self.oscillate_phase + self.oscillate_phase_spread * rng.gen_range(-1.0..=1.0),
                 self.oscillate_rate,
             ),
             Thruster(acceleration * self.acceleration_flux_factor.powf(flux - 1.0)),
@@ -149,7 +151,7 @@ impl ProjectileInfo {
                 offset,
                 approach: self.homing_approach,
             },
-            RotateWithThruster,
+            RotateWithThruster(self.acceleration_rotation),
             (
                 LinearVelocity(velocity),
                 MaxLinearSpeed(self.speed_max * self.speed_max_flux_factor.powf(flux - 1.0)),
@@ -275,7 +277,7 @@ fn apply_homing(
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-struct RotateWithThruster;
+struct RotateWithThruster(bool);
 
 impl Configure for RotateWithThruster {
     fn configure(app: &mut App) {
@@ -290,10 +292,10 @@ impl Configure for RotateWithThruster {
 }
 
 fn rotate_with_thruster(
-    mut projectile_query: Query<(&mut Transform, &Thruster), With<RotateWithThruster>>,
+    mut projectile_query: Query<(&mut Transform, &Thruster, &RotateWithThruster)>,
 ) {
-    for (mut transform, thruster) in &mut projectile_query {
-        cq!(thruster.0 != Vec2::ZERO);
+    for (mut transform, thruster, rotate) in &mut projectile_query {
+        cq!(rotate.0 && thruster.0 != Vec2::ZERO);
         transform.rotation = Quat::radians(thruster.0.to_angle());
     }
 }
