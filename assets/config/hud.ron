@@ -14,10 +14,10 @@
     module_flux_trauma: ExponentialFit(Vec2(7, 0.5), Vec2(14, 1)),
 
     camera_shake: Shake(amplitude: Vec2(45, 45), decay: 2, exponent: 1.2, frequency: 15),
-    camera_shake_rotation: ShakeRotation(amplitude: 12, decay: 2, exponent: 1.2, frequency: 15),
+    camera_shake_rotation: ShakeRotation(amplitude: 10, decay: 2, exponent: 1.2, frequency: 15),
     camera_player_damage_trauma: ExponentialFit(Vec2(0, 0.12), Vec2(30, 1)),
 
     hud_shake: NodeShake(amplitude_x: Vw(9.375), amplitude_y: Vw(9.375), decay: 2, exponent: 1.2, frequency: 15),
-    hud_shake_rotation: ShakeRotation(amplitude: 12, decay: 2, exponent: 1.2, frequency: 15),
+    hud_shake_rotation: ShakeRotation(amplitude: 10, decay: 2, exponent: 1.2, frequency: 15),
     hud_player_damage_trauma: ExponentialFit(Vec2(0, 0.12), (30, 1)),
 )
